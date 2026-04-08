@@ -29,14 +29,14 @@ export default function TourPreviewPage() {
     <div className="pb-32">
       {/* Header */}
       <div className="bg-gradient-to-br from-[#3f6f60] to-[#90D26D] p-6 pb-12 relative overflow-hidden">
-        <img src="https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=1200&h=600&fit=crop" alt="" className="absolute inset-0 w-full h-full object-cover opacity-30" />
-        <button onClick={() => router.back()} className="text-white/80 mb-4">
+        <img src="https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=1200&h=600&fit=crop" alt="" className="absolute inset-0 w-full h-full object-cover opacity-30 z-0" />
+        <button onClick={() => router.back()} className="text-white/80 mb-4 relative z-10">
           <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
         </button>
-        <Badge className="bg-white/20 text-white border-0 mb-2">AI Generated Preview</Badge>
-        <h1 className="text-2xl font-bold text-white font-heading">{tourData.title}</h1>
-        <p className="text-white/80 text-sm mt-2">{tourData.description}</p>
-        <div className="flex gap-4 mt-4 text-white/90 text-sm">
+        <Badge className="bg-white/20 text-white border-0 mb-2 relative z-10">AI Generated Preview</Badge>
+        <h1 className="text-2xl font-bold text-white font-heading relative z-10">{tourData.title}</h1>
+        <p className="text-white/80 text-sm mt-2 relative z-10">{tourData.description}</p>
+        <div className="flex gap-4 mt-4 text-white/90 text-sm relative z-10">
           <span>{Math.round(tourData.totalDurationMinutes / 60)}h duration</span>
           <span>{tourData.stops.length + tourData.lockedStops} stops</span>
         </div>

@@ -56,13 +56,13 @@ export default function FullTourPage() {
     <div className="pb-32">
       {/* Header */}
       <div className="bg-gradient-to-br from-[#ff8c30] to-[#e67a20] p-6 pb-12 relative overflow-hidden">
-        <img src="https://images.unsplash.com/photo-1528127269322-539801943592?w=1200&h=600&fit=crop" alt="" className="absolute inset-0 w-full h-full object-cover opacity-25" />
-        <button onClick={() => router.push("/plan")} className="text-white/80 mb-4">
+        <img src="https://images.unsplash.com/photo-1528127269322-539801943592?w=1200&h=600&fit=crop" alt="" className="absolute inset-0 w-full h-full object-cover opacity-25 z-0" />
+        <button onClick={() => router.push("/plan")} className="text-white/80 mb-4 relative z-10">
           <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
         </button>
-        <Badge className="bg-white/20 text-white border-0 mb-2">Premium Itinerary</Badge>
-        <h1 className="text-2xl font-bold text-white font-heading">{tourData.title}</h1>
-        <div className="flex gap-4 mt-3 text-white/90 text-sm">
+        <Badge className="bg-white/20 text-white border-0 mb-2 relative z-10">Premium Itinerary</Badge>
+        <h1 className="text-2xl font-bold text-white font-heading relative z-10">{tourData.title}</h1>
+        <div className="flex gap-4 mt-3 text-white/90 text-sm relative z-10">
           <span>{Math.round(tourData.totalDurationMinutes / 60)}h</span>
           <span>{tourData.stops.length} stops</span>
           <span>{Math.round(tourData.estimatedCost.min / 1000)}k-{Math.round(tourData.estimatedCost.max / 1000)}k VND</span>
