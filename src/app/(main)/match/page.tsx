@@ -37,7 +37,7 @@ export default function MatchPage() {
     <div className="p-4">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h1 className="text-2xl font-bold font-[family-name:var(--font-sora)] text-[#3f6f60]">LocoMatch</h1>
+          <h1 className="text-2xl font-bold font-heading text-[#3f6f60]">LocoMatch</h1>
           <p className="text-sm text-muted-foreground">Find your travel companion in Hanoi</p>
         </div>
         <Image src="/images/logo.png" alt="LOCOMATE" width={36} height={36} />
@@ -74,7 +74,7 @@ export default function MatchPage() {
         <DialogContent className="text-center">
           <div className="py-6 space-y-4">
             <div className="text-4xl">🎉</div>
-            <h2 className="text-2xl font-bold font-[family-name:var(--font-sora)] text-[#ff8c30]">It&apos;s a Match!</h2>
+            <h2 className="text-2xl font-bold font-heading text-[#ff8c30]">It&apos;s a Match!</h2>
             <p className="text-muted-foreground">You and {matchedUser} both want to explore Hanoi!</p>
             <div className="flex gap-3 pt-4">
               <Button className="flex-1 bg-[#ff8c30] hover:bg-[#e67a20] text-white rounded-xl" onClick={() => { setShowMatch(false); }}>

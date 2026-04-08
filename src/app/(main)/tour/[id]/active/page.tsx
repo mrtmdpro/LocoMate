@@ -74,7 +74,7 @@ export default function ActiveTourPage() {
           <Card className="border-2 border-[#ff8c30] shadow-lg">
             <CardContent className="p-4">
               <Badge className="bg-[#ff8c30] text-white border-0 mb-2">Current Stop</Badge>
-              <h2 className="text-xl font-bold text-[#3f6f60] font-[family-name:var(--font-sora)]">{currentStop.name}</h2>
+              <h2 className="text-xl font-bold text-[#3f6f60] font-heading">{currentStop.name}</h2>
               <p className="text-sm text-muted-foreground mt-1">{currentStop.scheduledTime} &middot; {currentStop.durationMinutes} min</p>
               <div className="bg-[#D9EDBF]/40 rounded-lg p-3 mt-3">
                 <p className="text-sm text-[#3f6f60]">💡 {currentStop.localTip}</p>

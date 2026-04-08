@@ -41,7 +41,7 @@ export default function PlanPage() {
       <div className="flex items-start justify-between">
         <div>
           <Badge className="bg-[#ff8c30]/10 text-[#ff8c30] border-[#ff8c30]/20 mb-2">Premium AI</Badge>
-          <h1 className="text-2xl font-bold font-[family-name:var(--font-sora)] text-[#3f6f60]">Design Your Tour</h1>
+          <h1 className="text-2xl font-bold font-heading text-[#3f6f60]">Design Your Tour</h1>
           <p className="text-sm text-muted-foreground mt-1">AI crafts a personalized Hanoi itinerary just for you</p>
         </div>
         <Image src="/images/logo.png" alt="LOCOMATE" width={36} height={36} className="shrink-0" />

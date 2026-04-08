@@ -27,7 +27,7 @@ export default function HostSelectionPage() {
           <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
         </button>
         <div>
-          <h1 className="text-xl font-bold font-[family-name:var(--font-sora)] text-[#3f6f60]">Find Your Host</h1>
+          <h1 className="text-xl font-bold font-heading text-[#3f6f60]">Find Your Host</h1>
           <p className="text-xs text-muted-foreground">Verified Hanoi insiders matched to your style</p>
         </div>
       </div>

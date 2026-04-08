@@ -27,7 +27,7 @@ export default function HostDashboardPage() {
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm text-muted-foreground">Good morning,</p>
-          <h1 className="text-2xl font-bold font-[family-name:var(--font-sora)] text-[#3f6f60]">
+          <h1 className="text-2xl font-bold font-heading text-[#3f6f60]">
             {user?.displayName?.split(" ")[0]}!
           </h1>
         </div>

@@ -80,7 +80,7 @@ export default function OnboardingPage() {
         {step === 0 && (
           <div className="space-y-6">
             <div>
-              <h2 className="text-2xl font-bold font-[family-name:var(--font-sora)] text-[#3f6f60]">What brings you to Hanoi?</h2>
+              <h2 className="text-2xl font-bold font-heading text-[#3f6f60]">What brings you to Hanoi?</h2>
               <p className="text-sm text-muted-foreground mt-1">Pick up to 3</p>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -123,7 +123,7 @@ export default function OnboardingPage() {
         {step === 1 && (
           <div className="space-y-8">
             <div>
-              <h2 className="text-2xl font-bold font-[family-name:var(--font-sora)] text-[#3f6f60]">Your travel style</h2>
+              <h2 className="text-2xl font-bold font-heading text-[#3f6f60]">Your travel style</h2>
               <p className="text-sm text-muted-foreground mt-1">Slide to match your vibe</p>
             </div>
             <Card className="border-[#3f6f60]/10">
@@ -151,7 +151,7 @@ export default function OnboardingPage() {
         {step === 2 && (
           <div className="space-y-6">
             <div>
-              <h2 className="text-2xl font-bold font-[family-name:var(--font-sora)] text-[#3f6f60]">What excites you?</h2>
+              <h2 className="text-2xl font-bold font-heading text-[#3f6f60]">What excites you?</h2>
               <p className="text-sm text-muted-foreground mt-1">Select your interests</p>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -191,7 +191,7 @@ export default function OnboardingPage() {
         {step === 3 && (
           <div className="space-y-6">
             <div>
-              <h2 className="text-2xl font-bold font-[family-name:var(--font-sora)] text-[#3f6f60]">Social & timing</h2>
+              <h2 className="text-2xl font-bold font-heading text-[#3f6f60]">Social & timing</h2>
               <p className="text-sm text-muted-foreground mt-1">Almost done!</p>
             </div>
             <div>

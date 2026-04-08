@@ -52,7 +52,7 @@ export default function ProfilePage() {
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 pb-1">
-              <h1 className="text-xl font-bold font-[family-name:var(--font-sora)] text-[#3f6f60]">{user?.displayName}</h1>
+              <h1 className="text-xl font-bold font-heading text-[#3f6f60]">{user?.displayName}</h1>
               <p className="text-sm text-muted-foreground">{user?.email}</p>
               <Badge className="bg-[#ff8c30]/10 text-[#ff8c30] border-[#ff8c30]/20 mt-1 text-xs capitalize">{user?.role}</Badge>
             </div>
@@ -64,7 +64,7 @@ export default function ProfilePage() {
       <Card className="border-[#ff8c30]/10 bg-gradient-to-r from-[#ff8c30]/5 to-[#D9EDBF]/30">
         <CardContent className="p-4">
           <h3 className="font-semibold text-[#ff8c30] mb-1">Your Travel Personality</h3>
-          <p className="text-lg font-bold text-[#3f6f60] font-[family-name:var(--font-sora)]">{personalityLabel}</p>
+          <p className="text-lg font-bold text-[#3f6f60] font-heading">{personalityLabel}</p>
           {topTraits.length > 0 && (
             <div className="flex gap-2 mt-3">
               {topTraits.map((t) => (

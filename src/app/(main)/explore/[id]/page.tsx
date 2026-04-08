@@ -34,7 +34,7 @@ export default function PlaceDetailPage() {
       <div className="p-4 -mt-8 relative space-y-4">
         <Card className="border-0 shadow-lg">
           <CardContent className="p-4">
-            <h1 className="text-xl font-bold font-[family-name:var(--font-sora)] text-[#3f6f60]">{place.name}</h1>
+            <h1 className="text-xl font-bold font-heading text-[#3f6f60]">{place.name}</h1>
             <p className="text-sm text-muted-foreground mt-1">{place.address}</p>
             <div className="flex items-center gap-3 mt-3">
               <span className="text-lg font-bold text-[#ff8c30]">{place.priceRange}</span>

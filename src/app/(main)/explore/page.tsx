@@ -26,7 +26,7 @@ export default function ExplorePage() {
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm text-muted-foreground">Xin Chao, {user?.displayName?.split(" ")[0]}!</p>
-          <h1 className="text-2xl font-bold font-[family-name:var(--font-sora)] text-[#3f6f60]">Explore Hanoi</h1>
+          <h1 className="text-2xl font-bold font-heading text-[#3f6f60]">Explore Hanoi</h1>
         </div>
         <img src="/images/logo.png" alt="LOCOMATE" className="h-9" />
       </div>

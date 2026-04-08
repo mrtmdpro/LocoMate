@@ -38,7 +38,7 @@ export default function CheckoutPage() {
         <button onClick={() => router.back()} className="text-gray-500">
           <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
         </button>
-        <h1 className="text-xl font-bold font-[family-name:var(--font-sora)] text-[#3f6f60]">Checkout</h1>
+        <h1 className="text-xl font-bold font-heading text-[#3f6f60]">Checkout</h1>
       </div>
 
       {/* Order Summary */}

@@ -48,7 +48,7 @@ export default function HostSetupPage() {
         {step === 0 && (
           <div className="space-y-6">
             <div>
-              <h2 className="text-2xl font-bold font-[family-name:var(--font-sora)] text-[#3f6f60]">Become a Local Host</h2>
+              <h2 className="text-2xl font-bold font-heading text-[#3f6f60]">Become a Local Host</h2>
               <p className="text-sm text-muted-foreground mt-1">Share your love for Hanoi with travelers</p>
             </div>
             <div className="flex justify-center">
@@ -71,7 +71,7 @@ export default function HostSetupPage() {
         {step === 1 && (
           <div className="space-y-6">
             <div>
-              <h2 className="text-2xl font-bold font-[family-name:var(--font-sora)] text-[#3f6f60]">Your expertise</h2>
+              <h2 className="text-2xl font-bold font-heading text-[#3f6f60]">Your expertise</h2>
               <p className="text-sm text-muted-foreground mt-1">Help us match you with the right travelers</p>
             </div>
             <div>
@@ -115,7 +115,7 @@ export default function HostSetupPage() {
         {step === 2 && (
           <div className="space-y-6">
             <div>
-              <h2 className="text-2xl font-bold font-[family-name:var(--font-sora)] text-[#3f6f60]">Availability</h2>
+              <h2 className="text-2xl font-bold font-heading text-[#3f6f60]">Availability</h2>
               <p className="text-sm text-muted-foreground mt-1">When can you host?</p>
             </div>
             <Card className="border-0 shadow-sm">
@@ -142,7 +142,7 @@ export default function HostSetupPage() {
         {step === 3 && (
           <div className="space-y-6">
             <div>
-              <h2 className="text-2xl font-bold font-[family-name:var(--font-sora)] text-[#3f6f60]">Identity verification</h2>
+              <h2 className="text-2xl font-bold font-heading text-[#3f6f60]">Identity verification</h2>
               <p className="text-sm text-muted-foreground mt-1">Required for traveler trust and safety</p>
             </div>
             <Card className="border-0 shadow-sm">
