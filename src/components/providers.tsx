@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { httpBatchLink } from "@trpc/client";
+import { httpLink } from "@trpc/client";
 import { trpc } from "@/lib/trpc";
 import { useAuthStore } from "@/stores/auth";
 
@@ -14,7 +14,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   const [trpcClient] = useState(() =>
     trpc.createClient({
       links: [
-        httpBatchLink({
+        httpLink({
           url: "/api/trpc",
           headers() {
             const token = useAuthStore.getState().accessToken;
