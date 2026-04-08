@@ -254,26 +254,52 @@ async function seed() {
 
   console.log(`Seeded ${travelers.length} travelers and ${hosts.length} hosts.`);
 
-  // Seed traveler profiles
-  for (const t of travelers) {
+  // Seed traveler profiles with distinct preferences per user
+  const travelerPrefs = [
+    { // Alex: culture + food explorer
+      explicit: { intent: ["Explore Culture", "Food & Drink", "Meet New People"], interests: ["Street Food", "Temples", "Hidden Cafes", "Markets"], budget: "medium" as const, style: { chill_explore: 0.7, plan_spontaneous: 0.4 }, scenario_choice: "C", social_preference: "meet_new" as const, time_preference: ["morning", "evening"] as ("morning" | "afternoon" | "evening" | "late_night")[] },
+    },
+    { // Sam: adventure + nightlife
+      explicit: { intent: ["Adventure", "Meet New People", "Food & Drink"], interests: ["Nightlife", "Rooftops", "Street Food", "Markets", "Photography"], budget: "high" as const, style: { chill_explore: 0.9, plan_spontaneous: 0.8 }, scenario_choice: "D", social_preference: "group" as const, time_preference: ["afternoon", "evening", "late_night"] as ("morning" | "afternoon" | "evening" | "late_night")[] },
+    },
+    { // Elena: photography + art
+      explicit: { intent: ["Explore Culture", "Adventure"], interests: ["Photography", "Art", "Temples", "Hidden Cafes"], budget: "medium" as const, style: { chill_explore: 0.6, plan_spontaneous: 0.3 }, scenario_choice: "B", social_preference: "solo" as const, time_preference: ["morning", "afternoon"] as ("morning" | "afternoon" | "evening" | "late_night")[] },
+    },
+    { // Yuki: food + culture, budget-conscious
+      explicit: { intent: ["Food & Drink", "Explore Culture"], interests: ["Street Food", "Temples", "Markets", "Hidden Cafes", "Art"], budget: "low" as const, style: { chill_explore: 0.5, plan_spontaneous: 0.5 }, scenario_choice: "C", social_preference: "meet_new" as const, time_preference: ["morning", "afternoon", "evening"] as ("morning" | "afternoon" | "evening" | "late_night")[] },
+    },
+    { // Marco: nature + adventure, spontaneous
+      explicit: { intent: ["Adventure", "Relax & Recharge"], interests: ["Rooftops", "Photography", "Markets", "Nightlife"], budget: "high" as const, style: { chill_explore: 0.85, plan_spontaneous: 0.9 }, scenario_choice: "A", social_preference: "meet_new" as const, time_preference: ["afternoon", "evening", "late_night"] as ("morning" | "afternoon" | "evening" | "late_night")[] },
+    },
+  ];
+
+  const { computeDerivedProfile } = await import("../services/profile-engine");
+
+  for (let i = 0; i < travelers.length; i++) {
+    const prefs = travelerPrefs[i];
+    const derived = computeDerivedProfile(prefs.explicit);
     await db.insert(schema.userProfiles).values({
-      userId: t.id,
-      explicitData: {
-        intent: ["culture", "food"],
-        interests: ["cuisine", "nature", "art"],
-        budget: "medium",
-        style: { chill_explore: 0.6, plan_spontaneous: 0.5 },
-        scenario_choice: "B",
-        social_preference: "meet_new",
-        time_preference: ["morning", "evening"],
-      },
-      derivedData: {
-        personality: { extroversion: 0.6, planning: 0.4, curiosity: 0.8, flexibility: 0.7, depth: 0.7, energy: 0.6 },
-        behavior: { spending_pattern: 0.5, decision_speed: 0.6, edit_frequency: 0.3, exploration_pattern: 0.7, risk_behavior: 0.5, mobility_preference: 0.6 },
-        emotional: { relaxation_weight: 0.5, social_weight: 0.6, exploration_weight: 0.7, inspiration_weight: 0.6, escapism_weight: 0.4, novelty_seeking: 0.7 },
-      },
+      userId: travelers[i].id,
+      explicitData: prefs.explicit,
+      derivedData: derived,
       implicitData: {},
       onboardingCompleted: true,
+    });
+  }
+
+  // Seed emergency contacts for each traveler
+  const emergencyContactData = [
+    { name: "Sarah Johnson", phone: "+1-555-0101", relationship: "Mother" },
+    { name: "David Smith", phone: "+44-7700-900123", relationship: "Brother" },
+    { name: "Carlos Rodriguez", phone: "+34-600-123456", relationship: "Partner" },
+    { name: "Kenji Tanaka", phone: "+81-90-1234-5678", relationship: "Father" },
+    { name: "Anna Weber", phone: "+49-170-1234567", relationship: "Sister" },
+  ];
+  for (let i = 0; i < travelers.length; i++) {
+    await db.insert(schema.emergencyContacts).values({
+      userId: travelers[i].id,
+      ...emergencyContactData[i],
+      isPrimary: true,
     });
   }
 
@@ -338,6 +364,55 @@ async function seed() {
   }
 
   console.log(`Seeded ${allPlaces.length} places.`);
+
+  // Seed completed tours for each traveler
+  const seededPlaces = await db.select().from(schema.places).limit(30);
+  const tourTitles = [
+    "Old Quarter Food Adventure", "Sunset Temple Walk", "Hidden Cafes Tour",
+    "Street Photography Route", "Night Market Explorer", "Morning Pho Crawl",
+    "Lakeside Cultural Walk", "Art Gallery Hop", "Bia Hoi Social Night",
+    "West Lake Sunrise Ride",
+  ];
+
+  for (let t = 0; t < travelers.length; t++) {
+    const numTours = 2 + (t % 2);
+    for (let ti = 0; ti < numTours; ti++) {
+      const daysAgo = 1 + ti * 3 + t;
+      const tourPlaces = seededPlaces.slice(t * 4 + ti * 2, t * 4 + ti * 2 + 4);
+      if (tourPlaces.length === 0) continue;
+
+      const [tour] = await db.insert(schema.tours).values({
+        userId: travelers[t].id,
+        status: "completed",
+        requestParams: { date: new Date(Date.now() - daysAgo * 86400000).toISOString().split("T")[0], startTime: "09:00", durationHours: 3, budgetLevel: "medium", interests: ["food", "culture"], withHost: false, groupSize: 1 },
+        tourData: {
+          title: tourTitles[(t * 3 + ti) % tourTitles.length],
+          description: `A personalized ${tourPlaces.length}-stop itinerary through Hanoi.`,
+          stops: tourPlaces.map((p, si) => ({ placeId: p.id, name: p.name, category: p.category, scheduledTime: `${9 + si}:00`, durationMinutes: 45, localTip: `Local favorite in ${p.category}.`, estimatedSpend: p.priceRange || "$", travelToNext: "10 min walk" })),
+          totalDurationMinutes: 180,
+          estimatedCost: { min: 200000, max: 400000, currency: "VND" },
+          personalizationRationale: "Based on your interests and travel style.",
+        },
+        packageType: "loco_route",
+        priceAmount: 250000,
+        startedAt: new Date(Date.now() - daysAgo * 86400000 + 9 * 3600000),
+        completedAt: new Date(Date.now() - daysAgo * 86400000 + 12 * 3600000),
+      }).returning();
+
+      for (let si = 0; si < tourPlaces.length; si++) {
+        await db.insert(schema.tourStops).values({
+          tourId: tour.id,
+          placeId: tourPlaces[si].id,
+          stopOrder: si,
+          durationMinutes: 45,
+          notes: `Visited ${tourPlaces[si].name}`,
+          visitedAt: new Date(Date.now() - daysAgo * 86400000 + (9 + si) * 3600000),
+        });
+      }
+    }
+  }
+
+  console.log("Seeded completed tours for travelers.");
 
   // Seed matches, swipe actions, and chat messages
   const chatMessages: { from: number; to: number; msgs: string[] }[] = [

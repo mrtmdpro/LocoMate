@@ -55,6 +55,24 @@ export const userRouter = router({
       return { success: true, derived };
     }),
 
+  updatePreferences: protectedProcedure
+    .input(onboardingSchema)
+    .mutation(async ({ ctx, input }) => {
+      const derived = computeDerivedProfile(input);
+
+      await ctx.db
+        .update(userProfiles)
+        .set({
+          explicitData: input,
+          derivedData: derived,
+          derivedUpdatedAt: new Date(),
+          updatedAt: new Date(),
+        })
+        .where(eq(userProfiles.userId, ctx.user.id));
+
+      return { success: true, derived };
+    }),
+
   getEmergencyContacts: protectedProcedure.query(async ({ ctx }) => {
     return ctx.db.query.emergencyContacts.findMany({
       where: eq(emergencyContacts.userId, ctx.user.id),

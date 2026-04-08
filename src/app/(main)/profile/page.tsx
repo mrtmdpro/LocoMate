@@ -1,6 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -14,11 +16,23 @@ export default function ProfilePage() {
   const { user, logout } = useAuthStore();
   const { data } = trpc.user.getProfile.useQuery();
   const { data: tourHistory } = trpc.tour.getHistory.useQuery();
+  const { data: contacts } = trpc.user.getEmergencyContacts.useQuery();
+  const { data: matches } = trpc.match.getMatches.useQuery();
+
+  const [showTours, setShowTours] = useState(false);
+  const [showContacts, setShowContacts] = useState(false);
+  const [showPrefs, setShowPrefs] = useState(false);
 
   const profile = data?.profile;
   const derived = (profile?.derivedData || {}) as {
     personality?: Record<string, number>;
     emotional?: Record<string, number>;
+    personalityLabel?: string;
+  };
+  const explicit = (profile?.explicitData || {}) as {
+    intent?: string[]; interests?: string[]; budget?: string;
+    style?: { chill_explore?: number; plan_spontaneous?: number };
+    social_preference?: string; time_preference?: string[];
   };
 
   const topTraits = Object.entries(derived.personality || {})
@@ -26,12 +40,20 @@ export default function ProfilePage() {
     .slice(0, 3)
     .map(([k, v]) => ({ name: k, value: Math.round(v * 100) }));
 
-  const personalityLabel = topTraits.length > 0
-    ? topTraits[0].name === "curiosity" ? "The Curious Explorer"
-    : topTraits[0].name === "extroversion" ? "The Social Discoverer"
-    : topTraits[0].name === "depth" ? "The Deep Diver"
-    : "The Hanoi Adventurer"
-    : "Complete onboarding to see your personality";
+  const personalityLabel = derived.personalityLabel || (
+    topTraits.length > 0
+      ? topTraits[0].name === "curiosity" ? "The Deep Explorer"
+      : topTraits[0].name === "extroversion" ? "The Social Butterfly"
+      : topTraits[0].name === "energy" ? "The Thrill Seeker"
+      : "The Hanoi Adventurer"
+      : "Complete onboarding to see your personality"
+  );
+
+  const completedTours = (tourHistory || []).filter((t) => t.status === "completed");
+  const placesVisited = new Set(completedTours.flatMap((t) => {
+    const td = t.tourData as { stops?: { placeId: string }[] } | null;
+    return (td?.stops || []).map((s) => s.placeId);
+  })).size;
 
   function handleLogout() {
     logout();
@@ -66,7 +88,7 @@ export default function ProfilePage() {
           <h3 className="font-semibold text-[#ff8c30] mb-1">Your Travel Personality</h3>
           <p className="text-lg font-bold text-[#3f6f60] font-heading">{personalityLabel}</p>
           {topTraits.length > 0 && (
-            <div className="flex gap-2 mt-3">
+            <div className="flex flex-wrap gap-2 mt-3">
               {topTraits.map((t) => (
                 <Badge key={t.name} variant="outline" className="text-xs capitalize">
                   {t.name} {t.value}%
@@ -77,12 +99,76 @@ export default function ProfilePage() {
         </CardContent>
       </Card>
 
+      {/* My Preferences */}
+      <Card className="border-0 shadow-sm">
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-semibold text-[#3f6f60]">My Preferences</h3>
+            <div className="flex gap-2">
+              <button onClick={() => setShowPrefs(!showPrefs)} className="text-xs text-muted-foreground">
+                {showPrefs ? "Hide" : "Show"}
+              </button>
+              <Link href="/profile/preferences">
+                <Badge className="bg-[#ff8c30] text-white border-0 text-[10px] cursor-pointer">Edit</Badge>
+              </Link>
+            </div>
+          </div>
+          {showPrefs && explicit.intent && (
+            <div className="space-y-3 text-sm">
+              <div>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wide mb-1">Travel goals</p>
+                <div className="flex flex-wrap gap-1">{(explicit.intent || []).map((i) => <Badge key={i} variant="outline" className="text-[10px]">{i}</Badge>)}</div>
+              </div>
+              <div>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wide mb-1">Interests</p>
+                <div className="flex flex-wrap gap-1">{(explicit.interests || []).map((i) => <Badge key={i} variant="outline" className="text-[10px]">{i}</Badge>)}</div>
+              </div>
+              <div className="flex gap-4">
+                <div>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Budget</p>
+                  <p className="font-medium capitalize">{explicit.budget || "—"}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Social</p>
+                  <p className="font-medium capitalize">{(explicit.social_preference || "—").replace("_", " ")}</p>
+                </div>
+              </div>
+              <div>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wide mb-1">Best times</p>
+                <div className="flex gap-1">{(explicit.time_preference || []).map((t) => <Badge key={t} variant="outline" className="text-[10px] capitalize">{t.replace("_", " ")}</Badge>)}</div>
+              </div>
+              <div className="grid grid-cols-2 gap-3 pt-1">
+                <div>
+                  <p className="text-[10px] text-muted-foreground">Chill ↔ Explore</p>
+                  <div className="w-full bg-gray-200 rounded-full h-1.5 mt-1">
+                    <div className="bg-[#ff8c30] h-1.5 rounded-full" style={{ width: `${(explicit.style?.chill_explore || 0.5) * 100}%` }} />
+                  </div>
+                </div>
+                <div>
+                  <p className="text-[10px] text-muted-foreground">Plan ↔ Spontaneous</p>
+                  <div className="w-full bg-gray-200 rounded-full h-1.5 mt-1">
+                    <div className="bg-[#3f6f60] h-1.5 rounded-full" style={{ width: `${(explicit.style?.plan_spontaneous || 0.5) * 100}%` }} />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          {!showPrefs && explicit.intent && (
+            <div className="flex flex-wrap gap-1">
+              {(explicit.intent || []).slice(0, 3).map((i) => <Badge key={i} variant="outline" className="text-[10px]">{i}</Badge>)}
+              <Badge variant="outline" className="text-[10px] capitalize">{explicit.budget}</Badge>
+              <Badge variant="outline" className="text-[10px] capitalize">{(explicit.social_preference || "").replace("_", " ")}</Badge>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Stats */}
       <div className="grid grid-cols-3 gap-3">
         {[
-          { label: "Tours", value: tourHistory?.length || 0 },
-          { label: "Places", value: "12" },
-          { label: "Friends", value: "3" },
+          { label: "Tours", value: completedTours.length },
+          { label: "Places", value: placesVisited },
+          { label: "Friends", value: matches?.length || 0 },
         ].map((stat) => (
           <Card key={stat.label} className="border-0 shadow-sm">
             <CardContent className="p-3 text-center">
@@ -93,26 +179,68 @@ export default function ProfilePage() {
         ))}
       </div>
 
-      {/* Settings Sections */}
+      {/* Tour History */}
       <Card className="border-0 shadow-sm">
         <CardContent className="p-0">
-          {[
-            { label: "Tour History", icon: "📋", action: () => {} },
-            { label: "Saved Places", icon: "❤️", action: () => {} },
-            { label: "Emergency Contacts", icon: "🆘", action: () => {} },
-          ].map((item, i) => (
-            <div key={item.label}>
-              <button onClick={item.action} className="w-full flex items-center gap-3 p-4 text-left hover:bg-gray-50 transition-colors">
-                <span className="text-lg">{item.icon}</span>
-                <span className="flex-1 text-sm font-medium">{item.label}</span>
-                <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
-              </button>
-              {i < 2 && <Separator />}
+          <button onClick={() => setShowTours(!showTours)} className="w-full flex items-center gap-3 p-4 text-left hover:bg-gray-50 transition-colors">
+            <span className="text-lg">📋</span>
+            <span className="flex-1 text-sm font-medium">Tour History</span>
+            <Badge variant="outline" className="text-[10px]">{completedTours.length}</Badge>
+            <svg className={`w-4 h-4 text-gray-400 transition-transform ${showTours ? "rotate-90" : ""}`} fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
+          </button>
+          {showTours && completedTours.length > 0 && (
+            <div className="px-4 pb-4 space-y-2">
+              {completedTours.map((tour) => {
+                const td = tour.tourData as { title?: string; stops?: unknown[] } | null;
+                return (
+                  <div key={tour.id} className="flex items-center gap-3 p-2 bg-gray-50 rounded-lg">
+                    <div className="w-8 h-8 rounded-lg bg-[#ff8c30]/10 flex items-center justify-center text-xs">🗺</div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium truncate">{td?.title || "Hanoi Tour"}</p>
+                      <p className="text-[10px] text-muted-foreground">{td?.stops?.length || 0} stops &middot; {tour.completedAt ? new Date(tour.completedAt).toLocaleDateString() : ""}</p>
+                    </div>
+                    <Badge className="bg-[#90D26D]/10 text-[#3f6f60] border-0 text-[10px]">Completed</Badge>
+                  </div>
+                );
+              })}
             </div>
-          ))}
+          )}
+          {showTours && completedTours.length === 0 && (
+            <p className="px-4 pb-4 text-xs text-muted-foreground">No tours yet. Plan your first one!</p>
+          )}
         </CardContent>
       </Card>
 
+      {/* Emergency Contacts */}
+      <Card className="border-0 shadow-sm">
+        <CardContent className="p-0">
+          <button onClick={() => setShowContacts(!showContacts)} className="w-full flex items-center gap-3 p-4 text-left hover:bg-gray-50 transition-colors">
+            <span className="text-lg">🆘</span>
+            <span className="flex-1 text-sm font-medium">Emergency Contacts</span>
+            <Badge variant="outline" className="text-[10px]">{contacts?.length || 0}</Badge>
+            <svg className={`w-4 h-4 text-gray-400 transition-transform ${showContacts ? "rotate-90" : ""}`} fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
+          </button>
+          {showContacts && (contacts || []).length > 0 && (
+            <div className="px-4 pb-4 space-y-2">
+              {(contacts || []).map((c) => (
+                <div key={c.id} className="flex items-center gap-3 p-2 bg-gray-50 rounded-lg">
+                  <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center text-xs">👤</div>
+                  <div className="flex-1">
+                    <p className="text-xs font-medium">{c.name}</p>
+                    <p className="text-[10px] text-muted-foreground">{c.relationship} &middot; {c.phone}</p>
+                  </div>
+                  {c.isPrimary && <Badge className="bg-red-50 text-red-600 border-0 text-[10px]">Primary</Badge>}
+                </div>
+              ))}
+            </div>
+          )}
+          {showContacts && (contacts || []).length === 0 && (
+            <p className="px-4 pb-4 text-xs text-muted-foreground">No emergency contacts set.</p>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Settings */}
       <Card className="border-0 shadow-sm">
         <CardContent className="p-0">
           {[
