@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc";
 
@@ -13,7 +14,7 @@ export default function ChatInboxPage() {
     <div className="p-4 space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold font-[family-name:var(--font-sora)] text-[#3f6f60]">Messages</h1>
-        <img src="/images/logo.png" alt="LOCOMATE" className="h-9" />
+        <Image src="/images/logo.png" alt="LOCOMATE" width={36} height={36} />
       </div>
 
       {isLoading ? (
@@ -30,6 +31,7 @@ export default function ChatInboxPage() {
               <Card className="border-0 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
                 <CardContent className="p-3 flex items-center gap-3">
                   <Avatar className="w-12 h-12">
+                    {conv.otherUser?.avatarUrl && <AvatarImage src={conv.otherUser.avatarUrl} alt={conv.otherUser.displayName || ""} />}
                     <AvatarFallback className="bg-[#3f6f60] text-white font-bold">
                       {(conv.otherUser?.displayName || "?")[0]}
                     </AvatarFallback>

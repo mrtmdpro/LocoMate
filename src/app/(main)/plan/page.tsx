@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -43,7 +44,7 @@ export default function PlanPage() {
           <h1 className="text-2xl font-bold font-[family-name:var(--font-sora)] text-[#3f6f60]">Design Your Tour</h1>
           <p className="text-sm text-muted-foreground mt-1">AI crafts a personalized Hanoi itinerary just for you</p>
         </div>
-        <img src="/images/logo.png" alt="LOCOMATE" className="h-9 shrink-0" />
+        <Image src="/images/logo.png" alt="LOCOMATE" width={36} height={36} className="shrink-0" />
       </div>
 
       {/* Date & Time */}

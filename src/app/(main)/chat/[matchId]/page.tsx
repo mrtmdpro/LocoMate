@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc";
 import { useAuthStore } from "@/stores/auth";
@@ -58,6 +58,7 @@ export default function ChatConversationPage() {
           </svg>
         </button>
         <Avatar className="w-9 h-9">
+          {currentConv?.otherUser?.avatarUrl && <AvatarImage src={currentConv.otherUser.avatarUrl} alt={otherName} />}
           <AvatarFallback className="bg-[#3f6f60] text-white text-sm font-bold">{otherName[0]}</AvatarFallback>
         </Avatar>
         <div>

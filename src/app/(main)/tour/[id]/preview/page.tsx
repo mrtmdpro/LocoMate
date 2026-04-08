@@ -28,7 +28,8 @@ export default function TourPreviewPage() {
   return (
     <div className="pb-32">
       {/* Header */}
-      <div className="bg-gradient-to-br from-[#3f6f60] to-[#90D26D] p-6 pb-12">
+      <div className="bg-gradient-to-br from-[#3f6f60] to-[#90D26D] p-6 pb-12 relative overflow-hidden">
+        <img src="https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=1200&h=600&fit=crop" alt="" className="absolute inset-0 w-full h-full object-cover opacity-30" />
         <button onClick={() => router.back()} className="text-white/80 mb-4">
           <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
         </button>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -83,35 +84,41 @@ function PlaceCard({ place }: { place: Record<string, unknown> }) {
     category: string;
     priceRange: string | null;
     avgRating: string | null;
+    photos: string[] | null;
     emotionalTags: Record<string, number>;
   };
   const topTags = Object.entries(p.emotionalTags || {})
     .sort((a, b) => b[1] - a[1])
     .slice(0, 3)
     .map(([k]) => k);
+  const photo = p.photos?.[0];
 
   return (
-    <Card className="overflow-hidden border-0 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
-      <div className="h-40 bg-gradient-to-br from-[#3f6f60] to-[#90D26D] relative">
-        <div className="absolute bottom-3 left-3 flex gap-1.5">
-          {topTags.map((tag) => (
-            <Badge key={tag} className="bg-white/90 text-[#3f6f60] text-[10px] capitalize border-0">{tag}</Badge>
-          ))}
-        </div>
-        <Badge className="absolute top-3 right-3 bg-[#ff8c30] border-0 text-white text-xs">{p.category}</Badge>
-      </div>
-      <CardContent className="p-3.5">
-        <div className="flex items-start justify-between">
-          <div>
-            <h3 className="font-semibold text-[#3f6f60] line-clamp-1">{p.name}</h3>
-            <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{p.description}</p>
+    <Link href={`/explore/${p.id}`}>
+      <Card className="overflow-hidden border-0 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+        <div className="h-40 bg-gradient-to-br from-[#3f6f60] to-[#90D26D] relative overflow-hidden">
+          {photo && <img src={photo} alt={p.name} className="absolute inset-0 w-full h-full object-cover" />}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+          <div className="absolute bottom-3 left-3 flex gap-1.5">
+            {topTags.map((tag) => (
+              <Badge key={tag} className="bg-white/90 text-[#3f6f60] text-[10px] capitalize border-0">{tag}</Badge>
+            ))}
           </div>
-          <div className="text-right shrink-0 ml-3">
-            <div className="text-sm font-semibold text-[#ff8c30]">{p.priceRange}</div>
-            <div className="text-xs text-muted-foreground">★ {Number(p.avgRating || 0).toFixed(1)}</div>
-          </div>
+          <Badge className="absolute top-3 right-3 bg-[#ff8c30] border-0 text-white text-xs">{p.category}</Badge>
         </div>
-      </CardContent>
-    </Card>
+        <CardContent className="p-3.5">
+          <div className="flex items-start justify-between">
+            <div>
+              <h3 className="font-semibold text-[#3f6f60] line-clamp-1">{p.name}</h3>
+              <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{p.description}</p>
+            </div>
+            <div className="text-right shrink-0 ml-3">
+              <div className="text-sm font-semibold text-[#ff8c30]">{p.priceRange}</div>
+              <div className="text-xs text-muted-foreground">★ {Number(p.avgRating || 0).toFixed(1)}</div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </Link>
   );
 }

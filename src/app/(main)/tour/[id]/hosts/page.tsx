@@ -4,7 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { trpc } from "@/lib/trpc";
 
 export default function HostSelectionPage() {
@@ -56,6 +56,7 @@ export default function HostSelectionPage() {
             <CardContent className="p-4 -mt-10">
               <div className="flex items-end gap-3 mb-3">
                 <Avatar className="w-16 h-16 border-4 border-white shadow-md">
+                  {h.avatarUrl && <AvatarImage src={h.avatarUrl} alt={h.displayName || ""} />}
                   <AvatarFallback className="bg-[#ff8c30] text-white text-xl font-bold">{(h.displayName || "?")[0]}</AvatarFallback>
                 </Avatar>
                 <div className="flex-1 pb-1">

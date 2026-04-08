@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -67,7 +68,7 @@ export default function OnboardingPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#D9EDBF]/20 to-white p-4">
       <div className="max-w-md mx-auto pt-6">
-        <img src="/images/logo.png" alt="LOCOMATE" className="h-10 mx-auto mb-6" />
+        <Image src="/images/logo.png" alt="LOCOMATE" width={40} height={40} className="mx-auto mb-6" priority />
         {/* Progress */}
         <div className="flex gap-1.5 mb-8">
           {Array.from({ length: totalSteps }).map((_, i) => (

@@ -4,7 +4,10 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import { hashSync } from "bcryptjs";
 import * as schema from "./schema";
 
-const client = postgres(process.env.DATABASE_URL!);
+const dbUrl = process.env.DATABASE_URL!;
+const client = postgres(dbUrl, {
+  ssl: dbUrl.includes("neon.tech") ? "require" : undefined,
+});
 const db = drizzle(client, { schema });
 
 interface PlaceSeed {
@@ -15,8 +18,74 @@ interface PlaceSeed {
   longitude: number;
   address: string;
   priceRange: string;
+  photos?: string[];
   experienceTags: Record<string, number>;
   emotionalTags: Record<string, number>;
+}
+
+const PHOTOS_BY_CATEGORY: Record<string, string[]> = {
+  cafe: [
+    "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=800&h=500&fit=crop",
+    "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800&h=500&fit=crop",
+    "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=800&h=500&fit=crop",
+    "https://images.unsplash.com/photo-1559496417-e7f25cb247f3?w=800&h=500&fit=crop",
+    "https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=800&h=500&fit=crop",
+    "https://images.unsplash.com/photo-1445116572660-236099ec97a0?w=800&h=500&fit=crop",
+    "https://images.unsplash.com/photo-1497935586351-b67a49e012bf?w=800&h=500&fit=crop",
+  ],
+  restaurant: [
+    "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&h=500&fit=crop",
+    "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&h=500&fit=crop",
+    "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&h=500&fit=crop",
+    "https://images.unsplash.com/photo-1562565651-7d4948f339eb?w=800&h=500&fit=crop",
+    "https://images.unsplash.com/photo-1552566626-52f8b828add9?w=800&h=500&fit=crop",
+    "https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?w=800&h=500&fit=crop",
+    "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&h=500&fit=crop",
+  ],
+  cultural: [
+    "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800&h=500&fit=crop",
+    "https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=800&h=500&fit=crop",
+    "https://images.unsplash.com/photo-1571236700228-5e7480d2f08c?w=800&h=500&fit=crop",
+    "https://images.unsplash.com/photo-1528127269322-539801943592?w=800&h=500&fit=crop",
+    "https://images.unsplash.com/photo-1555921015-5532091f6026?w=800&h=500&fit=crop",
+    "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&h=500&fit=crop",
+    "https://images.unsplash.com/photo-1592364395653-83e648b20cc2?w=800&h=500&fit=crop",
+  ],
+  nature: [
+    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&h=500&fit=crop",
+    "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=500&fit=crop",
+    "https://images.unsplash.com/photo-1586348943529-beaae6c28db9?w=800&h=500&fit=crop",
+    "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&h=500&fit=crop",
+    "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800&h=500&fit=crop",
+  ],
+  nightlife: [
+    "https://images.unsplash.com/photo-1566417713940-fe7c737a9ef2?w=800&h=500&fit=crop",
+    "https://images.unsplash.com/photo-1572116469696-31de0f17cc34?w=800&h=500&fit=crop",
+    "https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800&h=500&fit=crop",
+    "https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=800&h=500&fit=crop",
+    "https://images.unsplash.com/photo-1543007630-9710e4a00a20?w=800&h=500&fit=crop",
+  ],
+  workshop: [
+    "https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=800&h=500&fit=crop",
+    "https://images.unsplash.com/photo-1452587925148-ce544e77e70d?w=800&h=500&fit=crop",
+    "https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=800&h=500&fit=crop",
+    "https://images.unsplash.com/photo-1504387432042-8aca549e4729?w=800&h=500&fit=crop",
+    "https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=800&h=500&fit=crop",
+  ],
+  art: [
+    "https://images.unsplash.com/photo-1531243269054-5ebf6f34081e?w=800&h=500&fit=crop",
+    "https://images.unsplash.com/photo-1536924940846-227afb31e2a5?w=800&h=500&fit=crop",
+    "https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=800&h=500&fit=crop",
+    "https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?w=800&h=500&fit=crop",
+    "https://images.unsplash.com/photo-1541367777708-7905fe3296c0?w=800&h=500&fit=crop",
+  ],
+};
+
+function getPhotosForCategory(category: string, index: number): string[] {
+  const pool = PHOTOS_BY_CATEGORY[category] || PHOTOS_BY_CATEGORY.cultural;
+  const photo1 = pool[index % pool.length];
+  const photo2 = pool[(index + 3) % pool.length];
+  return [photo1, photo2];
 }
 
 const HANOI_PLACES: PlaceSeed[] = [
@@ -166,20 +235,20 @@ async function seed() {
   const travelers = await db
     .insert(schema.users)
     .values([
-      { email: "alex@test.com", passwordHash, role: "traveler", displayName: "Alex Johnson", avatarUrl: "/avatars/alex.jpg" },
-      { email: "sam@test.com", passwordHash, role: "traveler", displayName: "Sam Smith", avatarUrl: "/avatars/sam.jpg" },
-      { email: "elena@test.com", passwordHash, role: "traveler", displayName: "Elena Rodriguez", avatarUrl: "/avatars/elena.jpg" },
-      { email: "yuki@test.com", passwordHash, role: "traveler", displayName: "Yuki Tanaka", avatarUrl: "/avatars/yuki.jpg" },
-      { email: "marco@test.com", passwordHash, role: "traveler", displayName: "Marco Weber", avatarUrl: "/avatars/marco.jpg" },
+      { email: "alex@test.com", passwordHash, role: "traveler", displayName: "Alex Johnson", avatarUrl: "https://randomuser.me/api/portraits/men/32.jpg" },
+      { email: "sam@test.com", passwordHash, role: "traveler", displayName: "Sam Smith", avatarUrl: "https://randomuser.me/api/portraits/men/44.jpg" },
+      { email: "elena@test.com", passwordHash, role: "traveler", displayName: "Elena Rodriguez", avatarUrl: "https://randomuser.me/api/portraits/women/68.jpg" },
+      { email: "yuki@test.com", passwordHash, role: "traveler", displayName: "Yuki Tanaka", avatarUrl: "https://randomuser.me/api/portraits/women/79.jpg" },
+      { email: "marco@test.com", passwordHash, role: "traveler", displayName: "Marco Weber", avatarUrl: "https://randomuser.me/api/portraits/men/75.jpg" },
     ])
     .returning();
 
   const hosts = await db
     .insert(schema.users)
     .values([
-      { email: "nam@test.com", passwordHash, role: "host", displayName: "Nguyen Hoang Nam", avatarUrl: "/avatars/nam.jpg" },
-      { email: "linh@test.com", passwordHash, role: "host", displayName: "Tran Linh", avatarUrl: "/avatars/linh.jpg" },
-      { email: "chau@test.com", passwordHash, role: "host", displayName: "Le Minh Chau", avatarUrl: "/avatars/chau.jpg" },
+      { email: "nam@test.com", passwordHash, role: "host", displayName: "Nguyen Hoang Nam", avatarUrl: "https://randomuser.me/api/portraits/men/91.jpg" },
+      { email: "linh@test.com", passwordHash, role: "host", displayName: "Tran Linh", avatarUrl: "https://randomuser.me/api/portraits/women/52.jpg" },
+      { email: "chau@test.com", passwordHash, role: "host", displayName: "Le Minh Chau", avatarUrl: "https://randomuser.me/api/portraits/men/85.jpg" },
     ])
     .returning();
 
@@ -245,7 +314,9 @@ async function seed() {
   // Seed places
   const allPlaces = [...HANOI_PLACES, ...generateMorePlaces()];
 
-  for (const place of allPlaces) {
+  for (let i = 0; i < allPlaces.length; i++) {
+    const place = allPlaces[i];
+    const photos = place.photos || getPhotosForCategory(place.category, i);
     await db.insert(schema.places).values({
       name: place.name,
       description: place.description,
@@ -253,6 +324,7 @@ async function seed() {
       latitude: place.latitude,
       longitude: place.longitude,
       address: place.address,
+      photos,
       priceRange: place.priceRange,
       experienceTags: place.experienceTags,
       emotionalTags: place.emotionalTags,

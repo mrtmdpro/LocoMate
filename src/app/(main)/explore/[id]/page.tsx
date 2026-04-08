@@ -20,11 +20,15 @@ export default function PlaceDetailPage() {
 
   return (
     <div className="pb-24">
-      <div className="h-64 bg-gradient-to-br from-[#3f6f60] to-[#90D26D] relative">
-        <button onClick={() => router.back()} className="absolute top-4 left-4 bg-white/90 rounded-full p-2 shadow-md">
+      <div className="h-64 bg-gradient-to-br from-[#3f6f60] to-[#90D26D] relative overflow-hidden">
+        {(place.photos as string[] | null)?.[0] && (
+          <img src={(place.photos as string[])[0]} alt={place.name} className="absolute inset-0 w-full h-full object-cover" />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+        <button onClick={() => router.back()} className="absolute top-4 left-4 bg-white/90 rounded-full p-2 shadow-md z-10">
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
         </button>
-        <Badge className="absolute top-4 right-4 bg-[#ff8c30] border-0 text-white">{place.category}</Badge>
+        <Badge className="absolute top-4 right-4 bg-[#ff8c30] border-0 text-white z-10">{place.category}</Badge>
       </div>
 
       <div className="p-4 -mt-8 relative space-y-4">

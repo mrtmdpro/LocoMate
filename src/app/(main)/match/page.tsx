@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { motion, useMotionValue, useTransform, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -39,7 +40,7 @@ export default function MatchPage() {
           <h1 className="text-2xl font-bold font-[family-name:var(--font-sora)] text-[#3f6f60]">LocoMatch</h1>
           <p className="text-sm text-muted-foreground">Find your travel companion in Hanoi</p>
         </div>
-        <img src="/images/logo.png" alt="LOCOMATE" className="h-9" />
+        <Image src="/images/logo.png" alt="LOCOMATE" width={36} height={36} />
       </div>
 
       <div className="relative h-[480px]">
@@ -110,10 +111,15 @@ function SwipeCard({ user, onSwipe }: { user: Record<string, unknown>; onSwipe: 
       }}
     >
       <Card className="h-full border-0 shadow-xl overflow-hidden">
-        <div className="h-56 bg-gradient-to-br from-[#3f6f60] to-[#90D26D] flex items-center justify-center">
-          <div className="w-24 h-24 rounded-full bg-white/20 flex items-center justify-center text-3xl text-white font-bold">
-            {(u.displayName || "?")[0]}
-          </div>
+        <div className="h-56 bg-gradient-to-br from-[#3f6f60] to-[#90D26D] relative flex items-center justify-center overflow-hidden">
+          {u.avatarUrl ? (
+            <img src={u.avatarUrl} alt={u.displayName} className="absolute inset-0 w-full h-full object-cover" />
+          ) : (
+            <div className="w-24 h-24 rounded-full bg-white/20 flex items-center justify-center text-3xl text-white font-bold">
+              {(u.displayName || "?")[0]}
+            </div>
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
         </div>
         <CardContent className="p-5 space-y-3">
           <div className="flex items-center justify-between">

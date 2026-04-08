@@ -55,7 +55,8 @@ export default function FullTourPage() {
   return (
     <div className="pb-32">
       {/* Header */}
-      <div className="bg-gradient-to-br from-[#ff8c30] to-[#e67a20] p-6 pb-12">
+      <div className="bg-gradient-to-br from-[#ff8c30] to-[#e67a20] p-6 pb-12 relative overflow-hidden">
+        <img src="https://images.unsplash.com/photo-1528127269322-539801943592?w=1200&h=600&fit=crop" alt="" className="absolute inset-0 w-full h-full object-cover opacity-25" />
         <button onClick={() => router.push("/plan")} className="text-white/80 mb-4">
           <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
         </button>

@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuthStore } from "@/stores/auth";
 import { useState } from "react";
 
@@ -32,6 +32,7 @@ export default function HostDashboardPage() {
           </h1>
         </div>
         <Avatar className="w-12 h-12">
+          {user?.avatarUrl && <AvatarImage src={user.avatarUrl} alt={user.displayName || ""} />}
           <AvatarFallback className="bg-[#3f6f60] text-white font-bold">{(user?.displayName || "?")[0]}</AvatarFallback>
         </Avatar>
       </div>

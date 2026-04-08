@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { trpc } from "@/lib/trpc";
 import { useAuthStore } from "@/stores/auth";
@@ -46,6 +46,7 @@ export default function ProfilePage() {
         <CardContent className="p-4 -mt-12">
           <div className="flex items-end gap-4">
             <Avatar className="w-20 h-20 border-4 border-white shadow-lg">
+              {user?.avatarUrl && <AvatarImage src={user.avatarUrl} alt={user.displayName || ""} />}
               <AvatarFallback className="bg-[#3f6f60] text-white text-2xl font-bold">
                 {(user?.displayName || "?")[0]}
               </AvatarFallback>
