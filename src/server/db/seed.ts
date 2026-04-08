@@ -338,6 +338,99 @@ async function seed() {
   }
 
   console.log(`Seeded ${allPlaces.length} places.`);
+
+  // Seed matches, swipe actions, and chat messages
+  const chatMessages: { from: number; to: number; msgs: string[] }[] = [
+    { from: 0, to: 1, msgs: [
+      "Hey Sam! I saw you're exploring the Old Quarter too. Found any good pho spots?",
+      "Hey Alex! Yes! Pho Gia Truyen on Bat Dan is incredible. The queue is worth it.",
+      "Nice, I'll check it out tomorrow morning. Want to go together?",
+      "Sure! Let's meet at 7AM before the crowds. I'll send you the pin.",
+      "Perfect. I heard there's also an amazing egg coffee place nearby.",
+      "Giang Cafe! It's literally around the corner. We can go after pho.",
+    ]},
+    { from: 0, to: 2, msgs: [
+      "Hola Elena! Your profile says you're into photography. Me too!",
+      "Hi Alex! Yes I'm trying to capture the Old Quarter at golden hour.",
+      "The light on Hang Ma street around 5pm is magical. Interested?",
+      "Absolutely! I've been looking for someone who knows the good spots.",
+      "Let's do a sunset photo walk tomorrow. Train Street is epic too.",
+    ]},
+    { from: 0, to: 3, msgs: [
+      "Hi Yuki! Welcome to Hanoi. How's your trip so far?",
+      "Konnichiwa! It's amazing. The street food is next level.",
+      "Have you tried bun cha yet? It's Hanoi's signature dish.",
+      "Not yet! Is it the one Obama had? I saw that episode.",
+      "Yes! Bun Cha Huong Lien. I can show you, I'm going there Friday.",
+      "That would be great! I've been wanting to try it with someone local-savvy.",
+      "It's a date then. Also there's a hidden temple nearby worth seeing.",
+    ]},
+    { from: 1, to: 2, msgs: [
+      "Elena! I love your travel photos on your profile.",
+      "Thank you Sam! Hanoi has been so photogenic.",
+      "Want to explore the Ceramic Road along the Red River? It's a 4km mural.",
+      "I didn't even know that existed! When are you free?",
+      "Tomorrow afternoon? We could grab bia hoi after.",
+    ]},
+    { from: 1, to: 4, msgs: [
+      "Hey Marco! Another solo traveler in Hanoi. Where are you staying?",
+      "Hi Sam! I'm near Hoan Kiem Lake. Great location for walking everywhere.",
+      "Same area! Have you been to the night market on Hang Dao yet?",
+      "Going tonight actually. Want to join?",
+      "Count me in. I heard the street food stalls there are amazing.",
+    ]},
+    { from: 2, to: 3, msgs: [
+      "Yuki! I noticed we both have photography as an interest.",
+      "Yes! I've been shooting a lot of street scenes in the alleys.",
+      "There's a beautiful pagoda on West Lake at sunset. Tran Quoc Pagoda.",
+      "Oh I've seen photos of it. Is it far from the Old Quarter?",
+      "About 15 min by Grab. Totally worth it. Want to go together this weekend?",
+      "I'd love that! Sunday evening would work perfectly for golden hour.",
+    ]},
+    { from: 3, to: 4, msgs: [
+      "Hi Marco! How are you finding Hanoi so far?",
+      "Hey Yuki! It's incredible. The chaos is part of the charm.",
+      "Haha so true. Have you managed to cross the street yet? 😄",
+      "Barely! The motorbikes are wild. But the people are so friendly.",
+      "I found this amazing hidden cafe in an alley off Hang Buom. No tourists.",
+      "That sounds perfect. Send me the location?",
+    ]},
+  ];
+
+  for (const chat of chatMessages) {
+    const userA = travelers[chat.from];
+    const userB = travelers[chat.to];
+    const [sortedA, sortedB] = [userA.id, userB.id].sort();
+
+    // Create mutual swipe actions
+    await db.insert(schema.swipeActions).values({ swiperId: userA.id, targetId: userB.id, action: "like" });
+    await db.insert(schema.swipeActions).values({ swiperId: userB.id, targetId: userA.id, action: "like" });
+
+    // Create match
+    const [match] = await db.insert(schema.matches).values({
+      userAId: sortedA,
+      userBId: sortedB,
+      score: (0.65 + Math.random() * 0.3).toFixed(4),
+      status: "matched",
+      matchedAt: new Date(Date.now() - Math.floor(Math.random() * 3 * 24 * 60 * 60 * 1000)),
+    }).returning();
+
+    // Create messages with realistic timestamps
+    const baseTime = Date.now() - (chat.msgs.length * 15 * 60 * 1000);
+    for (let i = 0; i < chat.msgs.length; i++) {
+      const senderId = i % 2 === 0 ? userA.id : userB.id;
+      await db.insert(schema.messages).values({
+        matchId: match.id,
+        senderId,
+        content: chat.msgs[i],
+        messageType: "text",
+        isRead: i < chat.msgs.length - 1,
+        createdAt: new Date(baseTime + i * (8 + Math.random() * 20) * 60 * 1000),
+      });
+    }
+  }
+
+  console.log(`Seeded ${chatMessages.length} conversations with messages.`);
   console.log("Seed complete!");
 
   await client.end();
