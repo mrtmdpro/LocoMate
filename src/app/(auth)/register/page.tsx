@@ -31,8 +31,8 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#D9EDBF]/30 to-white flex items-center justify-center p-4 relative overflow-hidden">
-      <img src="https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=1200&h=800&fit=crop" alt="" className="absolute inset-0 w-full h-full object-cover opacity-10" />
-      <Card className="w-full max-w-md border-0 shadow-xl">
+      <img src="https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=1200&h=800&fit=crop" alt="" className="absolute inset-0 w-full h-full object-cover opacity-10 z-0" />
+      <Card className="w-full max-w-md border-0 shadow-xl relative z-10">
         <CardHeader className="text-center pb-2">
           <Image src="/images/logo.png" alt="LOCOMATE" width={56} height={56} className="mx-auto mb-1" priority />
           <CardTitle className="text-xl text-[#3f6f60]">Create your account</CardTitle>
