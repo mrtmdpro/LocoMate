@@ -1,4 +1,4 @@
-import { z } from "zod/v4";
+import { z } from "zod";
 import { eq } from "drizzle-orm";
 import { router, protectedProcedure } from "../trpc";
 import { userProfiles, users, emergencyContacts } from "../db/schema";

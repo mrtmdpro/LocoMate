@@ -1,4 +1,4 @@
-import { z } from "zod/v4";
+import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { eq, and, ne, notInArray, sql } from "drizzle-orm";
 import { router, protectedProcedure } from "../trpc";
@@ -16,6 +16,16 @@ export const matchRouter = router({
       const swipedIds = swiped.map((s) => s.targetId);
       swipedIds.push(ctx.user.id);
 
+      const conditions = [
+        eq(users.isActive, true),
+        eq(users.role, "traveler"),
+        eq(userProfiles.onboardingCompleted, true),
+      ];
+
+      if (swipedIds.length > 0) {
+        conditions.push(notInArray(users.id, swipedIds));
+      }
+
       const candidates = await ctx.db
         .select({
           id: users.id,
@@ -27,12 +37,7 @@ export const matchRouter = router({
         })
         .from(users)
         .innerJoin(userProfiles, eq(users.id, userProfiles.userId))
-        .where(and(
-          eq(users.isActive, true),
-          eq(users.role, "traveler"),
-          eq(userProfiles.onboardingCompleted, true),
-          notInArray(users.id, swipedIds)
-        ))
+        .where(and(...conditions))
         .limit(input.limit);
 
       return candidates.map((c) => ({

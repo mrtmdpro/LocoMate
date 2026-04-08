@@ -1,4 +1,4 @@
-import { z } from "zod/v4";
+import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { hashSync, compareSync } from "bcryptjs";
 import { eq } from "drizzle-orm";
