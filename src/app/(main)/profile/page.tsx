@@ -8,8 +8,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { trpc } from "@/lib/trpc";
 import { useAuthStore } from "@/stores/auth";
+import { toast } from "sonner";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -212,33 +215,7 @@ export default function ProfilePage() {
       </Card>
 
       {/* Emergency Contacts */}
-      <Card className="border-0 shadow-sm">
-        <CardContent className="p-0">
-          <button onClick={() => setShowContacts(!showContacts)} className="w-full flex items-center gap-3 p-4 text-left hover:bg-gray-50 transition-colors">
-            <span className="text-lg">🆘</span>
-            <span className="flex-1 text-sm font-medium">Emergency Contacts</span>
-            <Badge variant="outline" className="text-[10px]">{contacts?.length || 0}</Badge>
-            <svg className={`w-4 h-4 text-gray-400 transition-transform ${showContacts ? "rotate-90" : ""}`} fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
-          </button>
-          {showContacts && (contacts || []).length > 0 && (
-            <div className="px-4 pb-4 space-y-2">
-              {(contacts || []).map((c) => (
-                <div key={c.id} className="flex items-center gap-3 p-2 bg-gray-50 rounded-lg">
-                  <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center text-xs">👤</div>
-                  <div className="flex-1">
-                    <p className="text-xs font-medium">{c.name}</p>
-                    <p className="text-[10px] text-muted-foreground">{c.relationship} &middot; {c.phone}</p>
-                  </div>
-                  {c.isPrimary && <Badge className="bg-red-50 text-red-600 border-0 text-[10px]">Primary</Badge>}
-                </div>
-              ))}
-            </div>
-          )}
-          {showContacts && (contacts || []).length === 0 && (
-            <p className="px-4 pb-4 text-xs text-muted-foreground">No emergency contacts set.</p>
-          )}
-        </CardContent>
-      </Card>
+      <EmergencyContactsSection contacts={contacts || []} />
 
       {/* Settings */}
       <Card className="border-0 shadow-sm">
@@ -265,5 +242,120 @@ export default function ProfilePage() {
         Sign Out
       </Button>
     </div>
+  );
+}
+
+function EmergencyContactsSection({ contacts: initialContacts }: { contacts: { id: string; name: string; phone: string; relationship: string | null; isPrimary: boolean | null }[] }) {
+  const [expanded, setExpanded] = useState(false);
+  const [editing, setEditing] = useState<string | null>(null);
+  const [adding, setAdding] = useState(false);
+  const [form, setForm] = useState({ name: "", phone: "", relationship: "" });
+  const utils = trpc.useUtils();
+
+  const addMutation = trpc.user.setEmergencyContact.useMutation({
+    onSuccess: () => { utils.user.getEmergencyContacts.invalidate(); setAdding(false); setForm({ name: "", phone: "", relationship: "" }); toast.success("Contact added"); },
+  });
+  const updateMutation = trpc.user.updateEmergencyContact.useMutation({
+    onSuccess: () => { utils.user.getEmergencyContacts.invalidate(); setEditing(null); toast.success("Contact updated"); },
+  });
+  const deleteMutation = trpc.user.deleteEmergencyContact.useMutation({
+    onSuccess: () => { utils.user.getEmergencyContacts.invalidate(); toast.success("Contact removed"); },
+  });
+
+  function startEdit(c: typeof initialContacts[0]) {
+    setEditing(c.id);
+    setForm({ name: c.name, phone: c.phone, relationship: c.relationship || "" });
+  }
+
+  return (
+    <Card className="border-0 shadow-sm">
+      <CardContent className="p-0">
+        <button onClick={() => setExpanded(!expanded)} className="w-full flex items-center gap-3 p-4 text-left hover:bg-gray-50 transition-colors">
+          <span className="text-lg">🆘</span>
+          <span className="flex-1 text-sm font-medium">Emergency Contacts</span>
+          <Badge variant="outline" className="text-[10px]">{initialContacts.length}</Badge>
+          <svg className={`w-4 h-4 text-gray-400 transition-transform ${expanded ? "rotate-90" : ""}`} fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
+        </button>
+
+        {expanded && (
+          <div className="px-4 pb-4 space-y-2">
+            {initialContacts.map((c) => (
+              editing === c.id ? (
+                <div key={c.id} className="p-3 bg-gray-50 rounded-lg space-y-2">
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <Label className="text-[10px]">Name</Label>
+                      <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="h-8 text-xs rounded-lg" />
+                    </div>
+                    <div>
+                      <Label className="text-[10px]">Relationship</Label>
+                      <Input value={form.relationship} onChange={(e) => setForm({ ...form, relationship: e.target.value })} className="h-8 text-xs rounded-lg" placeholder="e.g. Mother" />
+                    </div>
+                  </div>
+                  <div>
+                    <Label className="text-[10px]">Phone</Label>
+                    <Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="h-8 text-xs rounded-lg" />
+                  </div>
+                  <div className="flex gap-2">
+                    <Button size="sm" className="h-7 text-[10px] bg-[#ff8c30] hover:bg-[#e67a20] text-white rounded-lg" disabled={!form.name || !form.phone || updateMutation.isPending}
+                      onClick={() => updateMutation.mutate({ id: c.id, name: form.name, phone: form.phone, relationship: form.relationship || undefined })}>
+                      {updateMutation.isPending ? "..." : "Save"}
+                    </Button>
+                    <Button size="sm" variant="outline" className="h-7 text-[10px] rounded-lg" onClick={() => setEditing(null)}>Cancel</Button>
+                    <Button size="sm" variant="outline" className="h-7 text-[10px] rounded-lg text-red-500 border-red-200 ml-auto" onClick={() => deleteMutation.mutate({ id: c.id })}>
+                      Delete
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div key={c.id} className="flex items-center gap-3 p-2 bg-gray-50 rounded-lg group">
+                  <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center text-xs">👤</div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium">{c.name}</p>
+                    <p className="text-[10px] text-muted-foreground">{c.relationship} &middot; {c.phone}</p>
+                  </div>
+                  {c.isPrimary && <Badge className="bg-red-50 text-red-600 border-0 text-[10px]">Primary</Badge>}
+                  <button onClick={() => startEdit(c)} className="opacity-0 group-hover:opacity-100 text-[10px] text-[#ff8c30] font-medium transition-opacity">Edit</button>
+                </div>
+              )
+            ))}
+
+            {adding ? (
+              <div className="p-3 bg-[#ff8c30]/5 border border-[#ff8c30]/20 rounded-lg space-y-2">
+                <p className="text-xs font-semibold text-[#3f6f60]">Add contact</p>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <Label className="text-[10px]">Name</Label>
+                    <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="h-8 text-xs rounded-lg" placeholder="Contact name" />
+                  </div>
+                  <div>
+                    <Label className="text-[10px]">Relationship</Label>
+                    <Input value={form.relationship} onChange={(e) => setForm({ ...form, relationship: e.target.value })} className="h-8 text-xs rounded-lg" placeholder="e.g. Friend" />
+                  </div>
+                </div>
+                <div>
+                  <Label className="text-[10px]">Phone</Label>
+                  <Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="h-8 text-xs rounded-lg" placeholder="+84..." />
+                </div>
+                <div className="flex gap-2">
+                  <Button size="sm" className="h-7 text-[10px] bg-[#ff8c30] hover:bg-[#e67a20] text-white rounded-lg" disabled={!form.name || !form.phone || addMutation.isPending}
+                    onClick={() => addMutation.mutate({ name: form.name, phone: form.phone, relationship: form.relationship || undefined, isPrimary: initialContacts.length === 0 })}>
+                    {addMutation.isPending ? "..." : "Add"}
+                  </Button>
+                  <Button size="sm" variant="outline" className="h-7 text-[10px] rounded-lg" onClick={() => { setAdding(false); setForm({ name: "", phone: "", relationship: "" }); }}>Cancel</Button>
+                </div>
+              </div>
+            ) : (
+              <button
+                onClick={() => { setAdding(true); setForm({ name: "", phone: "", relationship: "" }); }}
+                className="w-full p-2 border-2 border-dashed border-gray-200 rounded-lg text-xs text-muted-foreground hover:border-[#ff8c30]/30 hover:text-[#ff8c30] transition-colors"
+              >
+                + Add emergency contact
+              </button>
+            )}
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }
