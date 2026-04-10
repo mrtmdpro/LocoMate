@@ -45,7 +45,7 @@ const PHOTOS_BY_CATEGORY: Record<string, string[]> = {
   cultural: [
     "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800&h=500&fit=crop",
     "https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=800&h=500&fit=crop",
-    "https://images.unsplash.com/photo-1571236700228-5e7480d2f08c?w=800&h=500&fit=crop",
+    "https://images.unsplash.com/photo-1569154941061-e231b4725ef1?w=800&h=500&fit=crop",
     "https://images.unsplash.com/photo-1528127269322-539801943592?w=800&h=500&fit=crop",
     "https://images.unsplash.com/photo-1555921015-5532091f6026?w=800&h=500&fit=crop",
     "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&h=500&fit=crop",
