@@ -12,7 +12,7 @@ export default function SplashPage() {
   useEffect(() => {
     const timer = setTimeout(() => {
       if (user) {
-        router.push("/explore");
+        router.push("/home");
       } else {
         router.push("/login");
       }

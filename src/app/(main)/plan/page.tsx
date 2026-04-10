@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Image from "next/image";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -10,12 +9,15 @@ import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { trpc } from "@/lib/trpc";
 
 const INTERESTS = ["Street Food", "Hidden Cafes", "Temples", "Markets", "Photography", "Rooftops", "Art", "Nightlife"];
 
 export default function PlanPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const withMatchId = searchParams.get("with");
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const [startTime, setStartTime] = useState("09:00");
   const [duration, setDuration] = useState([3]);
@@ -36,15 +38,35 @@ export default function PlanPage() {
     );
   };
 
+  // Fetch match companion info if planning together
+  const { data: matchData } = trpc.match.getMatches.useQuery(undefined, { enabled: !!withMatchId });
+  const companion = withMatchId ? matchData?.find((m) => m.id === withMatchId)?.otherUser : null;
+
   return (
     <div className="p-4 space-y-6">
+      {companion && (
+        <Card className="border-[#90D26D]/30 bg-[#D9EDBF]/20">
+          <CardContent className="p-3 flex items-center gap-3">
+            <Avatar className="w-10 h-10">
+              {companion.avatarUrl && <AvatarImage src={companion.avatarUrl} alt={companion.displayName} />}
+              <AvatarFallback className="bg-[#3f6f60] text-white text-sm font-bold">{(companion.displayName || "?")[0]}</AvatarFallback>
+            </Avatar>
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-[#3f6f60]">Planning with {companion.displayName}</p>
+              <p className="text-[10px] text-muted-foreground">Tour will be designed for both of your preferences</p>
+            </div>
+            <Badge className="bg-[#90D26D] text-white border-0 text-[10px]">Duo</Badge>
+          </CardContent>
+        </Card>
+      )}
+
       <div className="flex items-start justify-between">
         <div>
           <Badge className="bg-[#ff8c30]/10 text-[#ff8c30] border-[#ff8c30]/20 mb-2">Premium AI</Badge>
           <h1 className="text-2xl font-bold font-heading text-[#3f6f60]">Design Your Tour</h1>
-          <p className="text-sm text-muted-foreground mt-1">AI crafts a personalized Hanoi itinerary just for you</p>
+          <p className="text-sm text-muted-foreground mt-1">{companion ? `AI crafts a tour for you and ${companion.displayName.split(" ")[0]}` : "AI crafts a personalized Hanoi itinerary just for you"}</p>
         </div>
-        <Image src="/images/logo.png" alt="LOCOMATE" width={36} height={36} className="shrink-0" />
+        <img src="/images/logo.png" alt="LOCOMATE" className="h-9 shrink-0" />
       </div>
 
       {/* Date & Time */}

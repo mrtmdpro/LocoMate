@@ -38,7 +38,7 @@ export default function OnboardingPage() {
       if (user && accessToken && refreshToken) {
         setAuth({ ...user, onboardingCompleted: true }, accessToken, refreshToken);
       }
-      router.push("/explore");
+      router.push("/home");
     },
   });
 

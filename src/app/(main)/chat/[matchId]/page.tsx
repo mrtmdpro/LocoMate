@@ -69,7 +69,14 @@ export default function ChatConversationPage() {
 
       {/* Quick chips */}
       <div className="flex gap-2 px-4 py-2 bg-[#D9EDBF]/20 overflow-x-auto shrink-0">
-        {["Share plan", "Suggest place", "Tonight?"].map((chip) => (
+        <Badge
+          variant="outline"
+          className="cursor-pointer whitespace-nowrap text-xs px-3 py-1.5 rounded-full bg-[#ff8c30] text-white border-[#ff8c30] hover:bg-[#e67a20] font-semibold"
+          onClick={() => router.push(`/plan?with=${matchId}`)}
+        >
+          Plan together
+        </Badge>
+        {["Suggest place", "Tonight?"].map((chip) => (
           <Badge
             key={chip}
             variant="outline"

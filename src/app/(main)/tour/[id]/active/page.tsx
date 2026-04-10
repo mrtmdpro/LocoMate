@@ -25,7 +25,7 @@ export default function ActiveTourPage() {
 
   const { data: tour } = trpc.tour.getFullTour.useQuery({ tourId: id }, { retry: false });
   const completeMutation = trpc.tour.completeTour.useMutation({
-    onSuccess: () => router.push("/profile"),
+    onSuccess: () => router.push(`/tour/${id}/review`),
   });
 
   if (!tour) return <div className="p-4 text-center text-muted-foreground pt-20">Loading tour...</div>;

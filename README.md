@@ -111,13 +111,13 @@ All test accounts use the password `password123`.
 
 ### Travelers
 
-| Email | Name | Notes |
-|-------|------|-------|
-| `alex@test.com` | Alex Johnson | Onboarding completed, full profile |
-| `sam@test.com` | Sam Smith | Onboarding completed |
-| `elena@test.com` | Elena Rodriguez | Onboarding completed |
-| `yuki@test.com` | Yuki Tanaka | Onboarding completed |
-| `marco@test.com` | Marco Weber | Onboarding completed |
+| Email | Name | Personality | Notes |
+|-------|------|-------------|-------|
+| `alex@test.com` | Alex Johnson | The Deep Explorer | Culture + food, medium budget |
+| `sam@test.com` | Sam Smith | The Thrill Seeker | Adventure + nightlife, high budget |
+| `elena@test.com` | Elena Rodriguez | The Culture Scholar | Photography + art, solo |
+| `yuki@test.com` | Yuki Tanaka | The Curious Nomad | Food + culture, low budget |
+| `marco@test.com` | Marco Weber | The Spontaneous Spirit | Nature + adventure, high budget |
 
 ### Hosts
 
@@ -133,14 +133,17 @@ All test accounts use the password `password123`.
 
 ### Traveler flow
 
-1. **Login** at `/login` with a test traveler account
-2. **Explore** places at `/explore` -- browse 216 Hanoi hidden gems with category filters
-3. **View details** -- tap any place card for the full detail page with "Why it fits you"
-4. **Match** at `/match` -- swipe on other travelers to find companions
-5. **Chat** at `/chat` -- message your matches with contextual chips
-6. **Plan a tour** at `/plan` -- configure date, duration, budget, interests, and host preference
-7. **Preview** -- see 3 free stops, then unlock the full itinerary via payment
-8. **Active tour** -- step-by-step navigation with mark-as-visited and emergency contacts
+1. **Login** at `/login` with a test traveler account (or use Google/Apple OAuth buttons)
+2. **Home dashboard** at `/home` -- personalized greeting, personality badge, nearby friends, hidden gems, tour resume
+3. **Explore** places at `/explore` -- browse 216 Hanoi hidden gems with category filters
+4. **View details** -- tap any place card for the full detail page with "Why it fits you"
+5. **Match** at `/match` -- swipe on other travelers to find companions
+6. **Chat** at `/chat` -- message your matches; tap "Plan together" to create a duo tour
+7. **Plan a tour** at `/plan` -- configure date, duration, budget, interests, and host preference
+8. **Preview** -- see 3 free stops, then unlock the full itinerary via payment
+9. **Active tour** -- step-by-step navigation with mark-as-visited and emergency contacts
+10. **Review** -- rate your tour 1-5 stars with optional comment after completing
+11. **Profile** at `/profile` -- view personality, preferences (editable), tour history, emergency contacts
 
 ### Host flow
 

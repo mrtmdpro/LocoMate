@@ -7,6 +7,7 @@ import { chatRouter } from "./chat.router";
 import { tourRouter } from "./tour.router";
 import { paymentRouter } from "./payment.router";
 import { hostRouter } from "./host.router";
+import { reviewRouter } from "./review.router";
 
 export const appRouter = router({
   auth: authRouter,
@@ -17,6 +18,7 @@ export const appRouter = router({
   tour: tourRouter,
   payment: paymentRouter,
   host: hostRouter,
+  review: reviewRouter,
 });
 
 export type AppRouter = typeof appRouter;
