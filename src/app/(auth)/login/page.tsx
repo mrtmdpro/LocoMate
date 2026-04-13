@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
+import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -17,23 +18,32 @@ export default function LoginPage() {
   const router = useRouter();
   const { setAuth } = useAuthStore();
   const [error, setError] = useState("");
+  const [loggingIn, setLoggingIn] = useState(false);
 
   const { register, handleSubmit, formState: { isSubmitting } } = useForm<LoginInput>();
 
   const loginMutation = trpc.auth.login.useMutation({
     onSuccess: (data) => {
+      setLoggingIn(true);
       setAuth(data.user, data.accessToken, data.refreshToken);
-      if (!data.user.onboardingCompleted) {
-        router.push("/onboarding");
-      } else {
-        router.push("/home");
-      }
+      setTimeout(() => {
+        if (!data.user.onboardingCompleted) {
+          router.push("/onboarding");
+        } else {
+          router.push("/home");
+        }
+      }, 600);
     },
     onError: (err) => setError(err.message),
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#D9EDBF]/30 to-white flex items-center justify-center p-4 relative overflow-hidden">
+    <motion.div
+      className="min-h-screen bg-gradient-to-b from-[#D9EDBF]/30 to-white flex items-center justify-center p-4 relative overflow-hidden"
+      initial={{ opacity: 0, y: 20 }}
+      animate={loggingIn ? { opacity: 0, y: -20, scale: 0.98 } : { opacity: 1, y: 0, scale: 1 }}
+      transition={{ duration: loggingIn ? 0.5 : 0.4, ease: "easeInOut" }}
+    >
       <img src="https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=1200&h=800&fit=crop" alt="" className="absolute inset-0 w-full h-full object-cover opacity-10 z-0" />
       <Card className="w-full max-w-md border-0 shadow-xl relative z-10">
         <CardHeader className="text-center pb-2">
@@ -54,9 +64,11 @@ export default function LoginPage() {
               <Label htmlFor="password">Password</Label>
               <Input id="password" type="password" placeholder="Your password" {...register("password", { required: true })} />
             </div>
-            <Button type="submit" className="w-full bg-[#ff8c30] hover:bg-[#e67a20] text-white font-semibold h-12 rounded-xl" disabled={isSubmitting}>
-              {isSubmitting ? "Signing in..." : "Sign In"}
-            </Button>
+            <motion.div whileTap={{ scale: 0.97 }}>
+              <Button type="submit" className="w-full bg-[#ff8c30] hover:bg-[#e67a20] text-white font-semibold h-12 rounded-xl" disabled={isSubmitting || loggingIn}>
+                {loggingIn ? "Welcome!" : isSubmitting ? "Signing in..." : "Sign In"}
+              </Button>
+            </motion.div>
           </form>
 
           <div className="relative my-5">
@@ -97,6 +109,6 @@ export default function LoginPage() {
           </div>
         </CardContent>
       </Card>
-    </div>
+    </motion.div>
   );
 }
