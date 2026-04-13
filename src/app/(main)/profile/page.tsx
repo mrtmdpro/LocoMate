@@ -192,17 +192,17 @@ export default function ProfilePage() {
           <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-medium mb-2 px-1">Account & Security</p>
           <Card className="border border-gray-100 shadow-none">
             <CardContent className="p-0">
-              <button className="w-full flex items-center gap-3 p-4 text-left hover:bg-gray-50 transition-colors">
+              <Link href="/security" className="w-full flex items-center gap-3 p-4 text-left hover:bg-gray-50 transition-colors">
                 <div className="w-9 h-9 rounded-xl bg-[#ff8c30]/10 flex items-center justify-center text-sm">🔒</div>
                 <span className="flex-1 text-sm font-medium">Security Settings</span>
                 <svg className="w-4 h-4 text-gray-300" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
-              </button>
+              </Link>
               <Separator />
-              <button className="w-full flex items-center gap-3 p-4 text-left hover:bg-gray-50 transition-colors">
+              <Link href="/payments" className="w-full flex items-center gap-3 p-4 text-left hover:bg-gray-50 transition-colors">
                 <div className="w-9 h-9 rounded-xl bg-[#ff8c30]/10 flex items-center justify-center text-sm">💳</div>
                 <span className="flex-1 text-sm font-medium">Payment History</span>
                 <svg className="w-4 h-4 text-gray-300" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
-              </button>
+              </Link>
             </CardContent>
           </Card>
         </div>
