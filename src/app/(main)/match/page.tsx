@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { trpc } from "@/lib/trpc";
+import { LogoFull } from "@/components/logo";
 
 export default function MatchPage() {
   const [showMatch, setShowMatch] = useState(false);
@@ -39,7 +40,7 @@ export default function MatchPage() {
           <h1 className="text-2xl font-bold font-heading text-[#3f6f60]">LocoMatch</h1>
           <p className="text-sm text-muted-foreground">Find your travel companion in Hanoi</p>
         </div>
-        <img src="/images/logo.png" alt="LOCOMATE" className="h-9" />
+        <LogoFull size="sm" />
       </div>
 
       <div className="relative h-[480px]">

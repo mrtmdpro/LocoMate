@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useAuthStore } from "@/stores/auth";
+import { LogoIcon, LogoWordmark } from "@/components/logo";
 
 export default function SplashPage() {
   const router = useRouter();
@@ -33,13 +34,14 @@ export default function SplashPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
       >
-        <motion.img
-          src="/images/logo.png"
-          alt="LOCOMATE"
-          className="h-24 mx-auto drop-shadow-lg"
+        <motion.div
+          className="flex flex-col items-center gap-3"
           animate={exiting ? { scale: 1.15 } : { scale: 1 }}
           transition={{ duration: 0.5 }}
-        />
+        >
+          <LogoIcon className="w-20 h-20 drop-shadow-lg" />
+          <LogoWordmark variant="white" className="h-8" />
+        </motion.div>
         <motion.p
           className="text-lg opacity-90 font-medium"
           initial={{ opacity: 0 }}

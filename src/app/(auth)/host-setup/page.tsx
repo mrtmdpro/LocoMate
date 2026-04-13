@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { LogoFull } from "@/components/logo";
 import { Switch } from "@/components/ui/switch";
 
 const LANGUAGES = ["Vietnamese", "English", "French", "Japanese", "Korean", "Chinese", "Spanish"];
@@ -36,7 +37,7 @@ export default function HostSetupPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#D9EDBF]/20 to-white p-4">
       <div className="max-w-md mx-auto pt-6">
-        <img src="/images/logo.png" alt="LOCOMATE" className="h-10 mx-auto mb-6" />
+        <LogoFull size="md" className="justify-center mb-6" />
         <div className="flex gap-1.5 mb-8">
           {[0, 1, 2, 3].map((i) => (
             <div key={i} className={`h-1.5 flex-1 rounded-full transition-all ${i <= step ? "bg-[#3f6f60]" : "bg-gray-200"}`} />

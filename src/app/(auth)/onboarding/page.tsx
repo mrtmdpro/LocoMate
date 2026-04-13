@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { LogoFull } from "@/components/logo";
 import { Slider } from "@/components/ui/slider";
 import { trpc } from "@/lib/trpc";
 import { useAuthStore } from "@/stores/auth";
@@ -70,7 +71,7 @@ export default function OnboardingPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#D9EDBF]/20 to-white p-4">
       <div className="max-w-md mx-auto pt-6">
-        <img src="/images/logo.png" alt="LOCOMATE" className="h-10 mx-auto mb-6" />
+        <LogoFull size="md" className="justify-center mb-6" />
         {/* Progress */}
         <div className="flex gap-1.5 mb-8">
           {Array.from({ length: totalSteps }).map((_, i) => (

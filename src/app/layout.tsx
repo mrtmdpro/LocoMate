@@ -10,7 +10,7 @@ const sora = Sora({ subsets: ["latin"], variable: "--font-sora" });
 export const metadata: Metadata = {
   title: "LOCOMATE - Your Hanoi Travel Companion",
   description: "AI-powered personalized travel experiences for solo travelers in Hanoi",
-  icons: { icon: "/images/logo.png", apple: "/images/logo.png" },
+  icons: { icon: "/favicon.svg", apple: "/favicon.svg" },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

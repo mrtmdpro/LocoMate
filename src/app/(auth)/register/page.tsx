@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -11,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { trpc } from "@/lib/trpc";
 import { useAuthStore } from "@/stores/auth";
+import { LogoFull } from "@/components/logo";
 import type { RegisterInput } from "@/lib/validations/auth";
 
 export default function RegisterPage() {
@@ -34,7 +34,7 @@ export default function RegisterPage() {
       <img src="https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=1200&h=800&fit=crop" alt="" className="absolute inset-0 w-full h-full object-cover opacity-10 z-0" />
       <Card className="w-full max-w-md border-0 shadow-xl relative z-10">
         <CardHeader className="text-center pb-2">
-          <Image src="/images/logo.png" alt="LOCOMATE" width={56} height={56} className="mx-auto mb-1" priority />
+          <LogoFull size="lg" className="justify-center mb-1" />
           <CardTitle className="text-xl text-[#3f6f60]">Create your account</CardTitle>
           <p className="text-sm text-muted-foreground mt-1">Start your personalized Hanoi journey</p>
         </CardHeader>

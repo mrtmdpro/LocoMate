@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useAuthStore } from "@/stores/auth";
+import { LogoFull } from "@/components/logo";
 import { trpc } from "@/lib/trpc";
 
 const CATEGORIES = ["All", "Cafe", "Restaurant", "Cultural", "Nature", "Nightlife", "Workshop", "Art"];
@@ -31,7 +32,7 @@ export default function ExplorePage() {
           <p className="text-sm text-muted-foreground">Xin Chao, {user?.displayName?.split(" ")[0]}!</p>
           <h1 className="text-2xl font-bold font-heading text-[#3f6f60]">Explore Hanoi</h1>
         </div>
-        <img src="/images/logo.png" alt="LOCOMATE" className="h-9" />
+        <LogoFull size="sm" />
       </div>
 
       {/* Search */}

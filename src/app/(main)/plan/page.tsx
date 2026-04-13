@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
+import { LogoFull } from "@/components/logo";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -67,7 +68,7 @@ export default function PlanPage() {
           <h1 className="text-2xl font-bold font-heading text-[#3f6f60]">Design Your Tour</h1>
           <p className="text-sm text-muted-foreground mt-1">{companion ? `AI crafts a tour for you and ${companion.displayName.split(" ")[0]}` : "AI crafts a personalized Hanoi itinerary just for you"}</p>
         </div>
-        <img src="/images/logo.png" alt="LOCOMATE" className="h-9 shrink-0" />
+        <LogoFull size="sm" />
       </div>
 
       {/* Date & Time */}
@@ -221,13 +222,13 @@ function TourGeneratingOverlay() {
       exit={{ opacity: 0 }}
       className="fixed inset-0 z-50 bg-white/95 backdrop-blur-sm flex flex-col items-center justify-center"
     >
-      <motion.img
-        src="/images/logo.png"
-        alt=""
-        className="h-16 mb-6"
+      <motion.div
+        className="mb-6"
         animate={{ scale: [1, 1.08, 1] }}
         transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-      />
+      >
+        <LogoFull size="lg" />
+      </motion.div>
       <div className="flex gap-1.5 mb-6">
         {[0, 1, 2].map((i) => (
           <motion.div

@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { trpc } from "@/lib/trpc";
 import { useAuthStore } from "@/stores/auth";
+import { LogoFull } from "@/components/logo";
 import type { LoginInput } from "@/lib/validations/auth";
 
 export default function LoginPage() {
@@ -47,7 +48,7 @@ export default function LoginPage() {
       <img src="https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=1200&h=800&fit=crop" alt="" className="absolute inset-0 w-full h-full object-cover opacity-10 z-0" />
       <Card className="w-full max-w-md border-0 shadow-xl relative z-10">
         <CardHeader className="text-center pb-2">
-          <img src="/images/logo.png" alt="LOCOMATE" className="h-14 mx-auto mb-1" />
+          <LogoFull size="lg" className="justify-center mb-1" />
           <CardTitle className="text-xl text-[#3f6f60]">Welcome back</CardTitle>
           <p className="text-sm text-muted-foreground mt-1">Sign in to continue your Hanoi adventure</p>
         </CardHeader>

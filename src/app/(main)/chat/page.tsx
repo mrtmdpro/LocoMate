@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc";
+import { LogoFull } from "@/components/logo";
 
 export default function ChatInboxPage() {
   const { data: conversations, isLoading } = trpc.chat.getConversations.useQuery();
@@ -14,7 +15,7 @@ export default function ChatInboxPage() {
     <PageTransition><div className="p-4 space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold font-heading text-[#3f6f60]">Messages</h1>
-        <img src="/images/logo.png" alt="LOCOMATE" className="h-9" />
+        <LogoFull size="sm" />
       </div>
 
       {isLoading ? (
