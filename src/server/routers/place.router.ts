@@ -42,6 +42,17 @@ export const placeRouter = router({
       return place;
     }),
 
+  getByIds: protectedProcedure
+    .input(z.object({ ids: z.array(z.string().uuid()).max(100) }))
+    .query(async ({ ctx, input }) => {
+      if (input.ids.length === 0) return [];
+      const results = await ctx.db
+        .select()
+        .from(places)
+        .where(sql`${places.id} IN (${sql.join(input.ids.map((id) => sql`${id}`), sql`, `)})`);
+      return results;
+    }),
+
   search: publicProcedure
     .input(z.object({ query: z.string().min(1), limit: z.number().default(10) }))
     .query(async ({ ctx, input }) => {
