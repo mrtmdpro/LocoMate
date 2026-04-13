@@ -99,7 +99,7 @@ export default function ProfilePage() {
           <div className="absolute bottom-1 right-1 w-5 h-5 bg-[#90D26D] border-2 border-white rounded-full" />
         </div>
         <h2 className="text-xl font-bold font-heading text-[#3f6f60] mt-3">{user?.displayName}</h2>
-        <Badge className="bg-[#3f6f60] text-white border-0 text-[10px] mt-1.5 uppercase tracking-wider font-semibold px-3">Premium Member</Badge>
+        <MemberBadge tourCount={completedTours.length} />
       </div>
 
       <div className="px-4 space-y-4">
@@ -335,5 +335,22 @@ function LanguageRow() {
         </div>
       )}
     </div>
+  );
+}
+
+function MemberBadge({ tourCount }: { tourCount: number }) {
+  const count = Math.max(0, tourCount || 0);
+  const tier = count >= 5
+    ? { label: "VIP Traveler", bg: "bg-[#ff8c30]", icon: "👑" }
+    : count >= 3
+    ? { label: "Premium Member", bg: "bg-[#3f6f60]", icon: "⭐" }
+    : count >= 1
+    ? { label: "Member", bg: "bg-[#3f6f60]/80", icon: "✓" }
+    : { label: "Explorer", bg: "bg-gray-400", icon: "🌱" };
+
+  return (
+    <Badge className={`${tier.bg} text-white border-0 text-[10px] mt-1.5 uppercase tracking-wider font-semibold px-3`} aria-label={tier.label}>
+      <span aria-hidden="true">{tier.icon}</span> {tier.label}
+    </Badge>
   );
 }
