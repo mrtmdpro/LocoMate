@@ -8,7 +8,19 @@ import { useAuthStore } from "@/stores/auth";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => new QueryClient({
-    defaultOptions: { queries: { staleTime: 30_000, retry: 1 } },
+    defaultOptions: {
+      queries: {
+        staleTime: 30_000,
+        retry: (failureCount, error) => {
+          if ((error as { data?: { httpStatus?: number } })?.data?.httpStatus === 401) {
+            useAuthStore.getState().logout();
+            window.location.href = "/login";
+            return false;
+          }
+          return failureCount < 2;
+        },
+      },
+    },
   }));
 
   const [trpcClient] = useState(() =>
