@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { PageTransition } from "@/components/layout/page-transition";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -22,6 +23,7 @@ export default function ExplorePage() {
   );
 
   return (
+    <PageTransition>
     <div className="p-4 space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -83,6 +85,7 @@ export default function ExplorePage() {
         </div>
       )}
     </div>
+    </PageTransition>
   );
 }
 

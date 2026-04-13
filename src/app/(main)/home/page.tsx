@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { PageTransition } from "@/components/layout/page-transition";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -45,7 +46,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="p-4 space-y-5">
+    <PageTransition><div className="p-4 space-y-5">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -206,6 +207,6 @@ export default function HomePage() {
           })}
         </div>
       )}
-    </div>
+    </div></PageTransition>
   );
 }
