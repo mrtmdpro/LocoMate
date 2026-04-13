@@ -42,6 +42,14 @@ export const placeRouter = router({
       return place;
     }),
 
+  getBySlug: protectedProcedure
+    .input(z.object({ slug: z.string().min(1).max(250) }))
+    .query(async ({ ctx, input }) => {
+      return ctx.db.query.places.findFirst({
+        where: eq(places.slug, input.slug),
+      });
+    }),
+
   getByIds: protectedProcedure
     .input(z.object({ ids: z.array(z.string().uuid()).max(100) }))
     .query(async ({ ctx, input }) => {

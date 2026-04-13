@@ -94,6 +94,7 @@ export const places = pgTable(
   {
     id: uuid("id").defaultRandom().primaryKey(),
     name: varchar("name", { length: 200 }).notNull(),
+    slug: varchar("slug", { length: 250 }).unique(),
     description: varchar("description", { length: 500 }),
     category: varchar("category", { length: 50 }).notNull(),
     latitude: doublePrecision("latitude").notNull(),

@@ -92,6 +92,7 @@ export default function ExplorePage() {
 function PlaceCard({ place }: { place: Record<string, unknown> }) {
   const p = place as {
     id: string;
+    slug: string | null;
     name: string;
     description: string | null;
     category: string;
@@ -107,7 +108,7 @@ function PlaceCard({ place }: { place: Record<string, unknown> }) {
   const photo = p.photos?.[0];
 
   return (
-    <Link href={`/explore/${p.id}`}>
+    <Link href={`/explore/${p.slug || p.id}`}>
       <Card className="overflow-hidden border-0 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
         <div className="h-40 bg-gradient-to-br from-[#3f6f60] to-[#90D26D] relative overflow-hidden">
           {photo && <img src={photo} alt={p.name} className="absolute inset-0 w-full h-full object-cover" />}

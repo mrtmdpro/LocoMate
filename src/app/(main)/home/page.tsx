@@ -163,9 +163,9 @@ export default function HomePage() {
         </div>
         <div className="flex gap-3 overflow-x-auto pb-1">
           {topPlaces.map((place) => {
-            const p = place as { id: string; name: string; category: string; photos: string[] | null; avgRating: string | null };
+            const p = place as { id: string; slug: string | null; name: string; category: string; photos: string[] | null; avgRating: string | null };
             return (
-              <Link key={p.id} href={`/explore/${p.id}`} className="shrink-0 w-40">
+              <Link key={p.id} href={`/explore/${p.slug || p.id}`} className="shrink-0 w-40">
                 <Card className="border-0 shadow-sm overflow-hidden">
                   <div className="h-24 bg-gradient-to-br from-[#3f6f60] to-[#90D26D] relative overflow-hidden">
                     {p.photos?.[0] && <img src={p.photos[0]} alt={p.name} className="absolute inset-0 w-full h-full object-cover" />}

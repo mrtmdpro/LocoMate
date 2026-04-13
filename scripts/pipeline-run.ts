@@ -4,7 +4,9 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import { fetchHanoiPlaces, type OSMPlace } from "./lib/overpass";
 import { scorePlaceTags } from "./lib/tag-scorer";
 import { getPhotosForPlace } from "./lib/photo-fetcher";
+import { eq } from "drizzle-orm";
 import * as schema from "../src/server/db/schema";
+import { slugify } from "../src/lib/slugify";
 
 const dbUrl = process.env.DATABASE_URL!;
 const client = postgres(dbUrl, { ssl: dbUrl.includes("neon.tech") ? "require" : undefined });
@@ -103,8 +105,14 @@ async function run() {
     const placeName = place.nameEn || place.name;
     if (existingNames.has(placeName.toLowerCase().trim())) { skipped++; continue; }
     try {
+      let placeSlug = slugify(placeName);
+      let suffix = 2;
+      while (await db.query.places.findFirst({ where: eq(schema.places.slug, placeSlug) })) {
+        placeSlug = slugify(placeName) + "-" + suffix++;
+      }
       await db.insert(schema.places).values({
         name: placeName,
+        slug: placeSlug,
         description: generateDescription(place),
         category: place.category,
         latitude: place.latitude,

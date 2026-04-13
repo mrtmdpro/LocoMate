@@ -8,6 +8,13 @@
       "when": 1775497985267,
       "tag": "0000_chief_xavin",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1776099146790,
+      "tag": "0001_light_vector",
+      "breakpoints": true
     }
   ]
 }

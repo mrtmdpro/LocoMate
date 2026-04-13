@@ -89,7 +89,7 @@ export default function SavedPlacesPage() {
           {filtered.map((place) => {
             const photos = place.photos as string[] | null;
             return (
-              <Link key={place.id} href={`/explore/${place.id}`}>
+              <Link key={place.id} href={`/explore/${place.slug || place.id}`}>
                 <Card className="border-0 shadow-sm overflow-hidden hover:shadow-md transition-shadow cursor-pointer">
                   <div className="h-28 bg-gradient-to-br from-[#3f6f60] to-[#90D26D] relative overflow-hidden">
                     {photos?.[0] && <img src={photos[0]} alt={place.name} className="absolute inset-0 w-full h-full object-cover" />}

@@ -2,7 +2,9 @@ import "dotenv/config";
 import postgres from "postgres";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { hashSync } from "bcryptjs";
+import { eq } from "drizzle-orm";
 import * as schema from "./schema";
+import { slugify } from "../../lib/slugify";
 
 const dbUrl = process.env.DATABASE_URL!;
 const client = postgres(dbUrl, {
@@ -340,11 +342,17 @@ async function seed() {
   // Seed places
   const allPlaces = [...HANOI_PLACES, ...generateMorePlaces()];
 
+  const usedSlugs = new Set<string>();
   for (let i = 0; i < allPlaces.length; i++) {
     const place = allPlaces[i];
     const photos = place.photos || getPhotosForCategory(place.category, i);
+    let slug = slugify(place.name);
+    let suffix = 2;
+    while (usedSlugs.has(slug)) { slug = slugify(place.name) + "-" + suffix++; }
+    usedSlugs.add(slug);
     await db.insert(schema.places).values({
       name: place.name,
+      slug,
       description: place.description,
       category: place.category,
       latitude: place.latitude,

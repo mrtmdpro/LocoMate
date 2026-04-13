@@ -10,7 +10,12 @@ import { toast } from "sonner";
 export default function PlaceDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
-  const { data: place, isLoading } = trpc.place.getById.useQuery({ id });
+
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+  const { data: placeById, isLoading: loadingById } = trpc.place.getById.useQuery({ id }, { enabled: isUuid });
+  const { data: placeBySlug, isLoading: loadingBySlug } = trpc.place.getBySlug.useQuery({ slug: id }, { enabled: !isUuid });
+  const place = isUuid ? placeById : placeBySlug;
+  const isLoading = isUuid ? loadingById : loadingBySlug;
 
   if (isLoading) return <div className="p-4"><div className="h-64 bg-gray-100 rounded-2xl animate-pulse" /></div>;
   if (!place) return <div className="p-4 text-center">Place not found</div>;
