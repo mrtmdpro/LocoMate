@@ -91,18 +91,20 @@ async function run() {
   });
   console.log(`  Scored all ${scoredPlaces.length} places.\n`);
 
-  // Pipeline 4: Write to database
-  console.log("[Pipeline 4] Writing to production database...");
-  console.log("  Clearing old places...");
-  await db.delete(schema.tourStops);
-  await db.delete(schema.tours);
-  await db.delete(schema.places);
+  // Pipeline 4: Write to database (append mode - skip duplicates)
+  console.log("[Pipeline 4] Writing to production database (append mode)...");
+  const existingPlaces = await db.select({ name: schema.places.name }).from(schema.places);
+  const existingNames = new Set(existingPlaces.map((p) => p.name.toLowerCase().trim()));
+  console.log(`  ${existingNames.size} places already in DB, will skip duplicates.`);
 
   let written = 0;
+  let skipped = 0;
   for (const { place, photos, experienceTags, emotionalTags } of scoredPlaces) {
+    const placeName = place.nameEn || place.name;
+    if (existingNames.has(placeName.toLowerCase().trim())) { skipped++; continue; }
     try {
       await db.insert(schema.places).values({
-        name: place.nameEn || place.name,
+        name: placeName,
         description: generateDescription(place),
         category: place.category,
         latitude: place.latitude,
@@ -127,7 +129,7 @@ async function run() {
   }
 
   console.log(`\n=== PIPELINE COMPLETE ===`);
-  console.log(`Written ${written} real Hanoi places to database.`);
+  console.log(`Written ${written} new places (${skipped} duplicates skipped).`);
   console.log("Category breakdown:", catCounts);
 
   await client.end();

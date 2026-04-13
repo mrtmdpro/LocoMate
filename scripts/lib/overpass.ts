@@ -111,8 +111,8 @@ export async function fetchHanoiPlaces(): Promise<OSMPlace[]> {
 
       console.log(`    Found ${elements.length} raw, ${allPlaces.length} total unique`);
 
-      // Rate limit: 1 second between queries
-      await new Promise((r) => setTimeout(r, 1200));
+      // Rate limit: 5 seconds between queries to avoid 429/504
+      await new Promise((r) => setTimeout(r, 5000));
     } catch (err) {
       console.log(`    Error: ${err}`);
     }
