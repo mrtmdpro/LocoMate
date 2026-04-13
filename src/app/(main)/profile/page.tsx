@@ -130,7 +130,7 @@ export default function ProfilePage() {
         {/* Stats Row */}
         <div className="grid grid-cols-3 gap-3">
           {[
-            { label: "SAVED PLACES", value: placesVisited || 12 },
+            { label: "SAVED PLACES", value: placesVisited },
             { label: "TOURS TAKEN", value: completedTours.length },
             { label: "LOCAL FRIENDS", value: matches?.length || 0 },
           ].map((stat) => (
@@ -166,7 +166,7 @@ export default function ProfilePage() {
                 </div>
                 <CardContent className="p-3">
                   <p className="text-sm font-semibold text-[#3f6f60]">Saved Places</p>
-                  <p className="text-[10px] text-muted-foreground">{placesVisited || 12} items</p>
+                  <p className="text-[10px] text-muted-foreground">{placesVisited} items</p>
                 </CardContent>
               </Card>
             </Link>
