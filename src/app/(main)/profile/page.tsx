@@ -71,9 +71,9 @@ export default function ProfilePage() {
           <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
         </button>
         <h1 className="font-semibold text-[#3f6f60]">Profile</h1>
-        <Link href="/profile/preferences">
-          <svg className="w-6 h-6 text-gray-500" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 010 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 010-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-        </Link>
+        <button type="button" aria-label="App settings" onClick={() => toast.info("App settings coming soon")} className="text-gray-500">
+          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 010 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 010-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+        </button>
       </div>
 
       {/* Centered Avatar + Name */}
@@ -111,6 +111,22 @@ export default function ProfilePage() {
           </CardContent>
         </Card>
 
+        {/* My Preferences */}
+        <Link href="/profile/preferences">
+          <Card className="border border-[#ff8c30]/20 bg-[#ff8c30]/5 shadow-none">
+            <CardContent className="p-3 flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-[#ff8c30]/10 flex items-center justify-center text-sm">✏️</div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-[#ff8c30]">My Preferences</p>
+                <p className="text-[10px] text-muted-foreground truncate">
+                  {(explicit.intent ?? []).slice(0, 2).join(", ") || "Set your travel style"} &middot; {explicit.budget || "budget"} &middot; {(explicit.social_preference || "solo").replaceAll("_", " ")}
+                </p>
+              </div>
+              <svg className="w-4 h-4 text-[#ff8c30]" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
+            </CardContent>
+          </Card>
+        </Link>
+
         {/* Stats Row */}
         <div className="grid grid-cols-3 gap-3">
           {[
@@ -134,12 +150,7 @@ export default function ProfilePage() {
             <CardContent className="p-0">
               <EmergencyContactsRow contacts={contacts || []} />
               <Separator />
-              <button className="w-full flex items-center gap-3 p-4 text-left hover:bg-gray-50 transition-colors">
-                <div className="w-9 h-9 rounded-xl bg-[#D9EDBF]/50 flex items-center justify-center text-sm">🌐</div>
-                <span className="flex-1 text-sm font-medium">Language</span>
-                <span className="text-xs text-muted-foreground">English</span>
-                <svg className="w-4 h-4 text-gray-300" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
-              </button>
+              <LanguageRow />
             </CardContent>
           </Card>
         </div>
@@ -148,8 +159,8 @@ export default function ProfilePage() {
         <div>
           <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-medium mb-2 px-1">Activity</p>
           <div className="grid grid-cols-2 gap-3">
-            <Link href="/profile/preferences">
-              <Card className="border border-gray-100 shadow-none overflow-hidden">
+            <Link href="/explore">
+              <Card className="border border-gray-100 shadow-none overflow-hidden cursor-pointer hover:shadow-sm transition-shadow">
                 <div className="h-24 bg-gradient-to-br from-[#D9EDBF] to-[#90D26D]/30 flex items-center justify-center">
                   <div className="text-2xl">📍</div>
                 </div>
@@ -159,18 +170,20 @@ export default function ProfilePage() {
                 </CardContent>
               </Card>
             </Link>
-            <Card className="border border-gray-100 shadow-none overflow-hidden">
-              <div className="h-24 bg-gradient-to-br from-[#3f6f60] to-[#2d5a4d] flex items-center justify-center">
-                <div className="text-center text-white">
-                  <p className="text-[8px] uppercase tracking-wider opacity-70">Tour History</p>
-                  <p className="text-lg font-heading font-bold">🗺</p>
+            <Link href="/plan">
+              <Card className="border border-gray-100 shadow-none overflow-hidden cursor-pointer hover:shadow-sm transition-shadow">
+                <div className="h-24 bg-gradient-to-br from-[#3f6f60] to-[#2d5a4d] flex items-center justify-center">
+                  <div className="text-center text-white">
+                    <p className="text-[8px] uppercase tracking-wider opacity-70">Tour History</p>
+                    <p className="text-lg font-heading font-bold">🗺</p>
+                  </div>
                 </div>
-              </div>
-              <CardContent className="p-3">
-                <p className="text-sm font-semibold text-[#3f6f60]">Tour History</p>
-                <p className="text-[10px] text-muted-foreground">{completedTours.length} completed</p>
-              </CardContent>
-            </Card>
+                <CardContent className="p-3">
+                  <p className="text-sm font-semibold text-[#3f6f60]">Tour History</p>
+                  <p className="text-[10px] text-muted-foreground">{completedTours.length} completed</p>
+                </CardContent>
+              </Card>
+            </Link>
           </div>
         </div>
 
@@ -279,5 +292,37 @@ function EmergencyContactsRow({ contacts: initialContacts }: { contacts: { id: s
         </div>
       )}
     </>
+  );
+}
+
+function LanguageRow() {
+  const [open, setOpen] = useState(false);
+  const [lang, setLang] = useState("English");
+  const languages = ["English", "Tiếng Việt", "日本語", "한국어", "Français", "Español", "中文"];
+
+  return (
+    <div>
+      <button type="button" aria-expanded={open} onClick={() => setOpen(!open)} className="w-full flex items-center gap-3 p-4 text-left hover:bg-gray-50 transition-colors">
+        <div className="w-9 h-9 rounded-xl bg-[#D9EDBF]/50 flex items-center justify-center text-sm">🌐</div>
+        <span className="flex-1 text-sm font-medium">Language</span>
+        <span className="text-xs text-muted-foreground">{lang}</span>
+        <svg className={`w-4 h-4 text-gray-300 transition-transform ${open ? "rotate-90" : ""}`} fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
+      </button>
+      {open && (
+        <div className="px-4 pb-3 grid grid-cols-2 gap-1.5">
+          {languages.map((l) => (
+            <button
+              key={l}
+              onClick={() => { setLang(l); setOpen(false); toast.success(`Language set to ${l}`); }}
+              className={`py-2 px-3 rounded-lg text-xs font-medium transition-all ${
+                lang === l ? "bg-[#3f6f60] text-white" : "bg-gray-50 text-gray-600 hover:bg-gray-100"
+              }`}
+            >
+              {l}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
