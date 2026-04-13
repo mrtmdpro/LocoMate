@@ -7,13 +7,29 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/stores/auth";
 import { trpc } from "@/lib/trpc";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function HomePage() {
   const { user } = useAuthStore();
-  const { data: profileData } = trpc.user.getProfile.useQuery();
-  const { data: tourHistory } = trpc.tour.getHistory.useQuery();
+  const { data: profileData, isLoading: profileLoading } = trpc.user.getProfile.useQuery();
+  const { data: tourHistory, isLoading: toursLoading } = trpc.tour.getHistory.useQuery();
   const { data: matches } = trpc.match.getMatches.useQuery();
-  const { data: places } = trpc.place.getFeed.useQuery({ limit: 5 });
+  const { data: places, isLoading: placesLoading } = trpc.place.getFeed.useQuery({ limit: 5 });
+
+  if (profileLoading || toursLoading || placesLoading) {
+    return (
+      <div className="p-4 space-y-4">
+        <div className="flex items-center justify-between">
+          <div><Skeleton className="h-4 w-24 mb-2" /><Skeleton className="h-7 w-32" /></div>
+          <Skeleton className="h-10 w-10 rounded-full" />
+        </div>
+        <Skeleton className="h-16 w-full rounded-xl" />
+        <Skeleton className="h-44 w-full rounded-2xl" />
+        <div><Skeleton className="h-5 w-32 mb-3" /><div className="flex gap-3"><Skeleton className="h-20 w-16 rounded-full" /><Skeleton className="h-20 w-16 rounded-full" /><Skeleton className="h-20 w-16 rounded-full" /></div></div>
+        <div><Skeleton className="h-5 w-28 mb-3" /><div className="flex gap-3"><Skeleton className="h-36 w-40 rounded-xl" /><Skeleton className="h-36 w-40 rounded-xl" /><Skeleton className="h-36 w-40 rounded-xl" /></div></div>
+      </div>
+    );
+  }
 
   const derived = (profileData?.profile?.derivedData || {}) as { personalityLabel?: string };
   const activeTour = (tourHistory || []).find((t) => t.status === "active" || t.status === "paid");

@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc";
 import { useState } from "react";
+import { toast } from "sonner";
 
 interface TourStop {
   placeId: string;
@@ -23,12 +24,30 @@ export default function ActiveTourPage() {
   const [visitedStops, setVisitedStops] = useState<Set<number>>(new Set());
   const [locationSharing, setLocationSharing] = useState(false);
 
-  const { data: tour } = trpc.tour.getFullTour.useQuery({ tourId: id }, { retry: false });
+  const { data: tour, isLoading } = trpc.tour.getFullTour.useQuery({ tourId: id }, { retry: false });
   const completeMutation = trpc.tour.completeTour.useMutation({
     onSuccess: () => router.push(`/tour/${id}/review`),
   });
 
-  if (!tour) return <div className="p-4 text-center text-muted-foreground pt-20">Loading tour...</div>;
+  if (isLoading || !tour) {
+    return (
+      <div className="min-h-screen bg-white">
+        <div className="bg-[#3f6f60] px-4 py-3">
+          <div className="flex items-center justify-between mb-2">
+            <div className="h-5 w-5 bg-white/20 rounded animate-pulse" />
+            <div className="h-4 w-20 bg-white/20 rounded animate-pulse" />
+            <div className="h-5 w-10 bg-white/20 rounded animate-pulse" />
+          </div>
+          <div className="w-full bg-white/20 rounded-full h-2" />
+        </div>
+        <div className="p-4 space-y-4">
+          <div className="h-52 bg-gray-100 rounded-xl animate-pulse" />
+          <div className="h-16 bg-gray-100 rounded-xl animate-pulse" />
+          <div className="h-40 bg-gray-100 rounded-xl animate-pulse" />
+        </div>
+      </div>
+    );
+  }
 
   const tourData = tour.tourData as {
     title: string;
@@ -143,7 +162,7 @@ export default function ActiveTourPage() {
           >
             {locationSharing ? "📍 Stop Sharing" : "📍 Share Location"}
           </Button>
-          <Button variant="outline" className="flex-1 rounded-xl text-red-500 border-red-200 hover:bg-red-50">
+          <Button variant="outline" className="flex-1 rounded-xl text-red-500 border-red-200 hover:bg-red-50" onClick={() => toast.info("Emergency: Police 113 | Ambulance 115 | Fire 114", { duration: 10000 })}>
             🆘 Emergency
           </Button>
         </div>

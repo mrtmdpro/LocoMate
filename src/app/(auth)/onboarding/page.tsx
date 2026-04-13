@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -23,6 +23,8 @@ export default function OnboardingPage() {
   const router = useRouter();
   const { user, setAuth, accessToken, refreshToken } = useAuthStore();
   const [step, setStep] = useState(0);
+
+  const [direction, setDirection] = useState(1);
 
   const [intent, setIntent] = useState<string[]>([]);
   const [scenario, setScenario] = useState("");
@@ -68,7 +70,7 @@ export default function OnboardingPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#D9EDBF]/20 to-white p-4">
       <div className="max-w-md mx-auto pt-6">
-        <Image src="/images/logo.png" alt="LOCOMATE" width={40} height={40} className="mx-auto mb-6" priority />
+        <img src="/images/logo.png" alt="LOCOMATE" className="h-10 mx-auto mb-6" />
         {/* Progress */}
         <div className="flex gap-1.5 mb-8">
           {Array.from({ length: totalSteps }).map((_, i) => (
@@ -76,6 +78,7 @@ export default function OnboardingPage() {
           ))}
         </div>
 
+        <motion.div key={step} initial={{ opacity: 0, x: direction > 0 ? 40 : -40 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.25 }}>
         {/* Step 1: Intent + Scenario */}
         {step === 0 && (
           <div className="space-y-6">
@@ -235,16 +238,18 @@ export default function OnboardingPage() {
           </div>
         )}
 
+        </motion.div>
+
         {/* Navigation */}
         <div className="flex gap-3 mt-8">
           {step > 0 && (
-            <Button variant="outline" onClick={() => setStep(step - 1)} className="flex-1 h-12 rounded-xl">
+            <Button variant="outline" onClick={() => { setDirection(-1); setStep(step - 1); }} className="flex-1 h-12 rounded-xl">
               Back
             </Button>
           )}
           {step < totalSteps - 1 ? (
             <Button
-              onClick={() => setStep(step + 1)}
+              onClick={() => { setDirection(1); setStep(step + 1); }}
               disabled={!canNext}
               className="flex-1 h-12 rounded-xl bg-[#ff8c30] hover:bg-[#e67a20] text-white font-semibold"
             >

@@ -7,6 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuthStore } from "@/stores/auth";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export default function HostDashboardPage() {
   const { user } = useAuthStore();
@@ -101,8 +102,8 @@ export default function HostDashboardPage() {
                 </div>
               </div>
               <div className="flex gap-2">
-                <Button className="flex-1 h-10 rounded-xl bg-[#ff8c30] hover:bg-[#e67a20] text-white text-sm">Accept</Button>
-                <Button variant="outline" className="flex-1 h-10 rounded-xl text-sm">Decline</Button>
+                <Button className="flex-1 h-10 rounded-xl bg-[#ff8c30] hover:bg-[#e67a20] text-white text-sm" onClick={() => toast.success("Request accepted!")}>Accept</Button>
+                <Button variant="outline" className="flex-1 h-10 rounded-xl text-sm" onClick={() => toast("Request declined")}>Decline</Button>
               </div>
             </CardContent>
           </Card>

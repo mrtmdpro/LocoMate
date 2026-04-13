@@ -14,13 +14,25 @@ export default function CheckoutPage() {
   const [paymentMethod, setPaymentMethod] = useState<"card" | "qr">("card");
   const [promoCode, setPromoCode] = useState("");
 
-  const { data: tour } = trpc.tour.getPreview.useQuery({ tourId: id });
+  const { data: tour, isLoading } = trpc.tour.getPreview.useQuery({ tourId: id });
   const createIntentMutation = trpc.payment.createIntent.useMutation();
   const confirmMutation = trpc.payment.confirm.useMutation({
     onSuccess: (result) => {
       router.push(`/tour/${result.tourId}`);
     },
   });
+
+  if (isLoading) {
+    return (
+      <div className="p-4 space-y-4 pt-8">
+        <div className="h-6 w-24 bg-gray-200 rounded animate-pulse" />
+        <div className="h-32 bg-gray-100 rounded-xl animate-pulse" />
+        <div className="h-16 bg-gray-100 rounded-xl animate-pulse" />
+        <div className="h-40 bg-gray-100 rounded-xl animate-pulse" />
+        <div className="h-10 bg-gray-100 rounded-xl animate-pulse" />
+      </div>
+    );
+  }
 
   const amount = tour?.priceAmount || 250000;
   const packageLabel = tour?.packageType === "solo_mate" ? "Solo Mate" : tour?.packageType === "social_tour" ? "Social Tour" : "Loco Route";

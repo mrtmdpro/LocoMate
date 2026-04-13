@@ -17,7 +17,7 @@ import { toast } from "sonner";
 export default function ProfilePage() {
   const router = useRouter();
   const { user, logout } = useAuthStore();
-  const { data } = trpc.user.getProfile.useQuery();
+  const { data, isLoading: profileLoading } = trpc.user.getProfile.useQuery();
   const { data: tourHistory } = trpc.tour.getHistory.useQuery();
   const { data: contacts } = trpc.user.getEmergencyContacts.useQuery();
   const { data: matches } = trpc.match.getMatches.useQuery();
@@ -37,6 +37,18 @@ export default function ProfilePage() {
     style?: { chill_explore?: number; plan_spontaneous?: number };
     social_preference?: string; time_preference?: string[];
   };
+
+  if (profileLoading) {
+    return (
+      <div className="p-4 space-y-4 pb-24">
+        <div className="bg-white rounded-xl overflow-hidden shadow-md"><div className="h-24 bg-gray-200 animate-pulse" /><div className="p-4 flex items-end gap-4 -mt-10"><div className="w-20 h-20 rounded-full bg-gray-300 animate-pulse border-4 border-white" /><div className="flex-1 pb-1 space-y-2"><div className="h-5 w-32 bg-gray-200 rounded animate-pulse" /><div className="h-3 w-48 bg-gray-100 rounded animate-pulse" /></div></div></div>
+        <div className="h-20 bg-gray-100 rounded-xl animate-pulse" />
+        <div className="grid grid-cols-3 gap-3"><div className="h-16 bg-gray-100 rounded-xl animate-pulse" /><div className="h-16 bg-gray-100 rounded-xl animate-pulse" /><div className="h-16 bg-gray-100 rounded-xl animate-pulse" /></div>
+        <div className="h-14 bg-gray-100 rounded-xl animate-pulse" />
+        <div className="h-14 bg-gray-100 rounded-xl animate-pulse" />
+      </div>
+    );
+  }
 
   const topTraits = Object.entries(derived.personality || {})
     .sort((a, b) => b[1] - a[1])

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
 
 export default function PlaceDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -65,7 +66,7 @@ export default function PlaceDetailPage() {
         </Card>
 
         <div className="flex gap-3 pt-2">
-          <Button variant="outline" className="flex-1 h-12 rounded-xl">Save</Button>
+          <Button variant="outline" className="flex-1 h-12 rounded-xl" onClick={() => toast.success("Place saved to favorites!")}>Save</Button>
           <Button className="flex-1 h-12 rounded-xl bg-[#ff8c30] hover:bg-[#e67a20] text-white font-semibold" onClick={() => router.push("/plan")}>
             Add to Tour
           </Button>

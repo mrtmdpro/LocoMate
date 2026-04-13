@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -37,7 +37,7 @@ export default function LoginPage() {
       <img src="https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=1200&h=800&fit=crop" alt="" className="absolute inset-0 w-full h-full object-cover opacity-10 z-0" />
       <Card className="w-full max-w-md border-0 shadow-xl relative z-10">
         <CardHeader className="text-center pb-2">
-          <Image src="/images/logo.png" alt="LOCOMATE" width={56} height={56} className="mx-auto mb-1" priority />
+          <img src="/images/logo.png" alt="LOCOMATE" className="h-14 mx-auto mb-1" />
           <CardTitle className="text-xl text-[#3f6f60]">Welcome back</CardTitle>
           <p className="text-sm text-muted-foreground mt-1">Sign in to continue your Hanoi adventure</p>
         </CardHeader>
@@ -69,6 +69,7 @@ export default function LoginPage() {
               variant="outline"
               className="w-full h-11 rounded-xl font-medium"
               onClick={() => {
+                toast.info("Demo mode: signing in as Alex Johnson...");
                 loginMutation.mutate({ email: "alex@test.com", password: "password123" });
               }}
             >

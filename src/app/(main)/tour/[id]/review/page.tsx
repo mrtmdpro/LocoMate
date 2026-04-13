@@ -15,7 +15,7 @@ export default function TourReviewPage() {
   const [comment, setComment] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
-  const { data: existing } = trpc.review.getTourReview.useQuery({ tourId: id });
+  const { data: existing, isLoading: reviewLoading } = trpc.review.getTourReview.useQuery({ tourId: id });
 
   const submitMutation = trpc.review.submitTourReview.useMutation({
     onSuccess: () => {
@@ -24,6 +24,16 @@ export default function TourReviewPage() {
     },
     onError: (err) => toast.error(err.message),
   });
+
+  if (reviewLoading) {
+    return (
+      <div className="p-4 pt-8 space-y-6">
+        <div className="text-center"><div className="h-12 w-12 bg-gray-200 rounded-full mx-auto animate-pulse" /><div className="h-7 w-48 bg-gray-200 rounded mx-auto mt-4 animate-pulse" /></div>
+        <div className="h-28 bg-gray-100 rounded-xl animate-pulse" />
+        <div className="h-32 bg-gray-100 rounded-xl animate-pulse" />
+      </div>
+    );
+  }
 
   if (existing || submitted) {
     return (

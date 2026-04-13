@@ -16,7 +16,7 @@ export default function ChatConversationPage() {
   const [message, setMessage] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const { data: messages, refetch } = trpc.chat.getMessages.useQuery(
+  const { data: messages, refetch, isLoading: messagesLoading } = trpc.chat.getMessages.useQuery(
     { matchId, limit: 50 },
     { refetchInterval: 3000 }
   );
@@ -90,7 +90,16 @@ export default function ChatConversationPage() {
 
       {/* Messages */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-3">
-        {messages?.length === 0 && (
+        {messagesLoading && (
+          <div className="space-y-3 py-4">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className={`flex ${i % 2 === 0 ? "justify-end" : "justify-start"}`}>
+                <div className={`h-10 rounded-2xl bg-gray-100 animate-pulse ${i % 2 === 0 ? "w-48" : "w-56"}`} />
+              </div>
+            ))}
+          </div>
+        )}
+        {!messagesLoading && messages?.length === 0 && (
           <div className="text-center py-12">
             <p className="text-muted-foreground text-sm">You matched! Say hello to start planning together.</p>
           </div>

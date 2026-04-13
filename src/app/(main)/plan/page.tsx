@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -185,13 +186,69 @@ export default function PlanPage() {
         </CardContent>
       </Card>
 
-      <Button
-        onClick={() => createMutation.mutate({ date, startTime, durationHours: duration[0], budgetLevel: budget, interests, withHost, groupSize })}
-        disabled={interests.length === 0 || createMutation.isPending}
-        className="w-full h-14 rounded-2xl bg-[#ff8c30] hover:bg-[#e67a20] text-white font-bold text-base shadow-lg"
-      >
-        {createMutation.isPending ? "AI is designing your tour..." : "✨ Generate My Tour"}
-      </Button>
+      <motion.div whileTap={{ scale: 0.97 }}>
+        <Button
+          onClick={() => createMutation.mutate({ date, startTime, durationHours: duration[0], budgetLevel: budget, interests, withHost, groupSize })}
+          disabled={interests.length === 0 || createMutation.isPending}
+          className="w-full h-14 rounded-2xl bg-[#ff8c30] hover:bg-[#e67a20] text-white font-bold text-base shadow-lg"
+        >
+          {createMutation.isPending ? "AI is designing your tour..." : "Generate My Tour"}
+        </Button>
+      </motion.div>
+
+      <AnimatePresence>
+        {createMutation.isPending && <TourGeneratingOverlay />}
+      </AnimatePresence>
     </div>
+  );
+}
+
+function TourGeneratingOverlay() {
+  const phrases = ["Analyzing your preferences...", "Finding hidden gems...", "Optimizing your route...", "Crafting insider tips...", "Almost ready..."];
+  const [phraseIdx, setPhraseIdx] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setPhraseIdx((i) => (i + 1) % phrases.length);
+    }, 2000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 bg-white/95 backdrop-blur-sm flex flex-col items-center justify-center"
+    >
+      <motion.img
+        src="/images/logo.png"
+        alt=""
+        className="h-16 mb-6"
+        animate={{ scale: [1, 1.08, 1] }}
+        transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <div className="flex gap-1.5 mb-6">
+        {[0, 1, 2].map((i) => (
+          <motion.div
+            key={i}
+            className="w-2.5 h-2.5 bg-[#ff8c30] rounded-full"
+            animate={{ scale: [1, 1.4, 1], opacity: [0.5, 1, 0.5] }}
+            transition={{ duration: 1, repeat: Infinity, delay: i * 0.2 }}
+          />
+        ))}
+      </div>
+      <AnimatePresence mode="wait">
+        <motion.p
+          key={phraseIdx}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          className="text-sm text-[#3f6f60] font-medium"
+        >
+          {phrases[phraseIdx]}
+        </motion.p>
+      </AnimatePresence>
+    </motion.div>
   );
 }

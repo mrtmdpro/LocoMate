@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -14,7 +13,7 @@ export default function ChatInboxPage() {
     <div className="p-4 space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold font-heading text-[#3f6f60]">Messages</h1>
-        <Image src="/images/logo.png" alt="LOCOMATE" width={36} height={36} />
+        <img src="/images/logo.png" alt="LOCOMATE" className="h-9" />
       </div>
 
       {isLoading ? (

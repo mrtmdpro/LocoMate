@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -64,8 +65,17 @@ export default function ExplorePage() {
         </div>
       ) : (
         <div className="space-y-4">
-          {data?.places?.map((place) => (
-            <PlaceCard key={place.id} place={place} />
+          {data?.places?.map((place, idx) => (
+            <motion.div
+              key={place.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: idx * 0.05 }}
+              whileHover={{ y: -2 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <PlaceCard place={place} />
+            </motion.div>
           ))}
           {data?.places?.length === 0 && (
             <p className="text-center text-muted-foreground py-12">No places found. Try different filters!</p>

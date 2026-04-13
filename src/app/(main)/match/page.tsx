@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { motion, useMotionValue, useTransform, AnimatePresence } from "framer-motion";
-import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,7 +11,7 @@ import { trpc } from "@/lib/trpc";
 export default function MatchPage() {
   const [showMatch, setShowMatch] = useState(false);
   const [matchedUser, setMatchedUser] = useState<string>("");
-  const { data, refetch } = trpc.match.getCandidates.useQuery({ limit: 10 });
+  const { data, refetch, isLoading } = trpc.match.getCandidates.useQuery({ limit: 10 });
   const [currentIdx, setCurrentIdx] = useState(0);
 
   const swipeMutation = trpc.match.swipe.useMutation({
@@ -40,12 +39,23 @@ export default function MatchPage() {
           <h1 className="text-2xl font-bold font-heading text-[#3f6f60]">LocoMatch</h1>
           <p className="text-sm text-muted-foreground">Find your travel companion in Hanoi</p>
         </div>
-        <Image src="/images/logo.png" alt="LOCOMATE" width={36} height={36} />
+        <img src="/images/logo.png" alt="LOCOMATE" className="h-9" />
       </div>
 
       <div className="relative h-[480px]">
         <AnimatePresence>
-          {current ? (
+          {isLoading ? (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-full max-w-sm">
+                <div className="h-56 bg-gray-200/70 rounded-t-2xl animate-pulse" />
+                <div className="bg-white rounded-b-2xl p-5 space-y-3 shadow-xl">
+                  <div className="h-6 w-40 bg-gray-200/70 rounded animate-pulse" />
+                  <div className="flex gap-2"><div className="h-5 w-16 bg-gray-100 rounded-full animate-pulse" /><div className="h-5 w-20 bg-gray-100 rounded-full animate-pulse" /></div>
+                  <div className="h-4 w-52 bg-gray-100 rounded animate-pulse" />
+                </div>
+              </div>
+            </div>
+          ) : current ? (
             <SwipeCard
               key={current.id}
               user={current}
@@ -95,6 +105,8 @@ function SwipeCard({ user, onSwipe }: { user: Record<string, unknown>; onSwipe: 
   const x = useMotionValue(0);
   const rotate = useTransform(x, [-200, 200], [-15, 15]);
   const opacity = useTransform(x, [-200, -100, 0, 100, 200], [0.5, 1, 1, 1, 0.5]);
+  const likeOpacity = useTransform(x, [0, 100], [0, 1]);
+  const skipOpacity = useTransform(x, [-100, 0], [1, 0]);
 
   const u = user as { displayName: string; avatarUrl?: string; compatibilityScore: number; profile: Record<string, unknown> };
   const profile = (u.profile || {}) as { interests?: string[]; social_preference?: string };
@@ -105,12 +117,19 @@ function SwipeCard({ user, onSwipe }: { user: Record<string, unknown>; onSwipe: 
       style={{ x, rotate, opacity }}
       drag="x"
       dragConstraints={{ left: 0, right: 0 }}
+      dragElastic={0.7}
       onDragEnd={(_, info) => {
         if (info.offset.x > 100) onSwipe("like");
         else if (info.offset.x < -100) onSwipe("skip");
       }}
+      initial={{ scale: 0.95, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.2 } }}
+      transition={{ type: "spring", stiffness: 300, damping: 25 }}
     >
-      <Card className="h-full border-0 shadow-xl overflow-hidden">
+      <Card className="h-full border-0 shadow-xl overflow-hidden relative">
+        <motion.div className="absolute top-4 left-4 z-20 bg-green-500 text-white px-4 py-1.5 rounded-full font-bold text-sm rotate-[-15deg] shadow-lg" style={{ opacity: likeOpacity }}>LIKE</motion.div>
+        <motion.div className="absolute top-4 right-4 z-20 bg-red-400 text-white px-4 py-1.5 rounded-full font-bold text-sm rotate-[15deg] shadow-lg" style={{ opacity: skipOpacity }}>NOPE</motion.div>
         <div className="h-56 bg-gradient-to-br from-[#3f6f60] to-[#90D26D] relative flex items-center justify-center overflow-hidden">
           {u.avatarUrl ? (
             <img src={u.avatarUrl} alt={u.displayName} className="absolute inset-0 w-full h-full object-cover" />
