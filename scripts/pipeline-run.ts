@@ -62,8 +62,8 @@ async function run() {
     return a.category.localeCompare(b.category);
   });
 
-  // Take top 300 (or all if fewer)
-  const selected = osmPlaces.slice(0, 300);
+  // Take top 500 (or all if fewer)
+  const selected = osmPlaces.slice(0, 500);
   console.log(`Selected ${selected.length} places for processing.\n`);
 
   // Category breakdown

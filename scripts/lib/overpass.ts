@@ -21,28 +21,55 @@ export interface OSMPlace {
 }
 
 const CATEGORY_QUERIES: { category: string; query: string }[] = [
+  // Cafes - expanded
   { category: "cafe", query: `["amenity"="cafe"]` },
+  { category: "cafe", query: `["cuisine"~"coffee"]["amenity"="restaurant"]` },
+  { category: "cafe", query: `["shop"="coffee"]` },
+  { category: "cafe", query: `["amenity"="ice_cream"]` },
+  // Restaurants - expanded
   { category: "restaurant", query: `["amenity"="restaurant"]` },
+  { category: "restaurant", query: `["amenity"="fast_food"]` },
+  { category: "restaurant", query: `["amenity"="food_court"]` },
+  { category: "restaurant", query: `["shop"="bakery"]` },
+  { category: "restaurant", query: `["cuisine"]["amenity"="cafe"]~"noodle|pho|bun|banh"` },
+  // Nightlife
   { category: "nightlife", query: `["amenity"="bar"]` },
   { category: "nightlife", query: `["amenity"="pub"]` },
   { category: "nightlife", query: `["amenity"="nightclub"]` },
+  { category: "nightlife", query: `["amenity"="biergarten"]` },
+  // Cultural - expanded
   { category: "cultural", query: `["tourism"="museum"]` },
   { category: "cultural", query: `["amenity"="place_of_worship"]["religion"="buddhist"]` },
+  { category: "cultural", query: `["amenity"="place_of_worship"]["religion"~"taoist|confucian"]` },
   { category: "cultural", query: `["historic"="monument"]` },
   { category: "cultural", query: `["historic"="memorial"]` },
+  { category: "cultural", query: `["historic"="ruins"]` },
+  { category: "cultural", query: `["historic"="castle"]` },
   { category: "cultural", query: `["tourism"="attraction"]` },
   { category: "cultural", query: `["amenity"="theatre"]` },
+  { category: "cultural", query: `["amenity"="library"]` },
+  { category: "cultural", query: `["tourism"="viewpoint"]` },
+  // Nature - expanded
   { category: "nature", query: `["leisure"="park"]` },
   { category: "nature", query: `["leisure"="garden"]` },
   { category: "nature", query: `["natural"="water"]["name"]` },
+  { category: "nature", query: `["leisure"="nature_reserve"]` },
+  { category: "nature", query: `["leisure"="playground"]` },
+  // Art - expanded
   { category: "art", query: `["tourism"="gallery"]` },
   { category: "art", query: `["shop"="art"]` },
+  { category: "art", query: `["amenity"="arts_centre"]` },
+  { category: "art", query: `["shop"="photo"]` },
+  // Workshop / Experience
   { category: "workshop", query: `["craft"]` },
   { category: "workshop", query: `["tourism"="information"]["information"="office"]` },
+  { category: "workshop", query: `["shop"="handicraft"]` },
+  { category: "workshop", query: `["amenity"="cooking_school"]` },
+  { category: "workshop", query: `["leisure"="dance"]` },
 ];
 
-// Hanoi bounding box (Old Quarter + surrounding areas)
-const HANOI_BBOX = "20.98,105.78,21.08,105.90";
+// Hanoi bounding box (expanded: Old Quarter + West Lake + Ba Dinh + Dong Da + Hai Ba Trung)
+const HANOI_BBOX = "20.96,105.76,21.10,105.92";
 
 export async function fetchHanoiPlaces(): Promise<OSMPlace[]> {
   const allPlaces: OSMPlace[] = [];
