@@ -55,17 +55,27 @@ export default function ProfilePage() {
 
   const completedTours = (tourHistory || []).filter((t) => t.status === "completed");
 
-  const totalSavedPlaces = useMemo(() => {
+  const tourPlaceIds = useMemo(() => {
     const ids = new Set<string>();
-    for (const p of savedPlacesData || []) ids.add(p.id);
     for (const t of completedTours) {
       const td = t.tourData as { stops?: { placeId?: string }[] } | null;
       for (const s of td?.stops || []) { if (s?.placeId) ids.add(s.placeId); }
     }
-    return ids.size;
-  }, [savedPlacesData, completedTours]);
+    return Array.from(ids);
+  }, [completedTours]);
 
-  const savedCount = (toursLoading || savedLoading) ? null : totalSavedPlaces;
+  const { data: verifiedTourPlaces, isLoading: verifyLoading } = trpc.place.getByIds.useQuery(
+    { ids: tourPlaceIds },
+    { enabled: tourPlaceIds.length > 0 }
+  );
+
+  const savedCount = useMemo(() => {
+    if (toursLoading || savedLoading || (tourPlaceIds.length > 0 && verifyLoading)) return null;
+    const ids = new Set<string>();
+    for (const p of savedPlacesData || []) ids.add(p.id);
+    for (const p of verifiedTourPlaces || []) ids.add(p.id);
+    return ids.size;
+  }, [toursLoading, savedLoading, verifyLoading, savedPlacesData, verifiedTourPlaces, tourPlaceIds.length]);
 
   function handleLogout() {
     logout();
