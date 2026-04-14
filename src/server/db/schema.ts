@@ -122,6 +122,24 @@ export const places = pgTable(
   ]
 );
 
+export const savedPlaces = pgTable(
+  "saved_places",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    placeId: uuid("place_id")
+      .references(() => places.id, { onDelete: "cascade" })
+      .notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("idx_saved_places_user_place").on(table.userId, table.placeId),
+    index("idx_saved_places_user").on(table.userId),
+  ]
+);
+
 export const matches = pgTable(
   "matches",
   {

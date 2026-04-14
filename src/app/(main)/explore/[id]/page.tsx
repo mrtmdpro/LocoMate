@@ -10,12 +10,41 @@ import { toast } from "sonner";
 export default function PlaceDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
+  const utils = trpc.useUtils();
 
   const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
   const { data: placeById, isLoading: loadingById } = trpc.place.getById.useQuery({ id }, { enabled: isUuid });
   const { data: placeBySlug, isLoading: loadingBySlug } = trpc.place.getBySlug.useQuery({ slug: id }, { enabled: !isUuid });
   const place = isUuid ? placeById : placeBySlug;
   const isLoading = isUuid ? loadingById : loadingBySlug;
+
+  const placeId = place?.id;
+  const { data: savedStatus } = trpc.place.isSaved.useQuery(
+    { placeId: placeId! },
+    { enabled: !!placeId }
+  );
+  const isSaved = savedStatus?.saved ?? false;
+
+  const saveMutation = trpc.place.savePlace.useMutation({
+    onSuccess: () => {
+      utils.place.isSaved.invalidate({ placeId: placeId! });
+      utils.place.getSavedPlaces.invalidate();
+      toast.success("Place saved to favorites!");
+    },
+  });
+  const unsaveMutation = trpc.place.unsavePlace.useMutation({
+    onSuccess: () => {
+      utils.place.isSaved.invalidate({ placeId: placeId! });
+      utils.place.getSavedPlaces.invalidate();
+      toast.success("Place removed from favorites");
+    },
+  });
+
+  const toggleSave = () => {
+    if (!placeId) return;
+    if (isSaved) unsaveMutation.mutate({ placeId });
+    else saveMutation.mutate({ placeId });
+  };
 
   if (isLoading) return <div className="p-4"><div className="h-64 bg-gray-100 rounded-2xl animate-pulse" /><div className="h-32 bg-gray-100 rounded-2xl animate-pulse mt-4" /><div className="h-48 bg-gray-100 rounded-2xl animate-pulse mt-4" /></div>;
   if (!place) return <div className="p-4 text-center">Place not found</div>;
@@ -93,8 +122,13 @@ export default function PlaceDetailPage() {
               <Button className="flex-1 h-11 rounded-xl bg-[#3f6f60] hover:bg-[#2d5a4d] text-white font-semibold text-sm" onClick={() => router.push("/plan")}>
                 Add to Tour
               </Button>
-              <Button variant="outline" className="h-11 w-11 rounded-xl p-0" onClick={() => toast.success("Place saved!")}>
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>
+              <Button
+                variant="outline"
+                className={`h-11 w-11 rounded-xl p-0 transition-colors ${isSaved ? "bg-yellow-400 border-yellow-400 hover:bg-yellow-500" : ""}`}
+                onClick={toggleSave}
+                disabled={saveMutation.isPending || unsaveMutation.isPending}
+              >
+                <svg className="w-5 h-5" fill={isSaved ? "white" : "none"} viewBox="0 0 24 24" stroke={isSaved ? "white" : "currentColor"} strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>
               </Button>
             </div>
           </CardContent>

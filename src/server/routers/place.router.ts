@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { eq, and, ilike, sql, desc } from "drizzle-orm";
 import { router, publicProcedure, protectedProcedure } from "../trpc";
-import { places } from "../db/schema";
+import { places, savedPlaces } from "../db/schema";
 
 export const placeRouter = router({
   getFeed: protectedProcedure
@@ -73,6 +73,50 @@ export const placeRouter = router({
         ))
         .limit(input.limit);
       return results;
+    }),
+
+  savePlace: protectedProcedure
+    .input(z.object({ placeId: z.string().uuid() }))
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db.insert(savedPlaces).values({
+        userId: ctx.user.id,
+        placeId: input.placeId,
+      }).onConflictDoNothing();
+      return { saved: true };
+    }),
+
+  unsavePlace: protectedProcedure
+    .input(z.object({ placeId: z.string().uuid() }))
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db.delete(savedPlaces).where(
+        and(eq(savedPlaces.userId, ctx.user.id), eq(savedPlaces.placeId, input.placeId))
+      );
+      return { saved: false };
+    }),
+
+  isSaved: protectedProcedure
+    .input(z.object({ placeId: z.string().uuid() }))
+    .query(async ({ ctx, input }) => {
+      const row = await ctx.db.query.savedPlaces.findFirst({
+        where: and(eq(savedPlaces.userId, ctx.user.id), eq(savedPlaces.placeId, input.placeId)),
+      });
+      return { saved: !!row };
+    }),
+
+  getSavedPlaces: protectedProcedure
+    .query(async ({ ctx }) => {
+      const rows = await ctx.db
+        .select({ placeId: savedPlaces.placeId, savedAt: savedPlaces.createdAt })
+        .from(savedPlaces)
+        .where(eq(savedPlaces.userId, ctx.user.id))
+        .orderBy(desc(savedPlaces.createdAt));
+      if (rows.length === 0) return [];
+      const placeIds = rows.map((r) => r.placeId);
+      const placeRows = await ctx.db
+        .select()
+        .from(places)
+        .where(sql`${places.id} IN (${sql.join(placeIds.map((id) => sql`${id}`), sql`, `)})`);
+      return placeRows;
     }),
 
   nearby: protectedProcedure

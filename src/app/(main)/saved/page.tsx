@@ -14,9 +14,10 @@ export default function SavedPlacesPage() {
   const router = useRouter();
   const [filter, setFilter] = useState("All");
 
+  const { data: savedPlaces, isLoading: savedLoading } = trpc.place.getSavedPlaces.useQuery();
   const { data: tourHistory, isLoading: toursLoading } = trpc.tour.getHistory.useQuery();
 
-  const placeIds = useMemo(() => {
+  const tourPlaceIds = useMemo(() => {
     const completedTours = (tourHistory || []).filter((t) => t.status === "completed");
     const ids = new Set<string>();
     for (const tour of completedTours) {
@@ -28,13 +29,20 @@ export default function SavedPlacesPage() {
     return Array.from(ids);
   }, [tourHistory]);
 
-  const { data: places, isLoading: placesLoading } = trpc.place.getByIds.useQuery(
-    { ids: placeIds },
-    { enabled: placeIds.length > 0 }
+  const { data: tourPlaces, isLoading: tourPlacesLoading } = trpc.place.getByIds.useQuery(
+    { ids: tourPlaceIds },
+    { enabled: tourPlaceIds.length > 0 }
   );
 
-  const allPlaces = places || [];
-  const isLoading = toursLoading || placesLoading;
+  const allPlaces = useMemo(() => {
+    const map = new Map<string, typeof savedPlaces extends (infer T)[] | undefined ? T : never>();
+    for (const p of savedPlaces || []) map.set(p.id, p);
+    for (const p of tourPlaces || []) if (!map.has(p.id)) map.set(p.id, p);
+    return Array.from(map.values());
+  }, [savedPlaces, tourPlaces]);
+
+  const isLoading = savedLoading || toursLoading || tourPlacesLoading;
+  const savedIds = new Set((savedPlaces || []).map((p) => p.id));
 
   const filtered = allPlaces.filter((p) => {
     if (filter === "All") return true;
@@ -51,7 +59,6 @@ export default function SavedPlacesPage() {
         <Badge variant="outline" className="text-[10px] ml-auto">{allPlaces.length} places</Badge>
       </div>
 
-      {/* Filters */}
       <div className="flex gap-2 px-4 pb-3 overflow-x-auto scrollbar-hide">
         {FILTERS.map((f) => (
           <Badge
@@ -73,14 +80,14 @@ export default function SavedPlacesPage() {
         <div className="px-4 pt-16 text-center">
           <div className="text-5xl mb-4">📍</div>
           <h2 className="text-xl font-bold font-heading text-[#3f6f60]">
-            {placeIds.length === 0 ? "No saved places yet" : allPlaces.length === 0 ? "Places unavailable" : "No places in this category"}
+            {allPlaces.length === 0 ? "No saved places yet" : "No places in this category"}
           </h2>
           <p className="text-sm text-muted-foreground mt-2">
-            {placeIds.length === 0 ? "Complete a tour to save places you visit!" : allPlaces.length === 0 ? "The places from your tours may have been updated." : "Try a different filter"}
+            {allPlaces.length === 0 ? "Tap the bookmark icon on any place to save it!" : "Try a different filter"}
           </p>
-          {placeIds.length === 0 && (
-            <Button onClick={() => router.push("/plan")} className="mt-6 bg-[#ff8c30] hover:bg-[#e67a20] text-white rounded-xl px-8">
-              Plan a Tour
+          {allPlaces.length === 0 && (
+            <Button onClick={() => router.push("/explore")} className="mt-6 bg-[#ff8c30] hover:bg-[#e67a20] text-white rounded-xl px-8">
+              Explore Places
             </Button>
           )}
         </div>
@@ -88,6 +95,7 @@ export default function SavedPlacesPage() {
         <div className="px-4 grid grid-cols-2 gap-3">
           {filtered.map((place) => {
             const photos = place.photos as string[] | null;
+            const isExplicitSave = savedIds.has(place.id);
             return (
               <Link key={place.id} href={`/explore/${place.slug || place.id}`}>
                 <Card className="border-0 shadow-sm overflow-hidden hover:shadow-md transition-shadow cursor-pointer">
@@ -95,6 +103,11 @@ export default function SavedPlacesPage() {
                     {photos?.[0] && <img src={photos[0]} alt={place.name} className="absolute inset-0 w-full h-full object-cover" />}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                     <Badge className="absolute top-2 right-2 bg-[#ff8c30] border-0 text-white text-[8px]">{place.category}</Badge>
+                    {isExplicitSave && (
+                      <div className="absolute top-2 left-2 w-5 h-5 rounded-full bg-yellow-400 flex items-center justify-center">
+                        <svg className="w-3 h-3 text-white" fill="white" viewBox="0 0 24 24"><path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>
+                      </div>
+                    )}
                   </div>
                   <CardContent className="p-2.5">
                     <p className="text-xs font-semibold text-[#3f6f60] line-clamp-2">{place.name}</p>
