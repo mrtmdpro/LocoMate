@@ -62,19 +62,23 @@ export default function PlanPage() {
         </Card>
       )}
 
-      <div className="flex items-start justify-between">
-        <div>
-          <Badge className="bg-[#ff8c30]/10 text-[#ff8c30] border-[#ff8c30]/20 mb-2">Premium AI</Badge>
-          <h1 className="text-2xl font-bold font-heading text-[#3f6f60]">Design Your Tour</h1>
-          <p className="text-sm text-muted-foreground mt-1">{companion ? `AI crafts a tour for you and ${companion.displayName.split(" ")[0]}` : "AI crafts a personalized Hanoi itinerary just for you"}</p>
+      {/* Hero Banner */}
+      <Card className="border-0 shadow-md overflow-hidden -mx-4 rounded-none">
+        <div className="h-44 relative">
+          <img src="https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=800&h=400&fit=crop" alt="" className="absolute inset-0 w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+          <div className="absolute bottom-4 left-4 right-4 z-10">
+            <Badge className="bg-[#90D26D] border-0 text-white text-[10px] mb-2">CUSTOM PLANNING</Badge>
+            <h1 className="text-2xl font-bold font-heading text-white leading-tight">Design your dream Hanoi story</h1>
+            <p className="text-sm text-white/70 mt-1">Personalized, authentic, and completely you.</p>
+          </div>
         </div>
-        <LogoFull size="sm" />
-      </div>
+      </Card>
 
-      {/* Date & Time */}
+      {/* When */}
       <Card className="border-0 shadow-sm">
         <CardContent className="p-4 space-y-4">
-          <h3 className="font-semibold text-[#3f6f60]">When</h3>
+          <h3 className="font-semibold text-[#3f6f60]">When are we exploring?</h3>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label className="text-xs text-muted-foreground">Date</Label>
@@ -84,6 +88,24 @@ export default function PlanPage() {
               <Label className="text-xs text-muted-foreground">Start time</Label>
               <Input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} className="mt-1 rounded-xl" />
             </div>
+          </div>
+          <div className="flex gap-2">
+            {[
+              { label: "Morning", time: "08:00" },
+              { label: "Afternoon", time: "13:00" },
+              { label: "Evening", time: "17:00" },
+              { label: "Full Day", time: "09:00" },
+            ].map((slot) => (
+              <button
+                key={slot.label}
+                onClick={() => { setStartTime(slot.time); if (slot.label === "Full Day") setDuration([6]); }}
+                className={`flex-1 py-2 rounded-xl text-xs font-semibold transition-all ${
+                  startTime === slot.time ? "bg-[#3f6f60] text-white" : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+                }`}
+              >
+                {slot.label}
+              </button>
+            ))}
           </div>
         </CardContent>
       </Card>

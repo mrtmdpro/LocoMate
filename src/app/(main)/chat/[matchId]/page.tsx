@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc";
 import { useAuthStore } from "@/stores/auth";
+import { toast } from "sonner";
 
 export default function ChatConversationPage() {
   const { matchId } = useParams<{ matchId: string }>();
@@ -37,8 +38,13 @@ export default function ChatConversationPage() {
     if (matchId) markReadMutation.mutate({ matchId });
   }, [matchId]);
 
+  const prevLenRef = useRef(0);
   useEffect(() => {
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+    const len = messages?.length ?? 0;
+    if (len > prevLenRef.current) {
+      scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+    }
+    prevLenRef.current = len;
   }, [messages]);
 
   function handleSend() {
@@ -71,10 +77,11 @@ export default function ChatConversationPage() {
       <div className="flex gap-2 px-4 py-2 bg-[#D9EDBF]/20 overflow-x-auto shrink-0">
         <Badge
           variant="outline"
-          className="cursor-pointer whitespace-nowrap text-xs px-3 py-1.5 rounded-full bg-[#ff8c30] text-white border-[#ff8c30] hover:bg-[#e67a20] font-semibold"
+          className="cursor-pointer whitespace-nowrap text-xs px-3 py-1.5 rounded-full bg-[#ff8c30] text-white border-[#ff8c30] hover:bg-[#e67a20] font-semibold flex items-center gap-1"
           onClick={() => router.push(`/plan?with=${matchId}`)}
         >
-          Plan together
+          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
+          Share plan
         </Badge>
         {["Suggest place", "Tonight?"].map((chip) => (
           <Badge
@@ -86,6 +93,14 @@ export default function ChatConversationPage() {
             {chip}
           </Badge>
         ))}
+        <Badge
+          variant="outline"
+          className="cursor-pointer whitespace-nowrap text-xs px-3 py-1 rounded-full hover:bg-[#3f6f60]/10 hover:border-[#3f6f60] flex items-center gap-1"
+          onClick={() => toast.info("Voice calls coming soon!")}
+        >
+          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
+          Call
+        </Badge>
       </div>
 
       {/* Messages */}

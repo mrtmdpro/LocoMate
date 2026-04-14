@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -32,11 +32,17 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#D9EDBF]/30 to-white flex items-center justify-center p-4 relative overflow-hidden">
       <img src="https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=1200&h=800&fit=crop" alt="" className="absolute inset-0 w-full h-full object-cover opacity-10 z-0" />
-      <Card className="w-full max-w-md border-0 shadow-xl relative z-10">
-        <CardHeader className="text-center pb-2">
-          <LogoFull size="lg" className="justify-center mb-1" />
-          <CardTitle className="text-xl text-[#3f6f60]">Create your account</CardTitle>
-          <p className="text-sm text-muted-foreground mt-1">Start your personalized Hanoi journey</p>
+      <Card className="w-full max-w-md border-0 shadow-xl relative z-10 overflow-hidden">
+        <div className="h-36 relative overflow-hidden">
+          <img src="https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=800&h=300&fit=crop" alt="" className="absolute inset-0 w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+          <div className="absolute bottom-3 left-4 right-4">
+            <h2 className="text-white font-bold text-lg font-heading">Join the journey.</h2>
+            <p className="text-white/70 text-xs">Find your tribe in Hanoi.</p>
+          </div>
+        </div>
+        <CardHeader className="text-center pb-2 pt-4">
+          <LogoFull size="md" className="justify-center mb-1" />
         </CardHeader>
         <CardContent>
           <div className="flex gap-2 mb-6">
@@ -91,6 +97,10 @@ export default function RegisterPage() {
           <div className="mt-5 text-center text-sm text-muted-foreground">
             Already have an account?{" "}
             <Link href="/login" className="text-[#ff8c30] font-medium hover:underline">Sign in</Link>
+          </div>
+          <div className="mt-4 px-4 py-3 bg-[#3f6f60]/5 rounded-lg flex items-center gap-2">
+            <svg className="w-5 h-5 text-[#ff8c30] shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
+            <p className="text-xs text-[#3f6f60]">Trusted by 5,000+ solo travelers. Your safety and data privacy are our top priorities.</p>
           </div>
         </CardContent>
       </Card>

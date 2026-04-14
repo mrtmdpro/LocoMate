@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -46,11 +46,17 @@ export default function LoginPage() {
       transition={{ duration: loggingIn ? 0.5 : 0.4, ease: "easeInOut" }}
     >
       <img src="https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=1200&h=800&fit=crop" alt="" className="absolute inset-0 w-full h-full object-cover opacity-10 z-0" />
-      <Card className="w-full max-w-md border-0 shadow-xl relative z-10">
-        <CardHeader className="text-center pb-2">
-          <LogoFull size="lg" className="justify-center mb-1" />
-          <CardTitle className="text-xl text-[#3f6f60]">Welcome back</CardTitle>
-          <p className="text-sm text-muted-foreground mt-1">Sign in to continue your Hanoi adventure</p>
+      <Card className="w-full max-w-md border-0 shadow-xl relative z-10 overflow-hidden">
+        <div className="h-36 relative overflow-hidden">
+          <img src="https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800&h=300&fit=crop" alt="" className="absolute inset-0 w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+          <div className="absolute bottom-3 left-4 right-4">
+            <h2 className="text-white font-bold text-lg font-heading">Welcome back.</h2>
+            <p className="text-white/70 text-xs">Continue your Hanoi adventure</p>
+          </div>
+        </div>
+        <CardHeader className="text-center pb-2 pt-4">
+          <LogoFull size="md" className="justify-center mb-1" />
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit((data) => loginMutation.mutate(data))} className="space-y-4">
