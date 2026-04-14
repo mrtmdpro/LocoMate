@@ -1,44 +1,49 @@
 # LOCOMATE - Place Data Pipeline Plan
 
-**Goal:** Replace all 216 mock places with real Hanoi venues including actual photos, verified descriptions, accurate coordinates, opening hours, and AI-scored experience/emotional tags.
+**Goal:** Populate the database with real Hanoi venues including actual photos, verified descriptions, accurate coordinates, opening hours, and locally-scored experience/emotional tags.
+
+**Status:** IMPLEMENTED. 996 real Hanoi places ingested as of April 14, 2026.
 
 ---
 
-## Pipeline Architecture
+## Implemented Pipeline Architecture
 
 ```
                     ┌──────────────────────────────────────────────┐
-                    │           DATA SOURCES                       │
-                    ├──────────┬──────────┬──────────┬─────────────┤
-                    │ Google   │ Foursquare│ TripAdvisor│ Manual    │
-                    │ Places   │ Places   │ Scrape   │ Curation   │
-                    │ API      │ API      │          │            │
-                    └────┬─────┴────┬─────┴────┬─────┴─────┬──────┘
-                         │          │          │           │
-                         ▼          ▼          ▼           ▼
+                    │           DATA SOURCES (ACTUAL)              │
+                    ├──────────────┬──────────────┬────────────────┤
+                    │ OpenStreetMap│ Pexels /     │ Manual Seed    │
+                    │ Overpass API │ Wikimedia    │ (56 curated)   │
+                    │ (FREE)       │ Commons      │                │
+                    └──────┬───────┴──────┬───────┴───────┬────────┘
+                           │              │               │
+                           ▼              ▼               ▼
                     ┌──────────────────────────────────────────────┐
-                    │         PIPELINE 1: RAW INGESTION            │
-                    │  Normalize → Deduplicate → Store in staging  │
+                    │   PIPELINE 1: RAW INGESTION (Overpass API)   │
+                    │   39 category queries → deduplicate by name  │
+                    │   + coordinates → append to production DB    │
                     └─────────────────────┬────────────────────────┘
                                           │
                                           ▼
                     ┌──────────────────────────────────────────────┐
-                    │         PIPELINE 2: PHOTO ENRICHMENT         │
-                    │  Google Place Photos → Upload to Supabase    │
-                    │  OR Unsplash search → Match by place name    │
+                    │   PIPELINE 2: PHOTO ENRICHMENT               │
+                    │   Wikimedia Commons for cultural/notable     │
+                    │   Pexels pool (category-based) as fallback   │
                     └─────────────────────┬────────────────────────┘
                                           │
                                           ▼
                     ┌──────────────────────────────────────────────┐
-                    │         PIPELINE 3: AI TAG SCORING           │
-                    │  GPT-4o-mini scores experience + emotional   │
-                    │  tags (0.0-1.0) from description + reviews   │
+                    │   PIPELINE 3: LOCAL TAG SCORING              │
+                    │   Deterministic engine (no AI API calls)     │
+                    │   Category + metadata → 8 experience tags    │
+                    │   + 6 emotional tags (0.0-1.0)              │
                     └─────────────────────┬────────────────────────┘
                                           │
                                           ▼
                     ┌──────────────────────────────────────────────┐
-                    │         PIPELINE 4: VALIDATION & PUBLISH     │
-                    │  Human review queue → Publish to production  │
+                    │   PIPELINE 4: SLUG + PUBLISH                 │
+                    │   Vietnamese diacritic stripping → slugify   │
+                    │   DB-aware collision handling → direct insert │
                     └──────────────────────────────────────────────┘
 ```
 
@@ -342,15 +347,63 @@ Form at `/admin/places/new` for manually adding hero hidden gems with photo uplo
 
 ---
 
-## Execution Order
+## Actual Implementation (April 2026)
 
-1. **Now:** Get Google Cloud API key, enable Places API
-2. **Day 1:** Build + run Pipeline 1 (Google Places ingestion) → ~300 raw places in staging
-3. **Day 1:** Build + run Pipeline 2 (Photo download) → photos stored
-4. **Day 2:** Run Pipeline 3 (local tag scorer) → all places scored deterministically from metadata + reviews
-5. **Day 2:** Build Pipeline 4 (publish script) → move to production, replacing mock data
-6. **Day 3:** Add Foursquare for additional ~100 places
-7. **Day 3-4:** Manual curation of top 50 hero hidden gems
-8. **Day 4:** Admin review UI for ongoing place management
+### What was built
 
-**Result: 400+ real Hanoi places with actual photos, verified data, and AI-scored tags.**
+Instead of Google Places API (paid), we used **OpenStreetMap Overpass API** (free, open data) as the primary source.
+
+**Scripts created:**
+
+| Script | Purpose |
+|--------|---------|
+| `scripts/pipeline-run.ts` | Main pipeline: OSM fetch → photo enrichment → tag scoring → DB insert with slug |
+| `scripts/lib/overpass.ts` | Overpass API wrapper with 39 category queries, 5s rate limiting, expanded Hanoi bbox |
+| `scripts/lib/tag-scorer.ts` | Local deterministic tag scorer (no AI API calls) |
+| `scripts/lib/photo-fetcher.ts` | Wikimedia Commons for cultural places, Pexels pool fallback |
+| `scripts/backfill-slugs.ts` | Backfill slugs for existing places |
+| `scripts/pipeline-missing.ts` | Targeted re-fetch for categories that hit rate limits |
+| `scripts/cleanup-mock.ts` | Phase out mock data where real OSM data exists |
+
+**OSM categories queried (39 total):**
+- Cafe: `amenity=cafe`, `shop=coffee`, `amenity=ice_cream`, coffee-cuisine restaurants
+- Restaurant: `amenity=restaurant`, `amenity=fast_food`, `amenity=food_court`, `shop=bakery`
+- Cultural: `tourism=museum`, Buddhist/Taoist/Confucian temples, monuments, memorials, ruins, castles, attractions, theatres, libraries, viewpoints
+- Nature: `leisure=park`, `leisure=garden`, named water bodies, nature reserves, playgrounds
+- Nightlife: `amenity=bar`, `amenity=pub`, `amenity=nightclub`, `amenity=biergarten`
+- Art: `tourism=gallery`, `shop=art`, `amenity=arts_centre`, `shop=photo`
+- Workshop: `craft`, tourism info offices, `shop=handicraft`, cooking schools, dance venues
+
+**Hanoi bounding box:** `20.96,105.76,21.10,105.92` (Old Quarter + West Lake + Ba Dinh + Dong Da + Hai Ba Trung)
+
+### Results
+
+| Metric | Value |
+|--------|-------|
+| Total places in DB | 996 |
+| From OSM pipeline | 940 |
+| From manual seed (curated) | 56 |
+| All have photos | Yes (100%) |
+| All have slugs | Yes (100%) |
+| All have experience tags (8) | Yes (100%) |
+| All have emotional tags (6) | Yes (100%) |
+| API cost | $0 (all free APIs) |
+
+**Category breakdown:**
+
+| Category | Count | Source |
+|----------|-------|--------|
+| Restaurant | 284 | 248 OSM + 36 seed |
+| Cultural | 244 | 244 OSM |
+| Nightlife | 177 | 177 OSM |
+| Nature | 155 | 155 OSM |
+| Cafe | 85 | 54 OSM + 31 seed |
+| Workshop | 29 | 29 seed |
+| Art | 22 | 22 OSM |
+
+### Key decisions
+
+1. **OpenStreetMap over Google Places** -- Free, no API key, open data license. Trade-off: fewer photos and no reviews, compensated by Pexels/Wikimedia photo pools and category-based default tags.
+2. **No staging table** -- Direct insert to production `places` table in append mode (skip duplicates by name). Simpler than the planned staging → review → publish flow.
+3. **No AI API calls for tags** -- Local deterministic scoring engine based on category, coordinates, and OSM metadata. Zero external API cost.
+4. **Slug generation at pipeline time** -- Vietnamese diacritic stripping + ASCII conversion + DB-aware collision handling. Every place gets a human-readable URL slug.

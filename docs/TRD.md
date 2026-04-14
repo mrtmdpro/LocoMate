@@ -143,24 +143,32 @@ users ──────────┐
   │     └── implicit_data (JSONB)
   │
   ├── host_profiles (1:1, optional)
-  │     ├── identity_documents
-  │     ├── availability_slots
+  │     ├── host_availability (1:N)
   │     └── specialties
   │
   ├── matches (M:N self-join)
-  │     └── messages
+  │     ├── messages (1:N)
+  │     └── swipe_actions
   │
   ├── tours (1:N)
   │     ├── tour_stops (1:N)
-  │     ├── tour_reviews (1:N)
+  │     ├── reviews (1:1)
   │     └── payments (1:1)
   │
-  └── place_reviews (1:N)
+  ├── saved_places (M:N with places)
+  ├── emergency_contacts (1:N)
+  └── reports (1:N)
 
 places ─────────┐
-  ├── experience_tags (JSONB)
-  ├── emotional_tags (JSONB)
-  └── place_reviews (1:N)
+  ├── slug (unique, human-readable URL)
+  ├── experience_tags (JSONB, 8 dimensions)
+  ├── emotional_tags (JSONB, 6 dimensions)
+  ├── saved_places (M:N with users)
+  └── tour_stops (1:N)
+
+Total: 15 tables (users, user_profiles, host_profiles, host_availability,
+  places, saved_places, matches, swipe_actions, messages, tours, tour_stops,
+  payments, reviews, emergency_contacts, reports)
 ```
 
 ### 3.2 Core Tables
@@ -493,18 +501,25 @@ CREATE TABLE reports (
 ### 4.1 API Architecture
 tRPC routers organized by domain module. All endpoints require authentication unless marked `[public]`.
 
-### 4.2 Router Structure
+### 4.2 Router Structure (9 routers, 47 endpoints)
 
 ```
 src/server/routers/
-├── auth.router.ts          # Registration, login, OAuth
-├── user.router.ts          # Profile CRUD, onboarding
-├── place.router.ts         # Place CRUD, feed, search
-├── match.router.ts         # Swipe, match, unmatch
-├── chat.router.ts          # Messages, conversations
-├── tour.router.ts          # Tour CRUD, generation, stops
-├── payment.router.ts       # Payment intents, webhooks
-├── review.router.ts        # Reviews CRUD
+├── _app.ts                 # Root router merging all sub-routers
+├── auth.router.ts          # register, login, refreshToken
+├── user.router.ts          # getProfile, updateProfile, submitOnboarding, updatePreferences,
+│                           # getEmergencyContacts, setEmergencyContact, updateEmergencyContact,
+│                           # deleteEmergencyContact
+├── place.router.ts         # getFeed, getById, getBySlug, getByIds, search, nearby,
+│                           # savePlace, unsavePlace, isSaved, getSavedPlaces
+├── match.router.ts         # getCandidates, swipe, getMatches, unmatch
+├── chat.router.ts          # getConversations, getMessages, sendMessage, markRead
+├── tour.router.ts          # create, getPreview, getFullTour, startTour, markStopVisited,
+│                           # completeTour, getHistory
+├── payment.router.ts       # createIntent, confirm
+├── host.router.ts          # getProfile, updateProfile, setAvailability, getBookings,
+│                           # getAvailableHosts
+├── review.router.ts        # submitTourReview, getTourReview
 ├── host.router.ts          # Host profile, availability
 ├── admin.router.ts         # Moderation, verification
 └── _app.ts                 # Root router merge
@@ -764,38 +779,56 @@ const authMiddleware = t.middleware(async ({ ctx, next }) => {
 
 ---
 
-## 8. Third-Party Integrations
+## 8. Third-Party Integrations (Actual)
 
-### 8.1 Maps (Google Maps Platform or Mapbox)
+### 8.1 Maps -- Leaflet + OpenStreetMap (FREE)
 
-| API | Usage | Estimated Monthly Cost (MVP) |
-|-----|-------|------------------------------|
-| Maps JavaScript API | Interactive map display | $0 (free tier: 28,000 loads) |
-| Geocoding API | Address to coordinates | ~$5 (1,000 requests) |
-| Directions API | Route optimization | ~$10 (2,000 requests) |
-| Places API | Place details enrichment | ~$15 (optional) |
+| Component | Usage | Cost |
+|-----------|-------|------|
+| Leaflet 1.9.4 + react-leaflet 5.0.0 | Interactive map in Explore page | $0 |
+| OpenStreetMap tiles | Map rendering (no API key) | $0 |
+| OSM Overpass API | Place data ingestion pipeline | $0 |
+| OpenStreetMap embeds | Map on Place Detail page | $0 |
 
-### 8.2 OpenAI API
+### 8.2 AI / Tag Scoring -- Local Deterministic Engine (NO EXTERNAL AI)
 
-| Model | Usage | Estimated Monthly Cost (MVP) |
-|-------|-------|------------------------------|
-| GPT-4o-mini | Derived profile computation | ~$10 (1,000 profiles) |
-| GPT-4o-mini | Tour narrative generation | ~$20 (500 tours) |
-| GPT-4o-mini | Personalization rationale | included above |
+| Component | Usage | Cost |
+|-----------|-------|------|
+| `scripts/lib/tag-scorer.ts` | Scores 8 experience + 6 emotional tags locally | $0 |
+| `src/server/services/profile-engine.ts` | Computes derived profile from explicit data | $0 |
+| Tour generation (cosine similarity + TSP) | AI tour creation in `tour.router.ts` | $0 |
 
-### 8.3 Payment Gateway
+No OpenAI API is used. All personalization runs on local algorithms.
 
-**Option A: Stripe** (International focus)
-- 2.9% + $0.30 per transaction
-- Supports Visa, Mastercard, Apple Pay
-- Webhook-based status updates
+### 8.3 Photos -- Pexels + Wikimedia Commons (FREE)
 
-**Option B: VNPay** (Vietnam focus)
-- 1.5-2.0% per transaction
-- QR code, domestic bank transfer, e-wallets
-- Redirect-based flow
+| Source | Usage | Cost |
+|--------|-------|------|
+| Pexels (pre-curated pool) | Category-based photo fallback | $0 |
+| Wikimedia Commons API | Photos for cultural/notable places with Wikidata IDs | $0 |
+| Unsplash (seed data) | Background images for seed places | $0 |
 
-**Recommendation:** Integrate **both** - Stripe for international cards, VNPay for local payments. Payment router selects gateway based on user's chosen method.
+### 8.4 Payment Gateway -- Stripe (Test Mode)
+
+- Stripe SDK installed (`stripe` ^22.0.0)
+- `payment.router.ts` has `createIntent` and `confirm` endpoints
+- Currently in test mode (simulated checkout)
+- Ready for live keys when configured
+
+### 8.5 Database -- Neon (Managed PostgreSQL)
+
+| Component | Usage | Cost |
+|-----------|-------|------|
+| Neon PostgreSQL | Production database (15 tables, 996 places) | Free tier |
+| Drizzle ORM | Type-safe queries, migrations | $0 |
+| `postgres.js` driver | Connection with SSL | $0 |
+
+### 8.6 Hosting -- Vercel
+
+| Component | Usage | Cost |
+|-----------|-------|------|
+| Vercel (Hobby plan) | Next.js hosting, API routes, CDN | Free tier |
+| Automatic deployments | Git push triggers build + deploy | $0 |
 
 ### 8.4 Email (Resend)
 - Transactional emails: registration confirmation, payment receipt, tour details

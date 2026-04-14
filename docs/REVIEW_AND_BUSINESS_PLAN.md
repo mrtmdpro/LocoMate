@@ -1,6 +1,6 @@
 # LOCOMATE - Comprehensive Feature Review & Business Plan
 
-**Date:** April 8, 2026
+**Date:** April 14, 2026 (Updated)
 **Live URL:** https://loco-mate.vercel.app
 **Repo:** https://github.com/mrtmdpro/LocoMate
 
@@ -8,70 +8,92 @@
 
 ## PART 1: FEATURE AUDIT
 
-### What's built and working (19 screens, 8 API routers)
+### What's built and working (27 pages, 9 API routers, 47 endpoints)
 
 | # | Feature | PRD Ref | Status | Quality |
 |---|---------|---------|--------|---------|
-| 1 | Splash screen with brand logo | - | Done | Good |
-| 2 | Email/password registration with role toggle | FR-AUTH-01/02 | Done | Good |
-| 3 | 4-step onboarding questionnaire (8 data variables) | FR-AUTH-03 | Done | Good |
-| 4 | Place feed with 216 Hanoi places, category filters | FR-REC-01/03 | Done | Good |
-| 5 | Place detail with photos, tags, "Why it fits you" | FR-REC-04 | Done | Good |
-| 6 | Swipe-based traveler matching with compatibility score | FR-MATCH-01/02 | Done | Good |
-| 7 | Match success celebration modal | FR-MATCH-03 | Done | Good |
-| 8 | 1:1 chat with message bubbles and contextual chips | FR-MATCH-04 | Done | Good |
-| 9 | Chat inbox with unread badges | FR-MATCH-04 | Done | Good |
-| 10 | Tour builder (date, time, duration, budget, interests, host toggle) | FR-TOUR-01 | Done | Good |
-| 11 | AI tour generation engine (cosine similarity + route optimization) | FR-TOUR-02 | Done | Good |
-| 12 | Tour preview with free/locked stops paywall | FR-TOUR-03 | Done | Good |
-| 13 | Payment checkout (Stripe test mode) | FR-PAY-01/02/03 | Done | Simulated |
-| 14 | Full itinerary with timeline, tips, personalization rationale | FR-TOUR-04 | Done | Good |
-| 15 | Active tour mode with step-by-step progress | FR-TOUR-07 | Done | Good |
-| 16 | Host selection add-on with verified badges | FR-TOUR-06 | Done | Good |
-| 17 | Traveler profile with dynamic personality, preferences, history | FR-PROF-01/02 | Done | Good |
-| 18 | Edit preferences with personality recomputation | FR-PROF-02 | Done | Good |
-| 19 | Host onboarding wizard (4-step) | FR-AUTH-04 | Done | Good |
-| 20 | Host dashboard with bookings and earnings | - | Done | Mock data |
-| 21 | Emergency contacts (seeded + displayed) | FR-SAFE-02 | Done | Good |
-| 22 | 5 distinct traveler personas with unique personality labels | FR-PROF-01 | Done | Good |
-| 23 | 7 seeded conversations with realistic Hanoi chat content | - | Done | Good |
-| 24 | Completed tour history per user | - | Done | Good |
+| 1 | Splash screen with social proof card, avatar stack, CTAs | - | Done | Good |
+| 2 | Welcome page with glass card, "AI-Powered Discovery" | - | Done | Good |
+| 3 | Email/password registration with hero banner, trust badge | FR-AUTH-01/02 | Done | Good |
+| 4 | Login with hero banner, Google/Apple OAuth buttons (demo) | FR-AUTH-01 | Done | Good |
+| 5 | 4-step onboarding questionnaire (8 data variables) | FR-AUTH-03 | Done | Good |
+| 6 | Home dashboard with timeline, Who's Nearby, host promo | - | Done | Good |
+| 7 | Place feed (LocoRec) with 996 real Hanoi places, Featured Gems hero, List/Map toggle | FR-REC-01/03 | Done | Good |
+| 8 | Interactive Leaflet map view with category-colored markers and popups | FR-REC-03 | Done | Good |
+| 9 | Place detail with Locomate Story card, personality match reasons, OSM map embed, reviews | FR-REC-04 | Done | Good |
+| 10 | Place save/bookmark with persistent DB storage, yellow toggle button | - | Done | Good |
+| 11 | Slug-based human-readable place URLs (Vietnamese diacritic support) | - | Done | Good |
+| 12 | Swipe-based traveler matching with compatibility score | FR-MATCH-01/02 | Done | Good |
+| 13 | Match success celebration modal | FR-MATCH-03 | Done | Good |
+| 14 | Chat inbox with New Matches section, status badges | FR-MATCH-04 | Done | Good |
+| 15 | 1:1 chat with action chips (Share Plan, Suggest Place, Call) | FR-MATCH-04 | Done | Good |
+| 16 | Tour builder with hero banner, time-of-day pills, price summary | FR-TOUR-01 | Done | Good |
+| 17 | AI tour generation engine (cosine similarity + route optimization) | FR-TOUR-02 | Done | Good |
+| 18 | Tour preview with free/locked stops paywall | FR-TOUR-03 | Done | Good |
+| 19 | Payment checkout (Stripe test mode) | FR-PAY-01/02/03 | Done | Simulated |
+| 20 | Full itinerary with timeline, tips, personalization rationale | FR-TOUR-04 | Done | Good |
+| 21 | Active tour mode with step-by-step progress | FR-TOUR-07 | Done | Good |
+| 22 | Host selection add-on with verified badges | FR-TOUR-06 | Done | Good |
+| 23 | Post-tour review (1-5 stars + comment) | FR-REV-01 | Done | Good |
+| 24 | Traveler profile with tiered membership badge, dynamic stats | FR-PROF-01/02 | Done | Good |
+| 25 | Edit preferences with personality recomputation | FR-PROF-02 | Done | Good |
+| 26 | Emergency contacts (add/edit/delete inline) | FR-SAFE-02 | Done | Good |
+| 27 | Saved places page (explicit saves + tour-visited, deduped) | - | Done | Good |
+| 28 | Tour history page with chronological list | - | Done | Good |
+| 29 | Security settings page | - | Done | Good |
+| 30 | Payment history page | - | Done | Good |
+| 31 | App settings page | - | Done | Good |
+| 32 | Host onboarding wizard (4-step) | FR-AUTH-04 | Done | Good |
+| 33 | Host dashboard with bookings and earnings | - | Done | Mock data |
+| 34 | 5 distinct traveler personas with unique personality labels | FR-PROF-01 | Done | Good |
+| 35 | 7 seeded conversations with realistic Hanoi chat content | - | Done | Good |
+| 36 | Completed tour history per user (2-3 tours each) | - | Done | Good |
+| 37 | Brand identity system (SVG logo, favicon, Stitch brand sheet) | - | Done | Good |
+| 38 | Real place data pipeline (OpenStreetMap + Pexels/Wikimedia) | - | Done | Good |
+
+### Technical stats
+
+| Metric | Value |
+|--------|-------|
+| Pages (routes) | 27 |
+| API routers | 9 (auth, user, place, match, chat, tour, payment, host, review) |
+| API endpoints | 47 |
+| DB tables | 15 |
+| Real Hanoi places | 996 (from OSM pipeline + seed) |
+| Place categories | 7 (cafe, restaurant, cultural, nature, nightlife, workshop, art) |
+| Demo users | 5 travelers + 3 hosts |
 
 ### What's in the PRD but NOT built (defer or cut)
 
 | Feature | PRD Ref | Recommendation | Reason |
 |---------|---------|---------------|--------|
-| Google/Apple OAuth | FR-AUTH-01 | **Defer to Phase 2** | Email/password sufficient for POC; OAuth adds complexity |
+| Real Google/Apple OAuth | FR-AUTH-01 | **Defer to Phase 2** | Buttons exist but route through demo login; needs OAuth credentials |
 | Phone OTP verification | FR-AUTH-01 | **Cut** | Unnecessary for target demo; adds Twilio cost |
 | Place contribution by users | FR-REC-05 | **Defer to Phase 2** | Low priority until user base exists |
 | Push notifications | FR-MATCH-03 | **Defer to Phase 2** | Requires PWA service worker + FCM setup |
 | Tour editing (swap/reorder stops) | FR-TOUR-05 | **Defer to Phase 2** | Nice-to-have; current flow works without it |
 | Image sharing in chat | FR-MATCH-04 | **Cut** | Text is sufficient; image upload needs storage |
-| Post-experience reviews | FR-REV-01/02 | **Defer to Phase 2** | DB schema exists but no UI; build when tours are real |
 | Report system | FR-REV-03 | **Defer to Phase 2** | DB schema exists; build when user base grows |
 | Host pre-booking chat | FR-TOUR-06 | **Defer to Phase 2** | Current host selection flow works without it |
 | Location sharing (GPS) | FR-SAFE-03 | **Defer to Phase 2** | Button exists but no real tracking; needs privacy review |
 | Vietnamese language | 6.5 | **Defer to Phase 3** | English-first for international solo travelers |
 | Implicit data tracking | FR-PROF-01 | **Defer to Phase 3** | Three-layer model designed but Layer 3 not collected |
 | Multi-city expansion | 7 Phase 3 | **Defer to Phase 3** | Hanoi first; prove model before expanding |
+| PWA (service worker, offline) | - | **Defer to Phase 2** | Manifest exists but no offline support |
 
 ### What to FOCUS on for demo / investor pitch
 
-1. **The Tour Generation Engine** -- This is the core value proposition and the thing no competitor does. The cosine similarity scoring, personalized route optimization, and "Why this fits you" explanation is the wow factor. Make sure demos always show the full flow: onboarding -> profile -> generate tour -> preview -> pay -> full itinerary.
+1. **The Tour Generation Engine** -- Core value proposition. Demo the full flow: onboarding -> profile -> generate tour -> preview -> pay -> full itinerary. The cosine similarity scoring and "Why this fits you" explanation is the wow factor.
 
-2. **The Three-Subsystem Integration** -- The fact that LocoRec (discover places) feeds into LocoMatch (find companions) feeds into Customized Tour (paid itinerary) is the unique architecture. Demo all three in sequence.
+2. **The Three-Subsystem Integration** -- LocoRec (discover) -> LocoMatch (connect) -> Customized Tour (monetize). No competitor integrates all three.
 
-3. **Personalization Visible Everywhere** -- The personality label, the "Why it fits you" on place detail, the compatibility score on match, the personalization rationale on the tour. These all come from the same profile engine and that's the differentiator.
+3. **Personalization Visible Everywhere** -- Personality label on profile, "Why it fits you" on place detail, compatibility score on match, personalization rationale on tour. All from the same profile engine.
 
-4. **The Diverse Persona Demo** -- Log in as Alex (Deep Explorer) vs Sam (Thrill Seeker) vs Elena (Culture Scholar) and show how the same app feels different for each person.
+4. **The Diverse Persona Demo** -- Log in as Alex (Deep Explorer) vs Sam (Thrill Seeker) vs Elena (Culture Scholar). Same app, different experience.
 
-### What to REMOVE or simplify
+5. **The Map View** -- Switch to Map mode in Explore to show 996 real Hanoi places with category-colored markers, photo popups, and direct navigation.
 
-1. **Social Tour (group) package** -- The $40 group package adds complexity. For Phase 1, only offer Loco Route ($10) and Solo Mate ($30). Group matching can come in Phase 2 after LocoMatch proves traction.
-
-2. **Host dashboard mock data** -- The host earnings and bookings are hardcoded. Either make them dynamic from real tour data or simplify the page to just "profile + availability" for now.
-
-3. **Payment History / Security settings** -- These are dead-end buttons on the profile page. Either implement or remove to avoid an unfinished impression.
+6. **Real Data, Not Mock** -- 996 real places from OpenStreetMap with actual coordinates, photos from Pexels/Wikimedia, and locally-scored experience/emotional tags.
 
 ---
 
@@ -241,22 +263,27 @@ This is remarkably low for a tech startup because:
 
 ## PART 3: RECOMMENDATIONS
 
-### Immediate priorities -- COMPLETED
+### Completed since initial review (April 8-14, 2026)
 
-1. **Post-tour review flow** -- DONE. After completing active tour mode, users are prompted for a 1-5 star rating + text review. Reviews stored in DB and accessible per tour.
-
-2. **LocoMatch to Tour Planning** -- DONE. "Plan together" CTA in chat navigates to tour builder with companion banner, showing the duo planning context.
-
-3. **Home Dashboard** -- DONE. `/home` shows personalized greeting, personality badge, active tour resume card, nearby travel friends, hidden gems carousel, and recent tour history.
-
-4. **Google/Apple OAuth buttons** -- DONE. Login and register pages now show Google and Apple OAuth buttons with proper brand icons. Currently routes through demo login; ready for real OAuth provider when credentials are configured.
+1. **Post-tour review flow** -- Users prompted for 1-5 star rating + text review after tour completion. Stored in DB via `review.submitTourReview`.
+2. **LocoMatch to Tour Planning** -- "Plan together" CTA in chat navigates to tour builder with companion banner.
+3. **Home Dashboard** -- Timeline, Who's Nearby with online dots, host promo banner, search bar, hidden gems with TOP CHOICE badge.
+4. **Google/Apple OAuth buttons** -- Login/register show branded OAuth buttons (demo mode; ready for real credentials).
+5. **Security Settings & Payment History pages** -- Fully implemented, no longer dead-end buttons.
+6. **Saved Places persistence** -- `saved_places` table with save/unsave API. Button toggles yellow. Saved page shows both explicit saves and tour-visited places.
+7. **Brand identity** -- Custom SVG logo (compass icon + LOCOMATE wordmark), favicon, brand sheet generated via Stitch. Applied across all 27 pages.
+8. **Real place data pipeline** -- 996 Hanoi places from OpenStreetMap Overpass API with Pexels/Wikimedia photos and locally-scored tags.
+9. **Slug-based URLs** -- Human-readable place URLs with Vietnamese diacritic stripping (e.g., `/explore/egg-coffee-at-giang-cafe`).
+10. **Interactive map view** -- Leaflet map in Explore with category-colored markers, photo popups, and View Place links. Toggled via List/Map switcher.
+11. **Design alignment** -- All 8 priority screens (P0-P2) updated to match Stitch designs: splash, home, explore, chat inbox, place detail, tour builder, login/register, 1:1 chat.
+12. **Tiered membership badge** -- Explorer/Member/Premium/VIP based on completed tour count.
+13. **Editable emergency contacts** -- Add/edit/delete inline on profile page.
 
 ### Strategic priorities (next 3 months)
 
-1. **Hostel partnership pilot** -- Place QR codes in 10 Hanoi hostels. This is the highest-ROI distribution channel for solo travelers.
-
-2. **TikTok content engine** -- Create 15 "Hidden Hanoi" short-form videos per month. Each one should end with "Get your own personalized route at loco-mate.vercel.app".
-
-3. **Featured Places (B2B)** -- Approach 5-10 hidden-gem cafes/restaurants about paid placement in the LocoRec feed. This is incremental revenue with zero user friction.
-
-4. **Custom domain** -- Move from `loco-mate.vercel.app` to `locomate.app` or `locomate.vn` for brand credibility.
+1. **Hostel partnership pilot** -- Place QR codes in 10 Hanoi hostels. Highest-ROI distribution channel.
+2. **TikTok content engine** -- 15 "Hidden Hanoi" short-form videos/month ending with app CTA.
+3. **Featured Places (B2B)** -- Paid placement for 5-10 hidden-gem cafes/restaurants in LocoRec feed.
+4. **Custom domain** -- Move from `loco-mate.vercel.app` to `locomate.app` or `locomate.vn`.
+5. **PWA setup** -- Service worker, offline splash, Add to Home Screen prompt for mobile users.
+6. **Real payment integration** -- Configure Stripe live keys or VNPay/MoMo for Vietnamese users.

@@ -411,7 +411,7 @@ During the tour:
 | Priority | Feature | Status |
 |----------|---------|--------|
 | P0 | User registration & onboarding | Must have |
-| P0 | LocoRec basic place feed with 200+ Hanoi places | Must have |
+| P0 | LocoRec place feed with 996 real Hanoi places + map view | Must have |
 | P0 | Customized Tour generation (Loco Route) | Must have |
 | P0 | Payment integration (single gateway) | Must have |
 | P1 | LocoMatch basic swipe + chat | Must have |
@@ -444,35 +444,54 @@ During the tour:
 ## 8. Screen Flow
 
 ```
-Splash --> Onboarding (8 questions)
-       --> Home Dashboard (tabs: Home | Explore | Match | Plan | Profile)
+Splash (social proof card + CTAs)
+  --> Welcome (glass card, AI-Powered Discovery)
+  --> Register (hero banner, Traveler/Host toggle, trust badge)
+  --> Login (hero banner, Google/Apple OAuth demo)
+  --> Onboarding (4 steps, 8 data variables)
+  --> Home Dashboard
 
-Home Tab:
-  Personality Badge --> Nearby Travelers --> Hidden Gems --> Recent Tours
-  Active Tour Banner --> Resume Tour
+Home (tabs: Home | Explore | Match | Plan | Profile):
+  "Xin Chao!" greeting --> Search bar --> "Your Day in Hanoi" timeline
+  "Who's Nearby?" avatars (online dots) --> Hidden Gems carousel (TOP CHOICE badge)
+  "Premium Experience" host promo banner --> Recent Tours
 
-Explore Tab:
-  Place Feed --> Place Detail --> Add to Tour / Save
+Explore (LocoRec):
+  List/Map toggle --> Featured Gems hero (TOP CHOICE + Surprise Discovery)
+  Category filters (All/Cafe/Restaurant/Cultural/Nature/Nightlife/Workshop/Art)
+  List View: Place cards with rating, reviews, experience tags
+  Map View: Leaflet map with category-colored markers, photo popups
+  --> Place Detail (Locomate Story, Why It Fits You, OSM map embed, Reviews)
+  --> Save/Bookmark (yellow toggle, persisted to DB)
+  --> Add to Tour
 
-Match Tab:
-  Swipe Cards --> Match Notification --> Chat
-  Chat --> "Plan Together" CTA --> Tour Builder (with companion)
+Match (LocoMatch):
+  Swipe Cards (compatibility %) --> Match Success modal --> Chat
+  Chat Inbox (New Matches scroll, status badges: Exploring Now/Nearby/Tonight)
+  1:1 Chat (Share Plan / Suggest Place / Call chips)
+  --> "Plan Together" CTA --> Tour Builder (with companion)
 
-Plan Tab:
-  New Tour Request --> Tour Preview (FREE)
-                  --> Payment --> Full Tour (PAID)
-                             --> Active Tour Mode
-                             --> Post-Tour Review (1-5 stars + comment)
+Plan (Tour Builder):
+  Hero banner ("Design your dream Hanoi story")
+  Date/time + Morning/Afternoon/Evening/Full Day pills
+  Duration slider + Budget + Interests + Group size + Host toggle
+  --> Tour Preview (FREE, "Why this fits you")
+  --> Payment Checkout --> Full Itinerary (PAID)
+  --> Active Tour Mode (step-by-step)
+  --> Post-Tour Review (1-5 stars + comment)
 
-Profile Tab:
-  User Info --> My Preferences (view/edit) --> Personality Recompute
-           --> Tour History (expandable, with dates)
-           --> Emergency Contacts (expandable, from DB)
-           --> Settings
+Profile:
+  Avatar + Tiered Membership Badge (Explorer/Member/Premium/VIP)
+  Travel Personality card (% Local Match) --> My Preferences (edit + recompute)
+  Stats row: Saved Places | Tours Taken | Local Friends
+  Emergency Contacts (add/edit/delete inline)
+  Language selector
+  Activity: Saved Places page | Tour History page
+  Account: Security Settings | Payment History
+  --> Settings page --> Sign Out
 
-Auth:
-  Login (email + Google OAuth + Apple)
-  Register (email + Google + Apple, role toggle)
+Host Flow:
+  Host Onboarding (4-step wizard) --> Host Dashboard (bookings + earnings)
 ```
 
 ---
@@ -528,7 +547,7 @@ Monthly OpEx: ~115,000,000 VND --> **Break-even at Phase 3**
 ### Dependencies
 - Google Maps API (or equivalent) for geolocation and directions
 - Payment gateway (Stripe / VNPay) operational
-- Initial seeding of 200+ verified places in Hanoi database
+- Initial seeding of 996 real places in Hanoi database (via OpenStreetMap pipeline)
 - Minimum 15 verified Hosts before public launch
 
 ### Assumptions
