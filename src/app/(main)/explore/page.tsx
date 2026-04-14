@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
 import { PageTransition } from "@/components/layout/page-transition";
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,6 +11,11 @@ import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuthStore } from "@/stores/auth";
 import { trpc } from "@/lib/trpc";
+
+const PlaceMap = dynamic(() => import("@/components/place-map"), {
+  ssr: false,
+  loading: () => <div className="w-full h-full bg-gray-100 rounded-xl animate-pulse flex items-center justify-center text-sm text-muted-foreground">Loading map...</div>,
+});
 
 const CATEGORIES = ["All", "Cafe", "Restaurant", "Cultural", "Nature", "Nightlife", "Workshop", "Art"];
 
@@ -81,8 +87,19 @@ export default function ExplorePage() {
         ))}
       </div>
 
+      {/* Map View */}
+      {viewMode === "map" && (
+        <div className="h-[calc(100vh-220px)] -mx-4 rounded-xl overflow-hidden">
+          {isLoading ? (
+            <div className="w-full h-full bg-gray-100 animate-pulse flex items-center justify-center text-sm text-muted-foreground">Loading places...</div>
+          ) : (
+            <PlaceMap places={allPlaces as { id: string; slug: string | null; name: string; category: string; latitude: number | string; longitude: number | string; photos: string[] | null; avgRating: string | null; priceRange: string | null }[]} />
+          )}
+        </div>
+      )}
+
       {/* Featured Gems Section */}
-      {!search && category === "All" && featuredPlace && !isLoading && (
+      {viewMode === "list" && !search && category === "All" && featuredPlace && !isLoading && (
         <div>
           <div className="flex items-center justify-between mb-3">
             <h2 className="font-bold text-[#3f6f60]">Featured Gems</h2>
@@ -132,18 +149,18 @@ export default function ExplorePage() {
       )}
 
       {/* Section heading */}
-      {!search && category === "All" && (
+      {viewMode === "list" && !search && category === "All" && (
         <h2 className="font-bold text-[#3f6f60] pt-1">Popular Near You</h2>
       )}
 
       {/* Places Feed */}
-      {isLoading ? (
+      {viewMode === "list" && isLoading ? (
         <div className="space-y-4">
           {[1, 2, 3].map((i) => (
             <div key={i} className="h-48 bg-gray-100 rounded-2xl animate-pulse" />
           ))}
         </div>
-      ) : (
+      ) : viewMode === "list" ? (
         <div className="space-y-4">
           {(search || category !== "All" ? allPlaces : feedPlaces).map((place, idx) => (
             <motion.div
@@ -161,7 +178,7 @@ export default function ExplorePage() {
             <p className="text-center text-muted-foreground py-12">No places found. Try different filters!</p>
           )}
         </div>
-      )}
+      ) : null}
     </div>
     </PageTransition>
   );
