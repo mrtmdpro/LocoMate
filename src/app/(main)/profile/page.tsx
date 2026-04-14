@@ -18,9 +18,10 @@ export default function ProfilePage() {
   const router = useRouter();
   const { user, logout } = useAuthStore();
   const { data, isLoading: profileLoading } = trpc.user.getProfile.useQuery();
-  const { data: tourHistory } = trpc.tour.getHistory.useQuery();
+  const { data: tourHistory, isLoading: toursLoading } = trpc.tour.getHistory.useQuery();
   const { data: contacts } = trpc.user.getEmergencyContacts.useQuery();
   const { data: matches } = trpc.match.getMatches.useQuery();
+  const { data: savedPlacesData, isLoading: savedLoading } = trpc.place.getSavedPlaces.useQuery();
 
   const profile = data?.profile;
   const derived = (profile?.derivedData || {}) as {
@@ -53,21 +54,18 @@ export default function ProfilePage() {
   const matchScore = topTraits.length > 0 ? Math.round(topTraits.reduce((s, t) => s + t.value, 0) / topTraits.length) : 75;
 
   const completedTours = (tourHistory || []).filter((t) => t.status === "completed");
-  const visitedPlaceIds = useMemo(() => {
+
+  const totalSavedPlaces = useMemo(() => {
     const ids = new Set<string>();
-    for (const t of (tourHistory || [])) {
-      if (t.status !== "completed") continue;
+    for (const p of savedPlacesData || []) ids.add(p.id);
+    for (const t of completedTours) {
       const td = t.tourData as { stops?: { placeId?: string }[] } | null;
       for (const s of td?.stops || []) { if (s?.placeId) ids.add(s.placeId); }
     }
-    return Array.from(ids);
-  }, [tourHistory]);
+    return ids.size;
+  }, [savedPlacesData, completedTours]);
 
-  const { data: existingPlaces, isLoading: placesCountLoading } = trpc.place.getByIds.useQuery(
-    { ids: visitedPlaceIds },
-    { enabled: visitedPlaceIds.length > 0 }
-  );
-  const placesVisited = visitedPlaceIds.length === 0 ? 0 : placesCountLoading ? null : (existingPlaces?.length ?? 0);
+  const savedCount = (toursLoading || savedLoading) ? null : totalSavedPlaces;
 
   function handleLogout() {
     logout();
@@ -141,7 +139,7 @@ export default function ProfilePage() {
         {/* Stats Row */}
         <div className="grid grid-cols-3 gap-3">
           {[
-            { label: "SAVED PLACES", value: placesVisited ?? "—" },
+            { label: "SAVED PLACES", value: savedCount ?? "—" },
             { label: "TOURS TAKEN", value: completedTours.length },
             { label: "LOCAL FRIENDS", value: matches?.length || 0 },
           ].map((stat) => (
@@ -177,7 +175,7 @@ export default function ProfilePage() {
                 </div>
                 <CardContent className="p-3">
                   <p className="text-sm font-semibold text-[#3f6f60]">Saved Places</p>
-                  <p className="text-[10px] text-muted-foreground">{placesVisited ?? "—"} items</p>
+                  <p className="text-[10px] text-muted-foreground">{savedCount ?? "—"} items</p>
                 </CardContent>
               </Card>
             </Link>
