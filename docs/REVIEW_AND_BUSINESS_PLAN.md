@@ -59,13 +59,16 @@
 
 | Metric | Value |
 |--------|-------|
-| Pages (routes) | 27 |
-| API routers | 9 (auth, user, place, match, chat, tour, payment, host, review) |
-| API endpoints | 47 |
-| DB tables | 15 |
+| Pages (routes) | 29 (added /experiences, /experiences/[slug], /esim) |
+| API routers | 10 (auth, user, place, match, chat, tour, payment, host, review, experience) |
+| API endpoints | 50 |
+| DB tables | 16 (added experiences) |
 | Real Hanoi places | 996 (from OSM pipeline + seed) |
 | Place categories | 7 (cafe, restaurant, cultural, nature, nightlife, workshop, art) |
+| Premium experiences | 6 (culinary, cultural, adventure, nightlife) |
+| eSIM affiliate plans | 4 (GoHub Vietnam, $5.90-$24.90) |
 | Demo users | 5 travelers + 3 hosts |
+| Stitch designs | 27 (23 original + logo brand sheet + 3 new features) |
 
 ### What's in the PRD but NOT built (defer or cut)
 
@@ -122,24 +125,25 @@ LOCOMATE is a SaaS travel platform that monetizes AI-personalized itinerary desi
 
 ### Revenue Model
 
-#### Primary Revenue: Tour Products (B2C)
+#### Primary Revenue: Tour Products + Experiences (B2C)
 
 | Product | Price | Margin | Target Volume (Mo 10-15) | Monthly Revenue |
 |---------|-------|--------|--------------------------|----------------|
 | **Loco Route** (AI itinerary only) | 250,000 VND (~$10) | 96% (near-zero COGS) | 10/day = 300/mo | 72,000,000 VND |
 | **Solo Mate** (itinerary + 1:1 host) | 750,000 VND (~$30) | 50% (host cost: 375k) | 2/day = 60/mo | 22,500,000 VND |
-| **Total** | | | | **94,500,000 VND/mo** |
+| **Premium Experiences** (6 curated) | 625k-1.25M VND (~$25-50) | 40-50% (host cost) | 2/day = 60/mo | 52,500,000 VND |
+| **Total** | | | | **147,000,000 VND/mo** |
 
-Key insight: **Loco Route is the cash cow.** It's a digital product with near-100% margin -- no host cost, no physical service, just AI computation. The host add-on (Solo Mate) drives higher revenue per transaction but lower margin. Focus marketing on Loco Route volume.
+Key insight: **Loco Route is the cash cow** (96% margin). **Premium Experiences are the differentiator** -- they're unbookable elsewhere and justify higher prices ($25-50 vs $10 for Loco Route). The eSIM affiliate adds passive income.
 
-#### Secondary Revenue (Phase 2+)
+#### Secondary Revenue: eSIM Affiliate + B2B
 
 | Stream | Model | Est. Monthly | Timeline |
 |--------|-------|-------------|----------|
+| **eSIM Affiliate (GoHub)** | 10-15% commission on Vietnam eSIM sales ($5-25 per plan) | 3-6M VND | Month 1+ (live now) |
 | Featured Places (B2B) | Cafes/restaurants pay for promoted placement in LocoRec | 10-20M VND | Month 6+ |
 | Premium Subscription | Unlimited tour regenerations, priority host matching | 5-10M VND | Month 8+ |
-| Social Tour Groups | Higher-priced group packages for 3-4 travelers | 15-25M VND | Month 8+ |
-| Commission on Host bookings | 15-20% of Solo Mate host fee | Included above | Month 1+ |
+| Commission on Host bookings | 15-20% of Solo Mate + Experience host fees | Included above | Month 1+ |
 | Data/Insights (B2B) | Anonymized tourism flow data sold to Hanoi tourism board | Exploration | Month 12+ |
 
 #### Revenue NOT to pursue (yet)
@@ -147,6 +151,7 @@ Key insight: **Loco Route is the cash cow.** It's a digital product with near-10
 - **Hotel/flight bookings** -- Don't compete with Booking.com/Agoda. Stay in the "experience design" lane.
 - **Advertising** -- Degrades user trust and the "curated, hidden gem" positioning. Avoid display ads.
 - **Subscription-only model** -- Tourists visit once; per-transaction is better than subscription for a travel app.
+- **Social matching / dating** -- Dropped in April 2026 pivot. No competition with Tinder/Bumble.
 
 ### Cost Structure
 

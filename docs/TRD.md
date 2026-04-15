@@ -166,9 +166,15 @@ places ─────────┐
   ├── saved_places (M:N with users)
   └── tour_stops (1:N)
 
-Total: 15 tables (users, user_profiles, host_profiles, host_availability,
-  places, saved_places, matches, swipe_actions, messages, tours, tour_stops,
-  payments, reviews, emergency_contacts, reports)
+experiences ────────┐
+  ├── slug (unique, human-readable URL)
+  ├── highlights, included, schedule (JSONB)
+  ├── category (culinary, cultural, adventure, nightlife)
+  └── priceAmount (VND)
+
+Total: 16 tables (users, user_profiles, host_profiles, host_availability,
+  places, saved_places, experiences, matches, swipe_actions, messages, tours,
+  tour_stops, payments, reviews, emergency_contacts, reports)
 ```
 
 ### 3.2 Core Tables
@@ -501,7 +507,7 @@ CREATE TABLE reports (
 ### 4.1 API Architecture
 tRPC routers organized by domain module. All endpoints require authentication unless marked `[public]`.
 
-### 4.2 Router Structure (9 routers, 47 endpoints)
+### 4.2 Router Structure (10 routers, 50 endpoints)
 
 ```
 src/server/routers/
@@ -512,7 +518,8 @@ src/server/routers/
 │                           # deleteEmergencyContact
 ├── place.router.ts         # getFeed, getById, getBySlug, getByIds, search, nearby,
 │                           # savePlace, unsavePlace, isSaved, getSavedPlaces
-├── match.router.ts         # getCandidates, swipe, getMatches, unmatch
+├── match.router.ts         # getCandidates, swipe, getMatches, unmatch (swipe UI removed,
+│                           #   router kept for backward-compatible chat conversations)
 ├── chat.router.ts          # getConversations, getMessages, sendMessage, markRead
 ├── tour.router.ts          # create, getPreview, getFullTour, startTour, markStopVisited,
 │                           # completeTour, getHistory
@@ -520,9 +527,7 @@ src/server/routers/
 ├── host.router.ts          # getProfile, updateProfile, setAvailability, getBookings,
 │                           # getAvailableHosts
 ├── review.router.ts        # submitTourReview, getTourReview
-├── host.router.ts          # Host profile, availability
-├── admin.router.ts         # Moderation, verification
-└── _app.ts                 # Root router merge
+├── experience.router.ts    # list, getBySlug, getById (Premium Experiences, added Apr 2026)
 ```
 
 ### 4.3 Key Endpoints
