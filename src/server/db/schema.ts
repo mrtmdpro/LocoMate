@@ -122,6 +122,30 @@ export const places = pgTable(
   ]
 );
 
+export const experiences = pgTable(
+  "experiences",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    title: varchar("title", { length: 200 }).notNull(),
+    slug: varchar("slug", { length: 250 }).unique(),
+    subtitle: varchar("subtitle", { length: 300 }),
+    description: text("description"),
+    category: varchar("category", { length: 50 }).notNull(),
+    durationMinutes: integer("duration_minutes").notNull(),
+    priceAmount: integer("price_amount").notNull(),
+    maxGroupSize: integer("max_group_size").default(4),
+    photos: text("photos").array().default([]),
+    highlights: jsonb("highlights").default([]),
+    included: jsonb("included").default([]),
+    schedule: jsonb("schedule").default([]),
+    hostRequired: boolean("host_required").default(true),
+    isActive: boolean("is_active").default(true),
+    avgRating: decimal("avg_rating", { precision: 3, scale: 2 }).default("0.00"),
+    totalBookings: integer("total_bookings").default(0),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  }
+);
+
 export const savedPlaces = pgTable(
   "saved_places",
   {

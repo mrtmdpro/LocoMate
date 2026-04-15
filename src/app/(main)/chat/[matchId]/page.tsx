@@ -78,10 +78,10 @@ export default function ChatConversationPage() {
         <Badge
           variant="outline"
           className="cursor-pointer whitespace-nowrap text-xs px-3 py-1.5 rounded-full bg-[#ff8c30] text-white border-[#ff8c30] hover:bg-[#e67a20] font-semibold flex items-center gap-1"
-          onClick={() => router.push(`/plan?with=${matchId}`)}
+          onClick={() => router.push("/plan")}
         >
           <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
-          Share plan
+          Plan a tour
         </Badge>
         {["Suggest place", "Tonight?"].map((chip) => (
           <Badge

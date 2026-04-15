@@ -117,6 +117,11 @@ export default function TourPreviewPage() {
         >
           Unlock Full Itinerary — {(tour.priceAmount || 250000).toLocaleString()} VND
         </Button>
+
+        <a href="/esim" className="block mt-3 p-3 rounded-xl bg-[#D9EDBF]/40 border border-[#90D26D]/20 text-center">
+          <p className="text-xs font-semibold text-[#3f6f60]">📶 Don&apos;t forget your eSIM!</p>
+          <p className="text-[10px] text-muted-foreground mt-0.5">Get instant Vietnam data from $5.90</p>
+        </a>
       </div>
     </div>
   );

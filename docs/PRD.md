@@ -56,9 +56,9 @@ LOCOMATE consists of three integrated subsystems:
 
 ```
 +-------------------+     +-------------------+     +-------------------+
-|    LocoRec         |     |    LocoMatch       |     |  Customized Tour   |
-|   (Discovery)      |     |   (Social)         |     |   (Core Revenue)   |
-|   FREE             | --> |   FREE             | --> |   PAID             |
+|    LocoRec         |     |   Experiences       |     |  Customized Tour   |
+|   (Discovery)      |     |   (Premium)         |     |   (Core Revenue)   |
+|   FREE             | --> |   PAID ($25-$50)   | --> |   PAID ($10-$30)   |
 +-------------------+     +-------------------+     +-------------------+
         |                         |                         |
         +-------------------------+-------------------------+
@@ -174,7 +174,22 @@ Place {
 
 ---
 
-### 5.3 LocoMatch - Social Matching (FREE)
+### 5.3 Premium Experiences (PAID) [Replaces former LocoMatch]
+
+> **Note:** The LocoMatch social matching feature was dropped in April 2026 pivot. Replaced by premium local experiences and eSIM affiliate.
+
+### 5.3.1 Experiences Catalog
+- Curated "Only-in-Hanoi" experiences (6 at launch)
+- Categories: culinary, cultural, adventure, nightlife
+- Each experience includes: host, schedule, highlights, what's included
+- Price range: 625,000 - 1,250,000 VND ($25-$50)
+
+### 5.3.2 eSIM Affiliate (GoHub)
+- Curated eSIM plans for Vietnam visitors (affiliate links to GoHub)
+- Revenue: commission per sale (est. 10-15%)
+- Surfaced on: profile, home, tour preview, eSIM dedicated page
+
+### 5.3 (DEPRECATED) LocoMatch - Social Matching (FREE)
 
 #### FR-MATCH-01: User Discovery
 - Swipe-based interface (left = skip, right = interested)
@@ -414,7 +429,7 @@ During the tour:
 | P0 | LocoRec place feed with 996 real Hanoi places + map view | Must have |
 | P0 | Customized Tour generation (Loco Route) | Must have |
 | P0 | Payment integration (single gateway) | Must have |
-| P1 | LocoMatch basic swipe + chat | Must have |
+| P1 | Premium Experiences catalog + eSIM affiliate | Must have |
 | P1 | Host registration & verification workflow | Must have |
 | P1 | Tour Preview (free) + Full Tour (paid) | Must have |
 | P2 | Host add-on for tours | Should have |
@@ -465,11 +480,18 @@ Explore (LocoRec):
   --> Save/Bookmark (yellow toggle, persisted to DB)
   --> Add to Tour
 
-Match (LocoMatch):
-  Swipe Cards (compatibility %) --> Match Success modal --> Chat
-  Chat Inbox (New Matches scroll, status badges: Exploring Now/Nearby/Tonight)
-  1:1 Chat (Share Plan / Suggest Place / Call chips)
-  --> "Plan Together" CTA --> Tour Builder (with companion)
+Experiences:
+  Hero banner ("Only-in-Hanoi") --> Category filters (Culinary/Cultural/Adventure/Nightlife)
+  Experience cards (photo, title, duration, price, rating) --> Experience detail page
+  --> Book Now CTA --> Chat with host
+
+eSIM:
+  GoHub affiliate plans (7-day, 15-day, 30-day, Unlimited)
+  Surfaced via: home banner, tour preview, profile link
+
+Chat (Host Messaging):
+  Messages list with status badges --> 1:1 Chat with host
+  Action chips: Plan a tour / Suggest place / Call
 
 Plan (Tour Builder):
   Hero banner ("Design your dream Hanoi story")

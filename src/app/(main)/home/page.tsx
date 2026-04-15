@@ -15,8 +15,8 @@ export default function HomePage() {
   const { user } = useAuthStore();
   const { data: profileData, isLoading: profileLoading } = trpc.user.getProfile.useQuery();
   const { data: tourHistory, isLoading: toursLoading } = trpc.tour.getHistory.useQuery();
-  const { data: matches } = trpc.match.getMatches.useQuery();
   const { data: places, isLoading: placesLoading } = trpc.place.getFeed.useQuery({ limit: 6 });
+  const { data: experiencesList } = trpc.experience.list.useQuery();
 
   if (profileLoading || toursLoading || placesLoading) {
     return (
@@ -36,8 +36,8 @@ export default function HomePage() {
   const activeTour = (tourHistory || []).find((t) => t.status === "active" || t.status === "paid");
   const completedTours = (tourHistory || []).filter((t) => t.status === "completed");
   const latestTour = completedTours[0];
-  const nearbyTravelers = matches?.slice(0, 4) || [];
   const topPlaces = places?.places?.slice(0, 5) || [];
+  const topExperiences = experiencesList?.slice(0, 3) || [];
   const firstName = user?.displayName?.split(" ")[0] || "Traveler";
 
   const subtitles = [
@@ -141,37 +141,35 @@ export default function HomePage() {
         </Card>
       )}
 
-      {/* Who's Nearby */}
-      <div>
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="font-semibold text-[#3f6f60]">Who&apos;s Nearby?</h2>
-          <Link href="/match" className="text-xs text-[#ff8c30] font-medium">Join Map</Link>
+      {/* Only-in-Hanoi Experiences */}
+      {topExperiences.length > 0 && (
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="font-semibold text-[#3f6f60]">Only-in-Hanoi</h2>
+            <Link href="/experiences" className="text-xs text-[#ff8c30] font-medium">See all</Link>
+          </div>
+          <div className="flex gap-3 overflow-x-auto pb-1">
+            {topExperiences.map((exp) => (
+              <Link key={exp.id} href={`/experiences/${exp.slug}`} className="shrink-0 w-52">
+                <Card className="border-0 shadow-sm overflow-hidden">
+                  <div className="h-28 relative overflow-hidden">
+                    {(exp.photos as string[] | null)?.[0] && <img src={(exp.photos as string[])[0]} alt={exp.title} className="absolute inset-0 w-full h-full object-cover" />}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                    <Badge className="absolute top-2 left-2 bg-[#ff8c30] border-0 text-white text-[8px]">EXPERIENCE</Badge>
+                    <p className="absolute bottom-2 left-2 right-2 text-white text-xs font-bold line-clamp-1">&ldquo;{exp.title}&rdquo;</p>
+                  </div>
+                  <CardContent className="p-2">
+                    <div className="flex items-center justify-between">
+                      <p className="text-[10px] text-muted-foreground">{Math.round(exp.durationMinutes / 60)}h &middot; ★ {Number(exp.avgRating || 0).toFixed(1)}</p>
+                      <p className="text-xs font-bold text-[#ff8c30]">{(exp.priceAmount / 1000).toFixed(0)}k</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
+          </div>
         </div>
-        <div className="flex gap-3 overflow-x-auto pb-1">
-          {nearbyTravelers.map((m) => (
-            <Link key={m.id} href={`/chat/${m.id}`} className="shrink-0">
-              <div className="flex flex-col items-center gap-1.5 w-16">
-                <div className="relative">
-                  <Avatar className="w-14 h-14 border-2 border-[#90D26D]">
-                    {m.otherUser?.avatarUrl && <AvatarImage src={m.otherUser.avatarUrl} alt={m.otherUser.displayName || ""} />}
-                    <AvatarFallback className="bg-[#3f6f60] text-white text-sm font-bold">{(m.otherUser?.displayName || "?")[0]}</AvatarFallback>
-                  </Avatar>
-                  <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-[#90D26D] border-2 border-white rounded-full" />
-                </div>
-                <p className="text-[10px] text-center truncate w-full">{m.otherUser?.displayName?.split(" ")[0]}</p>
-              </div>
-            </Link>
-          ))}
-          <Link href="/match" className="shrink-0">
-            <div className="flex flex-col items-center gap-1.5 w-16">
-              <div className="w-14 h-14 rounded-full border-2 border-dashed border-[#ff8c30]/30 flex items-center justify-center bg-[#ff8c30]/5">
-                <span className="text-[#ff8c30] text-lg">+</span>
-              </div>
-              <p className="text-[10px] text-[#ff8c30]">Join Map</p>
-            </div>
-          </Link>
-        </div>
-      </div>
+      )}
 
       {/* Hidden Gems */}
       <div>
@@ -226,6 +224,20 @@ export default function HomePage() {
           </div>
         </div>
       </Card>
+
+      {/* eSIM Banner */}
+      <Link href="/esim">
+        <Card className="border-0 shadow-sm bg-gradient-to-r from-[#D9EDBF]/50 to-[#90D26D]/20">
+          <CardContent className="p-3 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-[#3f6f60] flex items-center justify-center text-white text-lg shrink-0">📶</div>
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-[#3f6f60]">Get Vietnam eSIM</p>
+              <p className="text-[10px] text-muted-foreground">Instant data from $5.90. No SIM card needed.</p>
+            </div>
+            <svg className="w-4 h-4 text-[#3f6f60]" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
+          </CardContent>
+        </Card>
+      </Link>
     </div></PageTransition>
   );
 }

@@ -20,7 +20,6 @@ export default function ProfilePage() {
   const { data, isLoading: profileLoading } = trpc.user.getProfile.useQuery();
   const { data: tourHistory, isLoading: toursLoading } = trpc.tour.getHistory.useQuery();
   const { data: contacts } = trpc.user.getEmergencyContacts.useQuery();
-  const { data: matches } = trpc.match.getMatches.useQuery();
   const { data: savedPlacesData, isLoading: savedLoading } = trpc.place.getSavedPlaces.useQuery();
 
   const profile = data?.profile;
@@ -151,7 +150,7 @@ export default function ProfilePage() {
           {[
             { label: "SAVED PLACES", value: savedCount ?? "—" },
             { label: "TOURS TAKEN", value: completedTours.length },
-            { label: "LOCAL FRIENDS", value: matches?.length || 0 },
+            { label: "EXPERIENCES", value: completedTours.filter(t => (t.tourData as { title?: string })?.title?.includes("Experience")).length || 0 },
           ].map((stat) => (
             <Card key={stat.label} className="border border-gray-100 shadow-none">
               <CardContent className="p-3 text-center">
@@ -220,6 +219,13 @@ export default function ProfilePage() {
               <Link href="/payments" className="w-full flex items-center gap-3 p-4 text-left hover:bg-gray-50 transition-colors">
                 <div className="w-9 h-9 rounded-xl bg-[#ff8c30]/10 flex items-center justify-center text-sm">💳</div>
                 <span className="flex-1 text-sm font-medium">Payment History</span>
+                <svg className="w-4 h-4 text-gray-300" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
+              </Link>
+              <Separator />
+              <Link href="/esim" className="w-full flex items-center gap-3 p-4 text-left hover:bg-gray-50 transition-colors">
+                <div className="w-9 h-9 rounded-xl bg-[#3f6f60]/10 flex items-center justify-center text-sm">📶</div>
+                <span className="flex-1 text-sm font-medium">Vietnam eSIM</span>
+                <Badge className="bg-[#90D26D]/20 text-[#3f6f60] border-0 text-[9px]">GoHub</Badge>
                 <svg className="w-4 h-4 text-gray-300" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
               </Link>
             </CardContent>

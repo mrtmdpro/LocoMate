@@ -50,6 +50,10 @@
 | 36 | Completed tour history per user (2-3 tours each) | - | Done | Good |
 | 37 | Brand identity system (SVG logo, favicon, Stitch brand sheet) | - | Done | Good |
 | 38 | Real place data pipeline (OpenStreetMap + Pexels/Wikimedia) | - | Done | Good |
+| 39 | Premium Experiences system (6 curated Hanoi experiences) | - | Done | Good |
+| 40 | eSIM affiliate page (GoHub Vietnam plans with tracking) | - | Done | Good |
+| 41 | **PIVOT:** Dropped LocoMatch swipe/social matching | - | Done | Strategic |
+| 42 | Replaced Match tab with Experiences tab in navigation | - | Done | Good |
 
 ### Technical stats
 
@@ -85,7 +89,7 @@
 
 1. **The Tour Generation Engine** -- Core value proposition. Demo the full flow: onboarding -> profile -> generate tour -> preview -> pay -> full itinerary. The cosine similarity scoring and "Why this fits you" explanation is the wow factor.
 
-2. **The Three-Subsystem Integration** -- LocoRec (discover) -> LocoMatch (connect) -> Customized Tour (monetize). No competitor integrates all three.
+2. **The Three-Subsystem Integration** -- LocoRec (discover) -> Premium Experiences (immerse) -> Customized Tour (monetize) + eSIM affiliate (utility revenue). No competitor integrates all three.
 
 3. **Personalization Visible Everywhere** -- Personality label on profile, "Why it fits you" on place detail, compatibility score on match, personalization rationale on tour. All from the same profile engine.
 

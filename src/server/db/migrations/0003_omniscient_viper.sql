@@ -1,0 +1,21 @@
+CREATE TABLE "experiences" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"title" varchar(200) NOT NULL,
+	"slug" varchar(250),
+	"subtitle" varchar(300),
+	"description" text,
+	"category" varchar(50) NOT NULL,
+	"duration_minutes" integer NOT NULL,
+	"price_amount" integer NOT NULL,
+	"max_group_size" integer DEFAULT 4,
+	"photos" text[] DEFAULT '{}',
+	"highlights" jsonb DEFAULT '[]'::jsonb,
+	"included" jsonb DEFAULT '[]'::jsonb,
+	"schedule" jsonb DEFAULT '[]'::jsonb,
+	"host_required" boolean DEFAULT true,
+	"is_active" boolean DEFAULT true,
+	"avg_rating" numeric(3, 2) DEFAULT '0.00',
+	"total_bookings" integer DEFAULT 0,
+	"created_at" timestamp with time zone DEFAULT now(),
+	CONSTRAINT "experiences_slug_unique" UNIQUE("slug")
+);

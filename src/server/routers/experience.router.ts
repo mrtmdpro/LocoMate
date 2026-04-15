@@ -1,0 +1,38 @@
+import { z } from "zod";
+import { eq, and, desc } from "drizzle-orm";
+import { router, protectedProcedure } from "../trpc";
+import { experiences } from "../db/schema";
+
+export const experienceRouter = router({
+  list: protectedProcedure
+    .input(z.object({
+      category: z.string().optional(),
+    }).optional())
+    .query(async ({ ctx, input }) => {
+      const conditions = [eq(experiences.isActive, true)];
+      if (input?.category) {
+        conditions.push(eq(experiences.category, input.category));
+      }
+      return ctx.db
+        .select()
+        .from(experiences)
+        .where(and(...conditions))
+        .orderBy(desc(experiences.totalBookings));
+    }),
+
+  getBySlug: protectedProcedure
+    .input(z.object({ slug: z.string().min(1) }))
+    .query(async ({ ctx, input }) => {
+      return ctx.db.query.experiences.findFirst({
+        where: eq(experiences.slug, input.slug),
+      });
+    }),
+
+  getById: protectedProcedure
+    .input(z.object({ id: z.string().uuid() }))
+    .query(async ({ ctx, input }) => {
+      return ctx.db.query.experiences.findFirst({
+        where: eq(experiences.id, input.id),
+      });
+    }),
+});
