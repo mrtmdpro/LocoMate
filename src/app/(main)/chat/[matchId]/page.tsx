@@ -116,7 +116,7 @@ export default function ChatConversationPage() {
         )}
         {!messagesLoading && messages?.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-muted-foreground text-sm">You matched! Say hello to start planning together.</p>
+            <p className="text-muted-foreground text-sm">Say hello to start planning your experience!</p>
           </div>
         )}
         {messages?.map((msg) => {

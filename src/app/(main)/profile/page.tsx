@@ -52,7 +52,7 @@ export default function ProfilePage() {
   const personalityLabel = derived.personalityLabel || "The Hanoi Adventurer";
   const matchScore = topTraits.length > 0 ? Math.round(topTraits.reduce((s, t) => s + t.value, 0) / topTraits.length) : 75;
 
-  const completedTours = (tourHistory || []).filter((t) => t.status === "completed");
+  const completedTours = useMemo(() => (tourHistory || []).filter((t) => t.status === "completed"), [tourHistory]);
 
   const tourPlaceIds = useMemo(() => {
     const ids = new Set<string>();
@@ -150,7 +150,7 @@ export default function ProfilePage() {
           {[
             { label: "SAVED PLACES", value: savedCount ?? "—" },
             { label: "TOURS TAKEN", value: completedTours.length },
-            { label: "EXPERIENCES", value: completedTours.filter(t => (t.tourData as { title?: string })?.title?.includes("Experience")).length || 0 },
+            { label: "EXPERIENCES", value: 0 },
           ].map((stat) => (
             <Card key={stat.label} className="border border-gray-100 shadow-none">
               <CardContent className="p-3 text-center">

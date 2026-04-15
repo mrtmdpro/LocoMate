@@ -150,7 +150,7 @@ export default function HomePage() {
           </div>
           <div className="flex gap-3 overflow-x-auto pb-1">
             {topExperiences.map((exp) => (
-              <Link key={exp.id} href={`/experiences/${exp.slug}`} className="shrink-0 w-52">
+              <Link key={exp.id} href={`/experiences/${exp.slug || exp.id}`} className="shrink-0 w-52">
                 <Card className="border-0 shadow-sm overflow-hidden">
                   <div className="h-28 relative overflow-hidden">
                     {(exp.photos as string[] | null)?.[0] && <img src={(exp.photos as string[])[0]} alt={exp.title} className="absolute inset-0 w-full h-full object-cover" />}
@@ -160,7 +160,7 @@ export default function HomePage() {
                   </div>
                   <CardContent className="p-2">
                     <div className="flex items-center justify-between">
-                      <p className="text-[10px] text-muted-foreground">{Math.round(exp.durationMinutes / 60)}h &middot; ★ {Number(exp.avgRating || 0).toFixed(1)}</p>
+                      <p className="text-[10px] text-muted-foreground">{Math.floor(exp.durationMinutes / 60)}h{exp.durationMinutes % 60 ? ` ${exp.durationMinutes % 60}m` : ""} &middot; ★ {Number(exp.avgRating || 0).toFixed(1)}</p>
                       <p className="text-xs font-bold text-[#ff8c30]">{(exp.priceAmount / 1000).toFixed(0)}k</p>
                     </div>
                   </CardContent>

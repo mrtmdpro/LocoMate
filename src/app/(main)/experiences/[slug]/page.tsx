@@ -43,7 +43,7 @@ export default function ExperienceDetailPage() {
           <CardContent className="p-4">
             <div className="grid grid-cols-3 gap-3 text-center">
               <div>
-                <p className="text-lg font-bold text-[#3f6f60]">{Math.round(exp.durationMinutes / 60)}h</p>
+                <p className="text-lg font-bold text-[#3f6f60]">{exp.durationMinutes >= 60 ? `${Math.floor(exp.durationMinutes / 60)}h${exp.durationMinutes % 60 ? ` ${exp.durationMinutes % 60}m` : ""}` : `${exp.durationMinutes}m`}</p>
                 <p className="text-[10px] text-muted-foreground uppercase">Duration</p>
               </div>
               <div>
@@ -55,7 +55,7 @@ export default function ExperienceDetailPage() {
                   <span className="text-yellow-500 text-sm">★</span>
                   <p className="text-lg font-bold text-[#3f6f60]">{Number(exp.avgRating || 0).toFixed(1)}</p>
                 </div>
-                <p className="text-[10px] text-muted-foreground uppercase">{exp.totalBookings} booked</p>
+                <p className="text-[10px] text-muted-foreground uppercase">{exp.totalBookings ?? 0} booked</p>
               </div>
             </div>
           </CardContent>
@@ -130,7 +130,7 @@ export default function ExperienceDetailPage() {
         <div className="flex gap-3">
           <Button
             className="flex-1 h-14 rounded-2xl bg-[#ff8c30] hover:bg-[#e67a20] text-white font-bold text-base shadow-lg"
-            onClick={() => toast.success("Booking request sent! Check your messages for host confirmation.")}
+            onClick={() => toast.info("Bookings opening soon! We'll notify you when this experience is available.")}
           >
             Book Now — {(exp.priceAmount / 1000).toFixed(0)}k VND
           </Button>

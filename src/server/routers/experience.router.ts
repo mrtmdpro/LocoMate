@@ -24,7 +24,7 @@ export const experienceRouter = router({
     .input(z.object({ slug: z.string().min(1) }))
     .query(async ({ ctx, input }) => {
       return ctx.db.query.experiences.findFirst({
-        where: eq(experiences.slug, input.slug),
+        where: and(eq(experiences.slug, input.slug), eq(experiences.isActive, true)),
       });
     }),
 
@@ -32,7 +32,7 @@ export const experienceRouter = router({
     .input(z.object({ id: z.string().uuid() }))
     .query(async ({ ctx, input }) => {
       return ctx.db.query.experiences.findFirst({
-        where: eq(experiences.id, input.id),
+        where: and(eq(experiences.id, input.id), eq(experiences.isActive, true)),
       });
     }),
 });
