@@ -15,7 +15,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
 
   useEffect(() => {
     if (hydrated && !user) {
-      router.push("/login");
+      router.replace("/login");
     }
   }, [user, router, hydrated]);
 

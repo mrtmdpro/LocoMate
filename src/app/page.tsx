@@ -112,13 +112,13 @@ export default function LandingPage() {
       </main>
 
       <nav className="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-white/90 backdrop-blur-lg rounded-t-[32px] border-t border-emerald-100 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
-        <button className="flex flex-col items-center text-teal-900 bg-emerald-100 rounded-2xl px-5 py-2">
+        <button onClick={() => router.push("/explore")} className="flex flex-col items-center text-teal-900 bg-emerald-100 rounded-2xl px-5 py-2">
           <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
           </svg>
           <span className="text-[11px] font-bold uppercase tracking-widest mt-1">Explore</span>
         </button>
-        <button onClick={() => router.push("/plan")} className="flex flex-col items-center text-slate-400 px-5 py-2 hover:text-orange-500">
+        <button onClick={() => router.push(user ? "/plan" : "/login")} className="flex flex-col items-center text-slate-400 px-5 py-2 hover:text-orange-500">
           <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
           </svg>
@@ -130,7 +130,7 @@ export default function LandingPage() {
           </svg>
           <span className="text-[11px] font-bold uppercase tracking-widest mt-1">Experiences</span>
         </button>
-        <button onClick={() => router.push("/profile")} className="flex flex-col items-center text-slate-400 px-5 py-2 hover:text-orange-500">
+        <button onClick={() => router.push(user ? "/profile" : "/login")} className="flex flex-col items-center text-slate-400 px-5 py-2 hover:text-orange-500">
           <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
           </svg>
