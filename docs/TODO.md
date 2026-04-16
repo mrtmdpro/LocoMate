@@ -18,13 +18,13 @@
 
 ## CODE QUALITY (should fix)
 
-- [ ] **CODE-01: Incorrect feed total** -- `place.getFeed` in `src/server/routers/place.router.ts` returns `total: results.length` which is the page size (max 20), not the actual total count matching the filter. Clients relying on `total` for pagination will break.
+- [x] **CODE-01: Incorrect feed total** -- FIXED. `place.getFeed` now runs a separate `SELECT count(*)` with the same WHERE conditions and returns the real total.
 
-- [ ] **CODE-02: Nearby radius not applied** -- `place.nearby` in `src/server/routers/place.router.ts` accepts `radiusKm` in input but only orders by distance -- never applies a `WHERE distance <= radius` filter. Results can include places anywhere in the DB.
+- [x] **CODE-02: Nearby radius not applied** -- FIXED. `place.nearby` now filters with `WHERE distance <= radiusKm` using parameterized Haversine expression.
 
-- [ ] **CODE-03: Unused import** -- `AnimatePresence` imported but never used in `src/app/(auth)/onboarding/page.tsx`. Minor lint issue.
+- [x] **CODE-03: Unused import** -- FIXED. Removed unused `AnimatePresence` from onboarding page.
 
-- [ ] **CODE-04: Seed doesn't handle experiences** -- `src/server/db/seed.ts` doesn't clear or re-seed the `experiences` table. Re-running seed leaves stale experience data while wiping all other tables. Add `await db.delete(schema.experiences)` in the clear block and re-insert the 6 curated experiences.
+- [x] **CODE-04: Seed doesn't handle experiences** -- FIXED. Added `savedPlaces` and `experiences` to clear block (respecting FK order). Added 6 curated experience inserts at end of seed.
 
 ---
 

@@ -22,6 +22,11 @@ export const placeRouter = router({
         conditions.push(ilike(places.name, `%${input.search}%`));
       }
 
+      const [countResult] = await ctx.db
+        .select({ count: sql<number>`count(*)` })
+        .from(places)
+        .where(and(...conditions));
+
       const results = await ctx.db
         .select()
         .from(places)
@@ -30,7 +35,7 @@ export const placeRouter = router({
         .limit(input.limit)
         .offset(input.offset);
 
-      return { places: results, total: results.length };
+      return { places: results, total: Number(countResult?.count ?? 0) };
     }),
 
   getById: protectedProcedure
@@ -138,7 +143,7 @@ export const placeRouter = router({
       const results = await ctx.db
         .select()
         .from(places)
-        .where(eq(places.isActive, true))
+        .where(and(eq(places.isActive, true), sql`${distanceExpr} <= ${input.radiusKm}`))
         .orderBy(distanceExpr)
         .limit(input.limit);
 
