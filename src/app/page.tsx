@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/stores/auth";
+import { LogoFull } from "@/components/logo";
 
 export default function LandingPage() {
   const router = useRouter();
@@ -25,21 +26,12 @@ export default function LandingPage() {
       />
 
       <header className="fixed top-0 w-full z-50 bg-emerald-50/80 backdrop-blur-md flex justify-between items-center px-6 py-4">
-        <div className="flex items-center gap-3">
-          <svg className="w-6 h-6 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-          <h1 className="text-2xl font-black italic text-orange-600 tracking-tighter font-[Sora,sans-serif]">
-            LOCOMATE
-          </h1>
-        </div>
-        <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center overflow-hidden border-2 border-white">
-          <img
-            src="https://randomuser.me/api/portraits/men/32.jpg"
-            alt="User"
-            className="w-full h-full object-cover"
-          />
-        </div>
+        <LogoFull size="sm" />
+        {user && (
+          <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center overflow-hidden border-2 border-white">
+            <img src={user.avatarUrl || ""} alt="" className="w-full h-full object-cover" />
+          </div>
+        )}
       </header>
 
       <main className="flex-grow pt-24 pb-32 px-6 flex flex-col justify-end relative z-10">
