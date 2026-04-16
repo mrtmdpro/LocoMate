@@ -72,7 +72,7 @@ export default function HostSetupPage() {
           <div className="space-y-6">
             <div>
               <h2 className="text-2xl font-bold font-heading text-[#3f6f60]">Your expertise</h2>
-              <p className="text-sm text-muted-foreground mt-1">Help us match you with the right travelers</p>
+              <p className="text-sm text-muted-foreground mt-1">Help us connect you with the right travelers</p>
             </div>
             <div>
               <Label className="mb-3 block">Languages</Label>

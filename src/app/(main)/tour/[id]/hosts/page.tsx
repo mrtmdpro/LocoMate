@@ -28,7 +28,7 @@ export default function HostSelectionPage() {
         </button>
         <div>
           <h1 className="text-xl font-bold font-heading text-[#3f6f60]">Find Your Host</h1>
-          <p className="text-xs text-muted-foreground">Verified Hanoi insiders matched to your style</p>
+          <p className="text-xs text-muted-foreground">Verified Hanoi insiders tailored to your style</p>
         </div>
       </div>
 
@@ -46,9 +46,9 @@ export default function HostSelectionPage() {
           verificationStatus: string | null;
         };
         const langs = Array.isArray(h.languages) ? h.languages : [];
-        const matchReason = (h.specialties || []).length > 0
-          ? `Matches your interest in ${(h.specialties || []).slice(0, 2).join(" & ")}`
-          : "Great overall match";
+        const fitReason = (h.specialties || []).length > 0
+          ? `Perfect fit for your interest in ${(h.specialties || []).slice(0, 2).join(" & ")}`
+          : "Great overall fit";
 
         return (
           <Card key={h.id} className="border-0 shadow-md overflow-hidden">
@@ -82,7 +82,7 @@ export default function HostSelectionPage() {
               </div>
 
               <div className="bg-[#ff8c30]/5 border border-[#ff8c30]/10 rounded-lg p-2 mb-3">
-                <p className="text-xs text-[#ff8c30] font-medium">✨ {matchReason}</p>
+                <p className="text-xs text-[#ff8c30] font-medium">✨ {fitReason}</p>
               </div>
 
               <div className="flex items-center justify-between">

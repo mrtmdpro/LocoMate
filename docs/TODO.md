@@ -30,14 +30,9 @@
 
 ## CLEANUP (nice to have)
 
-- [ ] **CLEAN-01: Remove unused npm packages** -- `socket.io`, `socket.io-client` (no WebSocket features exist), `@hookform/resolvers` (never imported), `@neondatabase/serverless` (DB uses `postgres.js` driver, not Neon serverless). Run `pnpm remove socket.io socket.io-client @hookform/resolvers @neondatabase/serverless`.
+- [x] **CLEAN-01: Remove unused npm packages** -- FIXED. Removed socket.io, socket.io-client, @hookform/resolvers, @neondatabase/serverless (-18 packages).
 
-- [ ] **CLEAN-02: Update "match" wording in UI** -- Several pages still use "match" language from the dropped LocoMatch feature:
-  - `src/app/(main)/profile/page.tsx` -- "Local Match %" label
-  - `src/app/(auth)/onboarding/page.tsx` -- "Slide to match your vibe"
-  - `src/app/(auth)/host-setup/page.tsx` -- "Help us match you with the right travelers"
-  - `src/app/(main)/tour/[id]/hosts/page.tsx` -- "matched to your style", "Great overall match"
-  - Replace with "fit", "compatibility", or "personalization" language.
+- [x] **CLEAN-02: Update "match" wording in UI** -- FIXED. All user-facing "match" strings replaced with "fit"/"connect"/"tailored" across profile, onboarding, host-setup, and tour hosts pages.
 
 - [ ] **CLEAN-03: Reports table unused** -- `reports` table defined in `src/server/db/schema.ts` has no API router. Either build a report router or remove the table if not needed for MVP.
 
@@ -47,10 +42,7 @@
 
 - [ ] **CONFIG-01: No PWA manifest** -- No `manifest.json` or service worker configured. Needed for mobile "Add to Home Screen" and offline splash. Create `public/manifest.json` with app name, icons, theme color, and add `<link rel="manifest">` to root layout.
 
-- [ ] **CONFIG-02: Missing image remote patterns** -- `next.config.ts` only allows `images.unsplash.com` and `randomuser.me` in `remotePatterns`. Missing domains used by pipeline-fetched photos:
-  - `images.pexels.com`
-  - `upload.wikimedia.org`
-  - `lh3.googleusercontent.com` (Stitch-generated images)
+- [x] **CONFIG-02: Missing image remote patterns** -- FIXED. Added `images.pexels.com`, `upload.wikimedia.org`, `lh3.googleusercontent.com` to next.config.ts remotePatterns.
 
 - [ ] **CONFIG-03: Stripe SDK not wired** -- `stripe` package is installed but `payment.router.ts` uses hardcoded test values, not the Stripe SDK. Either wire up real Stripe integration or remove the package to reduce bundle size.
 

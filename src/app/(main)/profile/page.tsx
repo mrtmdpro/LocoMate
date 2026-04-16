@@ -50,7 +50,7 @@ export default function ProfilePage() {
     .map(([k, v]) => ({ name: k, value: Math.round(v * 100) }));
 
   const personalityLabel = derived.personalityLabel || "The Hanoi Adventurer";
-  const matchScore = topTraits.length > 0 ? Math.round(topTraits.reduce((s, t) => s + t.value, 0) / topTraits.length) : 75;
+  const fitScore = topTraits.length > 0 ? Math.round(topTraits.reduce((s, t) => s + t.value, 0) / topTraits.length) : 75;
 
   const completedTours = useMemo(() => (tourHistory || []).filter((t) => t.status === "completed"), [tourHistory]);
 
@@ -122,9 +122,9 @@ export default function ProfilePage() {
             <h3 className="text-xl font-bold font-heading">{personalityLabel}</h3>
             <div className="mt-3 flex items-center gap-3">
               <div className="flex-1 h-2 bg-white/20 rounded-full overflow-hidden">
-                <div className="h-full bg-[#ff8c30] rounded-full transition-all" style={{ width: `${matchScore}%` }} />
+                <div className="h-full bg-[#ff8c30] rounded-full transition-all" style={{ width: `${fitScore}%` }} />
               </div>
-              <span className="text-xs font-semibold text-[#ff8c30]">{matchScore}% Local Match</span>
+              <span className="text-xs font-semibold text-[#ff8c30]">{fitScore}% Local Fit</span>
             </div>
           </CardContent>
         </Card>

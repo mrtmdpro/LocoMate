@@ -128,7 +128,7 @@ export default function OnboardingPage() {
           <div className="space-y-8">
             <div>
               <h2 className="text-2xl font-bold font-heading text-[#3f6f60]">Your travel style</h2>
-              <p className="text-sm text-muted-foreground mt-1">Slide to match your vibe</p>
+              <p className="text-sm text-muted-foreground mt-1">Slide to find your style</p>
             </div>
             <Card className="border-[#3f6f60]/10">
               <CardContent className="p-6 space-y-8">
