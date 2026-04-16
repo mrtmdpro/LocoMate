@@ -8,11 +8,11 @@
 
 ## SECURITY (fix before public launch)
 
-- [ ] **SEC-01: Payment ownership check** -- `payment.confirm` in `src/server/routers/payment.router.ts` loads payment by ID only, doesn't verify `payment.userId === ctx.user.id`. Any authenticated user could confirm another user's payment if they know the ID.
+- [x] **SEC-01: Payment ownership + status check** -- FIXED. `payment.confirm` now verifies `userId` ownership and `status === 'pending'`. `createIntent` also verifies tour ownership. Uses optimistic locking to prevent race conditions.
 
-- [ ] **SEC-02: Chat authorization** -- `chat.sendMessage`, `chat.getMessages`, `chat.markRead` in `src/server/routers/chat.router.ts` accept any `matchId` without verifying the current user is a participant in that match. Users could read/send messages in other people's conversations.
+- [x] **SEC-02: Chat authorization** -- FIXED. Added `verifyMatchParticipant()` to `getMessages`, `sendMessage`, `markRead`. Checks user is a participant AND match status is 'matched'. Also fixed `getConversations` to not leak `passwordHash` (now selects only id/displayName/avatarUrl/role).
 
-- [ ] **SEC-03: Tour lifecycle ownership** -- `tour.startTour`, `tour.markStopVisited`, `tour.completeTour` in `src/server/routers/tour.router.ts` don't verify the tour belongs to `ctx.user.id`. Any user could manipulate another user's tour state.
+- [x] **SEC-03: Tour lifecycle ownership + status gates** -- FIXED. `startTour` requires ownership + status 'paid'. `completeTour` requires ownership + status 'active'. `markStopVisited` loads stop, then verifies parent tour ownership. Prevents bypassing payment flow.
 
 ---
 

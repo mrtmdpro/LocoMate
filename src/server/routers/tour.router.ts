@@ -91,6 +91,11 @@ export const tourRouter = router({
   startTour: protectedProcedure
     .input(z.object({ tourId: z.string().uuid() }))
     .mutation(async ({ ctx, input }) => {
+      const tour = await ctx.db.query.tours.findFirst({ where: eq(tours.id, input.tourId) });
+      if (!tour) throw new TRPCError({ code: "NOT_FOUND" });
+      if (tour.userId !== ctx.user.id) throw new TRPCError({ code: "FORBIDDEN", message: "Not your tour" });
+      if (tour.status !== "paid") throw new TRPCError({ code: "PRECONDITION_FAILED", message: "Tour must be paid before starting" });
+
       const [updated] = await ctx.db
         .update(tours)
         .set({ status: "active", startedAt: new Date(), updatedAt: new Date() })
@@ -102,6 +107,11 @@ export const tourRouter = router({
   markStopVisited: protectedProcedure
     .input(z.object({ stopId: z.string().uuid() }))
     .mutation(async ({ ctx, input }) => {
+      const stop = await ctx.db.query.tourStops.findFirst({ where: eq(tourStops.id, input.stopId) });
+      if (!stop) throw new TRPCError({ code: "NOT_FOUND" });
+      const tour = await ctx.db.query.tours.findFirst({ where: eq(tours.id, stop.tourId) });
+      if (!tour || tour.userId !== ctx.user.id) throw new TRPCError({ code: "FORBIDDEN", message: "Not your tour stop" });
+
       const [updated] = await ctx.db
         .update(tourStops)
         .set({ visitedAt: new Date() })
@@ -113,6 +123,11 @@ export const tourRouter = router({
   completeTour: protectedProcedure
     .input(z.object({ tourId: z.string().uuid() }))
     .mutation(async ({ ctx, input }) => {
+      const tour = await ctx.db.query.tours.findFirst({ where: eq(tours.id, input.tourId) });
+      if (!tour) throw new TRPCError({ code: "NOT_FOUND" });
+      if (tour.userId !== ctx.user.id) throw new TRPCError({ code: "FORBIDDEN", message: "Not your tour" });
+      if (tour.status !== "active") throw new TRPCError({ code: "PRECONDITION_FAILED", message: "Tour must be active to complete" });
+
       const [updated] = await ctx.db
         .update(tours)
         .set({ status: "completed", completedAt: new Date(), updatedAt: new Date() })

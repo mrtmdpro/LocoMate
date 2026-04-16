@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { router, protectedProcedure } from "../trpc";
 import { payments, tours } from "../db/schema";
 
@@ -12,6 +12,7 @@ export const paymentRouter = router({
         where: eq(tours.id, input.tourId),
       });
       if (!tour) throw new TRPCError({ code: "NOT_FOUND" });
+      if (tour.userId !== ctx.user.id) throw new TRPCError({ code: "FORBIDDEN", message: "Not your tour" });
 
       const [payment] = await ctx.db
         .insert(payments)
@@ -41,8 +42,10 @@ export const paymentRouter = router({
         where: eq(payments.id, input.paymentId),
       });
       if (!payment) throw new TRPCError({ code: "NOT_FOUND" });
+      if (payment.userId !== ctx.user.id) throw new TRPCError({ code: "FORBIDDEN", message: "Not your payment" });
+      if (payment.status !== "pending") throw new TRPCError({ code: "PRECONDITION_FAILED", message: "Payment cannot be confirmed" });
 
-      await ctx.db
+      const updated = await ctx.db
         .update(payments)
         .set({
           status: "succeeded",
@@ -50,7 +53,9 @@ export const paymentRouter = router({
           paidAt: new Date(),
           updatedAt: new Date(),
         })
-        .where(eq(payments.id, input.paymentId));
+        .where(and(eq(payments.id, input.paymentId), eq(payments.status, "pending")))
+        .returning();
+      if (updated.length === 0) throw new TRPCError({ code: "PRECONDITION_FAILED", message: "Payment already processed" });
 
       await ctx.db
         .update(tours)
