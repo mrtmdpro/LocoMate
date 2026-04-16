@@ -45,10 +45,10 @@ export default function LoginPage() {
       animate={loggingIn ? { opacity: 0, y: -20, scale: 0.98 } : { opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: loggingIn ? 0.5 : 0.4, ease: "easeInOut" }}
     >
-      <img src="https://images.pexels.com/photos/28117159/pexels-photo-28117159.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="" className="absolute inset-0 w-full h-full object-cover opacity-10 z-0" />
+      <img src="https://images.unsplash.com/photo-1616486410185-81af2d32a2af?w=1200&h=800&fit=crop" alt="" className="absolute inset-0 w-full h-full object-cover opacity-10 z-0" />
       <Card className="w-full max-w-md border-0 shadow-xl relative z-10 overflow-hidden">
         <div className="h-36 relative overflow-hidden">
-          <img src="https://images.pexels.com/photos/30739567/pexels-photo-30739567.jpeg?auto=compress&cs=tinysrgb&w=800" alt="" className="absolute inset-0 w-full h-full object-cover" />
+          <img src="https://images.unsplash.com/photo-1616486410185-81af2d32a2af?w=800&h=300&fit=crop" alt="" className="absolute inset-0 w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
           <div className="absolute bottom-3 left-4 right-4">
             <h2 className="text-white font-bold text-lg font-heading">Welcome back.</h2>

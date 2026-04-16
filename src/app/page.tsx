@@ -20,7 +20,7 @@ export default function LandingPage() {
         className="absolute inset-0 bg-cover bg-center opacity-30"
         style={{
           backgroundImage:
-            "url(https://images.pexels.com/photos/28117159/pexels-photo-28117159.jpeg?auto=compress&cs=tinysrgb&w=1200)",
+            "url(https://images.unsplash.com/photo-1616486410185-81af2d32a2af?w=1200&h=900&fit=crop)",
         }}
       />
 
