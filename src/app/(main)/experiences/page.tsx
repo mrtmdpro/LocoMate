@@ -22,7 +22,7 @@ export default function ExperiencesPage() {
       {/* Hero */}
       <div className="relative h-52 overflow-hidden">
         <img
-          src="https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800&h=400&fit=crop"
+          src="https://images.unsplash.com/photo-1569154941061-e231b4725ef1?w=800&h=400&fit=crop"
           alt=""
           className="absolute inset-0 w-full h-full object-cover"
         />

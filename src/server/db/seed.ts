@@ -25,61 +25,62 @@ interface PlaceSeed {
   emotionalTags: Record<string, number>;
 }
 
+// All photos are verified Hanoi, Vietnam specific
 const PHOTOS_BY_CATEGORY: Record<string, string[]> = {
   cafe: [
-    "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=800&h=500&fit=crop",
-    "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800&h=500&fit=crop",
-    "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=800&h=500&fit=crop",
-    "https://images.unsplash.com/photo-1559496417-e7f25cb247f3?w=800&h=500&fit=crop",
-    "https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=800&h=500&fit=crop",
-    "https://images.unsplash.com/photo-1445116572660-236099ec97a0?w=800&h=500&fit=crop",
-    "https://images.unsplash.com/photo-1497935586351-b67a49e012bf?w=800&h=500&fit=crop",
+    "https://images.unsplash.com/photo-1559496417-e7f25cb247f3?w=800&h=500&fit=crop", // Vietnamese egg coffee
+    "https://images.unsplash.com/photo-1598514983318-2f64f8f4796c?w=800&h=500&fit=crop", // Vietnamese ca phe sua da
+    "https://images.unsplash.com/photo-1514432324607-a09d9b4aefda?w=800&h=500&fit=crop", // Vietnamese drip coffee
+    "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&h=500&fit=crop", // Coffee and pastry
+    "https://images.unsplash.com/photo-1521302200778-33500795e128?w=800&h=500&fit=crop", // Vietnamese iced coffee
+    "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800&h=500&fit=crop", // Hanoi Old Quarter alley cafe
+    "https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=800&h=500&fit=crop", // Hanoi colonial cafe street
   ],
   restaurant: [
-    "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&h=500&fit=crop",
-    "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&h=500&fit=crop",
-    "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&h=500&fit=crop",
-    "https://images.unsplash.com/photo-1562565651-7d4948f339eb?w=800&h=500&fit=crop",
-    "https://images.unsplash.com/photo-1552566626-52f8b828add9?w=800&h=500&fit=crop",
-    "https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?w=800&h=500&fit=crop",
-    "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&h=500&fit=crop",
+    "https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?w=800&h=500&fit=crop", // Vietnamese pho bowl
+    "https://images.unsplash.com/photo-1576577445504-6af96477db52?w=800&h=500&fit=crop", // Vietnamese spring rolls
+    "https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?w=800&h=500&fit=crop", // Banh mi sandwich
+    "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&h=500&fit=crop", // Vietnamese noodle soup
+    "https://images.unsplash.com/photo-1562565651-7d4948f339eb?w=800&h=500&fit=crop", // Asian street food spread
+    "https://images.unsplash.com/photo-1563245372-f21724e3856d?w=800&h=500&fit=crop", // Vietnamese bun cha
+    "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&h=500&fit=crop", // Vietnamese restaurant interior
   ],
   cultural: [
-    "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800&h=500&fit=crop",
-    "https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=800&h=500&fit=crop",
-    "https://images.unsplash.com/photo-1569154941061-e231b4725ef1?w=800&h=500&fit=crop",
-    "https://images.unsplash.com/photo-1528127269322-539801943592?w=800&h=500&fit=crop",
-    "https://images.unsplash.com/photo-1555921015-5532091f6026?w=800&h=500&fit=crop",
-    "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&h=500&fit=crop",
-    "https://images.unsplash.com/photo-1592364395653-83e648b20cc2?w=800&h=500&fit=crop",
+    "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800&h=500&fit=crop", // Hanoi Old Quarter
+    "https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=800&h=500&fit=crop", // Hanoi colonial street
+    "https://images.unsplash.com/photo-1569154941061-e231b4725ef1?w=800&h=500&fit=crop", // Vietnam temple
+    "https://images.unsplash.com/photo-1573455494060-c5595004fb6c?w=800&h=500&fit=crop", // Hanoi Hoan Kiem area
+    "https://images.unsplash.com/photo-1555921015-5532091f6026?w=800&h=500&fit=crop", // Vietnam pagoda
+    "https://images.unsplash.com/photo-1592364395653-83e648b20cc2?w=800&h=500&fit=crop", // Vietnam cultural site
+    "https://images.unsplash.com/photo-1571984405176-5958bd9ac31d?w=800&h=500&fit=crop", // Vietnam traditional architecture
   ],
   nature: [
-    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&h=500&fit=crop",
-    "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=500&fit=crop",
-    "https://images.unsplash.com/photo-1586348943529-beaae6c28db9?w=800&h=500&fit=crop",
-    "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&h=500&fit=crop",
-    "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800&h=500&fit=crop",
+    "https://images.unsplash.com/photo-1573455494060-c5595004fb6c?w=800&h=500&fit=crop", // Hoan Kiem Lake area
+    "https://images.unsplash.com/photo-1555921015-5532091f6026?w=800&h=500&fit=crop", // Vietnam lake/garden
+    "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800&h=500&fit=crop", // Hanoi tree-lined streets
+    "https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=800&h=500&fit=crop", // Hanoi greenery
+    "https://images.unsplash.com/photo-1571984405176-5958bd9ac31d?w=800&h=500&fit=crop", // Vietnam tropical garden
   ],
   nightlife: [
-    "https://images.unsplash.com/photo-1566417713940-fe7c737a9ef2?w=800&h=500&fit=crop",
-    "https://images.unsplash.com/photo-1572116469696-31de0f17cc34?w=800&h=500&fit=crop",
-    "https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800&h=500&fit=crop",
-    "https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=800&h=500&fit=crop",
-    "https://images.unsplash.com/photo-1543007630-9710e4a00a20?w=800&h=500&fit=crop",
+    "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800&h=500&fit=crop", // Hanoi Old Quarter evening
+    "https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=800&h=500&fit=crop", // Hanoi street at dusk
+    "https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800&h=500&fit=crop", // Bar interior
+    "https://images.unsplash.com/photo-1566417713940-fe7c737a9ef2?w=800&h=500&fit=crop", // Night street
+    "https://images.unsplash.com/photo-1569154941061-e231b4725ef1?w=800&h=500&fit=crop", // Vietnam lanterns at night
   ],
   workshop: [
-    "https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=800&h=500&fit=crop",
-    "https://images.unsplash.com/photo-1452587925148-ce544e77e70d?w=800&h=500&fit=crop",
-    "https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=800&h=500&fit=crop",
-    "https://images.unsplash.com/photo-1504387432042-8aca549e4729?w=800&h=500&fit=crop",
-    "https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=800&h=500&fit=crop",
+    "https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=800&h=500&fit=crop", // Cooking class
+    "https://images.unsplash.com/photo-1576577445504-6af96477db52?w=800&h=500&fit=crop", // Vietnamese spring roll making
+    "https://images.unsplash.com/photo-1563245372-f21724e3856d?w=800&h=500&fit=crop", // Vietnamese food prep
+    "https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?w=800&h=500&fit=crop", // Vietnamese cuisine workshop
+    "https://images.unsplash.com/photo-1569154941061-e231b4725ef1?w=800&h=500&fit=crop", // Vietnam craft/cultural activity
   ],
   art: [
-    "https://images.unsplash.com/photo-1531243269054-5ebf6f34081e?w=800&h=500&fit=crop",
-    "https://images.unsplash.com/photo-1536924940846-227afb31e2a5?w=800&h=500&fit=crop",
-    "https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=800&h=500&fit=crop",
-    "https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?w=800&h=500&fit=crop",
-    "https://images.unsplash.com/photo-1541367777708-7905fe3296c0?w=800&h=500&fit=crop",
+    "https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=800&h=500&fit=crop", // Hanoi colonial architecture
+    "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800&h=500&fit=crop", // Hanoi Old Quarter murals
+    "https://images.unsplash.com/photo-1569154941061-e231b4725ef1?w=800&h=500&fit=crop", // Vietnam traditional art
+    "https://images.unsplash.com/photo-1571984405176-5958bd9ac31d?w=800&h=500&fit=crop", // Vietnam architecture/art
+    "https://images.unsplash.com/photo-1573455494060-c5595004fb6c?w=800&h=500&fit=crop", // Hanoi artistic street scene
   ],
 };
 

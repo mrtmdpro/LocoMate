@@ -42,7 +42,7 @@ export default function PlanPage() {
       {/* Hero Banner */}
       <Card className="border-0 shadow-md overflow-hidden -mx-4 rounded-none">
         <div className="h-44 relative">
-          <img src="https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=800&h=400&fit=crop" alt="" className="absolute inset-0 w-full h-full object-cover" />
+          <img src="https://images.unsplash.com/photo-1571984405176-5958bd9ac31d?w=800&h=400&fit=crop" alt="" className="absolute inset-0 w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
           <div className="absolute bottom-4 left-4 right-4 z-10">
             <Badge className="bg-[#90D26D] border-0 text-white text-[10px] mb-2">CUSTOM PLANNING</Badge>
