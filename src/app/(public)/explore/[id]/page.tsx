@@ -1,15 +1,18 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
+import { useAuthStore } from "@/stores/auth";
 
 export default function PlaceDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
+  const { user } = useAuthStore();
   const utils = trpc.useUtils();
 
   const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
@@ -21,29 +24,33 @@ export default function PlaceDetailPage() {
   const placeId = place?.id;
   const { data: savedStatus } = trpc.place.isSaved.useQuery(
     { placeId: placeId! },
-    { enabled: !!placeId }
+    { enabled: !!placeId && !!user }
   );
   const isSaved = savedStatus?.saved ?? false;
 
   const saveMutation = trpc.place.savePlace.useMutation({
     onSuccess: () => {
       utils.place.isSaved.invalidate({ placeId: placeId! });
-      utils.place.getSavedPlaces.invalidate();
       toast.success("Place saved to favorites!");
     },
   });
   const unsaveMutation = trpc.place.unsavePlace.useMutation({
     onSuccess: () => {
       utils.place.isSaved.invalidate({ placeId: placeId! });
-      utils.place.getSavedPlaces.invalidate();
       toast.success("Place removed from favorites");
     },
   });
 
-  const toggleSave = () => {
+  const handleSave = () => {
+    if (!user) { router.push("/register"); return; }
     if (!placeId) return;
     if (isSaved) unsaveMutation.mutate({ placeId });
     else saveMutation.mutate({ placeId });
+  };
+
+  const handleAddToTour = () => {
+    if (!user) { router.push("/register"); return; }
+    router.push("/plan");
   };
 
   if (isLoading) return <div className="p-4"><div className="h-64 bg-gray-100 rounded-2xl animate-pulse" /><div className="h-32 bg-gray-100 rounded-2xl animate-pulse mt-4" /><div className="h-48 bg-gray-100 rounded-2xl animate-pulse mt-4" /></div>;
@@ -72,7 +79,6 @@ export default function PlaceDetailPage() {
 
   return (
     <div className="pb-24">
-      {/* Hero Image */}
       <div className="h-64 bg-gradient-to-br from-[#3f6f60] to-[#90D26D] relative overflow-hidden">
         {(place.photos as string[] | null)?.[0] && (
           <img src={(place.photos as string[])[0]} alt={place.name} className="absolute inset-0 w-full h-full object-cover" />
@@ -93,7 +99,6 @@ export default function PlaceDetailPage() {
       </div>
 
       <div className="p-4 -mt-6 relative space-y-4">
-        {/* Main Info Card */}
         <Card className="border-0 shadow-lg">
           <CardContent className="p-4">
             <h1 className="text-xl font-bold font-heading text-[#3f6f60]">{place.name}</h1>
@@ -107,26 +112,15 @@ export default function PlaceDetailPage() {
                 <Badge key={tag} className="bg-[#D9EDBF] text-[#3f6f60] text-xs capitalize border-0">{tag}</Badge>
               ))}
             </div>
-            <div className="flex gap-2 mt-4">
-              <div className="flex-1 text-center py-2 rounded-lg bg-gray-50">
-                <p className="text-[10px] text-muted-foreground uppercase">Hours</p>
-                <p className="text-xs font-semibold">08:00 - 22:00</p>
-              </div>
-              <div className="flex-1 text-center py-2 rounded-lg bg-gray-50">
-                <p className="text-[10px] text-muted-foreground uppercase">Price</p>
-                <p className="text-xs font-semibold">{place.priceRange} ($$125k~)</p>
-              </div>
-            </div>
 
             <div className="flex gap-3 mt-4">
-              <Button className="flex-1 h-11 rounded-xl bg-[#3f6f60] hover:bg-[#2d5a4d] text-white font-semibold text-sm" onClick={() => router.push("/plan")}>
-                Add to Tour
+              <Button className="flex-1 h-11 rounded-xl bg-[#3f6f60] hover:bg-[#2d5a4d] text-white font-semibold text-sm" onClick={handleAddToTour}>
+                {user ? "Add to Tour" : "Sign up to plan your tour"}
               </Button>
               <Button
                 variant="outline"
                 className={`h-11 w-11 rounded-xl p-0 transition-colors ${isSaved ? "bg-yellow-400 border-yellow-400 hover:bg-yellow-500" : ""}`}
-                onClick={toggleSave}
-                disabled={saveMutation.isPending || unsaveMutation.isPending}
+                onClick={handleSave}
               >
                 <svg className="w-5 h-5" fill={isSaved ? "white" : "none"} viewBox="0 0 24 24" stroke={isSaved ? "white" : "currentColor"} strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>
               </Button>
@@ -134,7 +128,6 @@ export default function PlaceDetailPage() {
           </CardContent>
         </Card>
 
-        {/* The Locomate Story */}
         <Card className="border-0 bg-[#3f6f60] text-white overflow-hidden">
           <CardContent className="p-5">
             <div className="flex items-center gap-2 mb-3">
@@ -151,7 +144,6 @@ export default function PlaceDetailPage() {
           </CardContent>
         </Card>
 
-        {/* Why it fits you */}
         <div>
           <h3 className="font-bold text-[#3f6f60] mb-3">Why it fits you</h3>
           <div className="space-y-2">
@@ -169,17 +161,11 @@ export default function PlaceDetailPage() {
           </div>
         </div>
 
-        {/* Location Map */}
         {hasCoords && (
           <div>
             <h3 className="font-bold text-[#3f6f60] mb-3">Location</h3>
             <Card className="border-0 shadow-sm overflow-hidden">
-              <iframe
-                src={mapUrl}
-                className="w-full h-40 border-0"
-                loading="lazy"
-                title="Location map"
-              />
+              <iframe src={mapUrl} className="w-full h-40 border-0" loading="lazy" title="Location map" />
               <CardContent className="p-3">
                 <a href={gmapsUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 text-sm text-[#ff8c30] font-semibold">
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>
@@ -190,30 +176,19 @@ export default function PlaceDetailPage() {
           </div>
         )}
 
-        {/* Verified Reviews */}
-        <div>
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="font-bold text-[#3f6f60]">Verified Reviews</h3>
-            <span className="text-xs text-muted-foreground">See all</span>
-          </div>
-          <Card className="border-0 shadow-sm">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-full bg-[#D9EDBF] flex items-center justify-center text-sm font-bold text-[#3f6f60]">S</div>
-                <div className="flex-1">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-semibold">Sarah Miller</p>
-                    <div className="flex items-center gap-1"><span className="text-yellow-500 text-xs">★</span><span className="text-xs font-bold">5.0</span></div>
-                  </div>
-                  <p className="text-[10px] text-muted-foreground">2 days ago</p>
-                </div>
-              </div>
-              <p className="text-xs text-muted-foreground italic">
-                &ldquo;The most peaceful morning I&apos;ve had in Hanoi. The egg coffee is legendary and the quiet courtyard is perfect for people watching from afar.&rdquo;
-              </p>
+        {!user && (
+          <Card className="border-[#ff8c30]/20 bg-[#ff8c30]/5">
+            <CardContent className="p-4 text-center">
+              <p className="text-sm font-semibold text-[#3f6f60]">Want a personalized Hanoi itinerary?</p>
+              <p className="text-xs text-muted-foreground mt-1">Create a free account and our AI builds a tour around your personality.</p>
+              <Link href="/register">
+                <Button className="mt-3 bg-[#ff8c30] hover:bg-[#e67a20] text-white font-bold rounded-xl px-6">
+                  Create Free Account
+                </Button>
+              </Link>
             </CardContent>
           </Card>
-        </div>
+        )}
       </div>
     </div>
   );

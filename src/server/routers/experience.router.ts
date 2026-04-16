@@ -1,10 +1,10 @@
 import { z } from "zod";
 import { eq, and, desc } from "drizzle-orm";
-import { router, protectedProcedure } from "../trpc";
+import { router, publicProcedure } from "../trpc";
 import { experiences } from "../db/schema";
 
 export const experienceRouter = router({
-  list: protectedProcedure
+  list: publicProcedure
     .input(z.object({
       category: z.string().optional(),
     }).optional())
@@ -20,7 +20,7 @@ export const experienceRouter = router({
         .orderBy(desc(experiences.totalBookings));
     }),
 
-  getBySlug: protectedProcedure
+  getBySlug: publicProcedure
     .input(z.object({ slug: z.string().min(1) }))
     .query(async ({ ctx, input }) => {
       return ctx.db.query.experiences.findFirst({
@@ -28,7 +28,7 @@ export const experienceRouter = router({
       });
     }),
 
-  getById: protectedProcedure
+  getById: publicProcedure
     .input(z.object({ id: z.string().uuid() }))
     .query(async ({ ctx, input }) => {
       return ctx.db.query.experiences.findFirst({

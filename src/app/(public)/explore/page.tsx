@@ -26,8 +26,7 @@ export default function ExplorePage() {
   const [viewMode, setViewMode] = useState<"list" | "map">("list");
 
   const { data, isLoading } = trpc.place.getFeed.useQuery(
-    { category: category === "All" ? undefined : category.toLowerCase(), search: search || undefined, limit: 20 },
-    { enabled: !!user }
+    { category: category === "All" ? undefined : category.toLowerCase(), search: search || undefined, limit: 20 }
   );
 
   const allPlaces = data?.places || [];
@@ -41,11 +40,17 @@ export default function ExplorePage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <Avatar className="w-9 h-9 border-2 border-[#ff8c30]/20">
-            {user?.avatarUrl && <AvatarImage src={user.avatarUrl} alt="" />}
-            <AvatarFallback className="bg-[#3f6f60] text-white font-bold text-xs">{(user?.displayName || "?")[0]}</AvatarFallback>
-          </Avatar>
-          <h1 className="text-xl font-bold font-heading text-[#ff8c30]">LocoRec</h1>
+          {user ? (
+            <Avatar className="w-9 h-9 border-2 border-[#ff8c30]/20">
+              {user.avatarUrl && <AvatarImage src={user.avatarUrl} alt="" />}
+              <AvatarFallback className="bg-[#3f6f60] text-white font-bold text-xs">{(user.displayName || "?")[0]}</AvatarFallback>
+            </Avatar>
+          ) : (
+            <div className="w-9 h-9 rounded-full bg-[#ff8c30] flex items-center justify-center">
+              <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9" /></svg>
+            </div>
+          )}
+          <h1 className="text-xl font-bold font-heading text-[#ff8c30]">Explore Hanoi</h1>
         </div>
         <div className="flex items-center bg-gray-100 rounded-lg p-0.5">
           <button

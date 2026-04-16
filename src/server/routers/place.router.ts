@@ -4,7 +4,7 @@ import { router, publicProcedure, protectedProcedure } from "../trpc";
 import { places, savedPlaces } from "../db/schema";
 
 export const placeRouter = router({
-  getFeed: protectedProcedure
+  getFeed: publicProcedure
     .input(z.object({
       category: z.string().optional(),
       search: z.string().optional(),
@@ -38,7 +38,7 @@ export const placeRouter = router({
       return { places: results, total: Number(countResult?.count ?? 0) };
     }),
 
-  getById: protectedProcedure
+  getById: publicProcedure
     .input(z.object({ id: z.string().uuid() }))
     .query(async ({ ctx, input }) => {
       const place = await ctx.db.query.places.findFirst({
@@ -47,7 +47,7 @@ export const placeRouter = router({
       return place;
     }),
 
-  getBySlug: protectedProcedure
+  getBySlug: publicProcedure
     .input(z.object({ slug: z.string().min(1).max(250) }))
     .query(async ({ ctx, input }) => {
       return ctx.db.query.places.findFirst({
@@ -55,7 +55,7 @@ export const placeRouter = router({
       });
     }),
 
-  getByIds: protectedProcedure
+  getByIds: publicProcedure
     .input(z.object({ ids: z.array(z.string().uuid()).max(100) }))
     .query(async ({ ctx, input }) => {
       if (input.ids.length === 0) return [];
@@ -124,7 +124,7 @@ export const placeRouter = router({
       return placeRows;
     }),
 
-  nearby: protectedProcedure
+  nearby: publicProcedure
     .input(z.object({
       latitude: z.number(),
       longitude: z.number(),

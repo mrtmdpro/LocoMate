@@ -1,15 +1,18 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
+import { useAuthStore } from "@/stores/auth";
 
 export default function ExperienceDetailPage() {
   const { slug } = useParams<{ slug: string }>();
   const router = useRouter();
+  const { user } = useAuthStore();
 
   const { data: exp, isLoading } = trpc.experience.getBySlug.useQuery({ slug });
 
@@ -21,9 +24,13 @@ export default function ExperienceDetailPage() {
   const schedule = (exp.schedule || []) as { time: string; label: string }[];
   const photos = (exp.photos || []) as string[];
 
+  const handleBook = () => {
+    if (!user) { router.push("/register"); return; }
+    toast.info("Bookings opening soon! We'll notify you when this experience is available.");
+  };
+
   return (
     <div className="pb-24">
-      {/* Hero */}
       <div className="h-72 relative overflow-hidden">
         {photos[0] && <img src={photos[0]} alt={exp.title} className="absolute inset-0 w-full h-full object-cover" />}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
@@ -38,7 +45,6 @@ export default function ExperienceDetailPage() {
       </div>
 
       <div className="p-4 -mt-4 relative space-y-4">
-        {/* Quick stats */}
         <Card className="border-0 shadow-lg">
           <CardContent className="p-4">
             <div className="grid grid-cols-3 gap-3 text-center">
@@ -61,7 +67,6 @@ export default function ExperienceDetailPage() {
           </CardContent>
         </Card>
 
-        {/* Description */}
         <Card className="border-0 shadow-sm">
           <CardContent className="p-4">
             <h3 className="font-bold text-[#3f6f60] mb-2">About this experience</h3>
@@ -69,7 +74,6 @@ export default function ExperienceDetailPage() {
           </CardContent>
         </Card>
 
-        {/* Highlights */}
         {highlights.length > 0 && (
           <Card className="border-0 bg-[#D9EDBF]/30">
             <CardContent className="p-4">
@@ -86,7 +90,6 @@ export default function ExperienceDetailPage() {
           </Card>
         )}
 
-        {/* Schedule */}
         {schedule.length > 0 && (
           <Card className="border-0 shadow-sm">
             <CardContent className="p-4">
@@ -109,7 +112,6 @@ export default function ExperienceDetailPage() {
           </Card>
         )}
 
-        {/* What's Included */}
         {included.length > 0 && (
           <Card className="border-0 shadow-sm">
             <CardContent className="p-4">
@@ -126,17 +128,26 @@ export default function ExperienceDetailPage() {
           </Card>
         )}
 
-        {/* Book Now CTA */}
-        <div className="flex gap-3">
-          <Button
-            className="flex-1 h-14 rounded-2xl bg-[#ff8c30] hover:bg-[#e67a20] text-white font-bold text-base shadow-lg"
-            onClick={() => toast.info("Bookings opening soon! We'll notify you when this experience is available.")}
-          >
-            Book Now — {(exp.priceAmount / 1000).toFixed(0)}k VND
-          </Button>
-        </div>
+        <Button
+          className="w-full h-14 rounded-2xl bg-[#ff8c30] hover:bg-[#e67a20] text-white font-bold text-base shadow-lg"
+          onClick={handleBook}
+        >
+          {user ? `Book Now — ${(exp.priceAmount / 1000).toFixed(0)}k VND` : "Sign up to book this experience"}
+        </Button>
 
-        {/* Host note */}
+        {!user && (
+          <Card className="border-[#ff8c30]/20 bg-[#ff8c30]/5">
+            <CardContent className="p-4 text-center">
+              <p className="text-sm font-semibold text-[#3f6f60]">Create a free account to build your personalized Hanoi itinerary</p>
+              <Link href="/register">
+                <Button className="mt-2 bg-[#3f6f60] hover:bg-[#2d5a4d] text-white font-bold rounded-xl px-6 text-sm">
+                  Get Started Free
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+        )}
+
         {exp.hostRequired && (
           <p className="text-center text-[10px] text-muted-foreground">
             This experience requires a local host. You&apos;ll be connected with your host via chat after booking.
