@@ -111,7 +111,7 @@ export default function LandingPage() {
         <div className="absolute top-10 right-[-20px] rotate-6 opacity-40 pointer-events-none">
           <div className="bg-white p-2 rounded-xl shadow-xl w-32 h-32 border-4 border-white overflow-hidden">
             <img
-              src="https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=300&h=300&fit=crop"
+              src="https://images.pexels.com/photos/30739567/pexels-photo-30739567.jpeg?auto=compress&cs=tinysrgb&w=300"
               alt="Map view"
               className="w-full h-full object-cover rounded-lg"
             />

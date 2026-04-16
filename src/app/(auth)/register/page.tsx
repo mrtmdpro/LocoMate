@@ -31,10 +31,10 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#D9EDBF]/30 to-white flex items-center justify-center p-4 relative overflow-hidden">
-      <img src="https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=1200&h=800&fit=crop" alt="" className="absolute inset-0 w-full h-full object-cover opacity-10 z-0" />
+      <img src="https://images.pexels.com/photos/28117159/pexels-photo-28117159.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="" className="absolute inset-0 w-full h-full object-cover opacity-10 z-0" />
       <Card className="w-full max-w-md border-0 shadow-xl relative z-10 overflow-hidden">
         <div className="h-36 relative overflow-hidden">
-          <img src="https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=800&h=300&fit=crop" alt="" className="absolute inset-0 w-full h-full object-cover" />
+          <img src="https://images.pexels.com/photos/30739567/pexels-photo-30739567.jpeg?auto=compress&cs=tinysrgb&w=800" alt="" className="absolute inset-0 w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
           <div className="absolute bottom-3 left-4 right-4">
             <h2 className="text-white font-bold text-lg font-heading">Join the journey.</h2>

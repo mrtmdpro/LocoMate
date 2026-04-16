@@ -125,7 +125,7 @@ export default function HomePage() {
       {!activeTour && !latestTour && (
         <Card className="border-0 shadow-md overflow-hidden">
           <div className="h-32 bg-gradient-to-br from-[#3f6f60] to-[#90D26D] relative">
-            <img src="https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800&h=400&fit=crop" alt="" className="absolute inset-0 w-full h-full object-cover opacity-40" />
+            <img src="https://images.pexels.com/photos/30739567/pexels-photo-30739567.jpeg?auto=compress&cs=tinysrgb&w=800" alt="" className="absolute inset-0 w-full h-full object-cover opacity-40" />
             <div className="absolute inset-0 flex flex-col justify-end p-4 z-10">
               <h3 className="text-white font-bold font-heading text-lg">Design Your Hanoi Tour</h3>
               <p className="text-white/80 text-xs mt-1">AI creates a personalized itinerary in seconds</p>
@@ -206,7 +206,7 @@ export default function HomePage() {
       <Card className="border-0 shadow-md overflow-hidden bg-[#3f6f60]">
         <div className="relative">
           <img
-            src="https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=800&h=400&fit=crop"
+            src="https://images.pexels.com/photos/28117159/pexels-photo-28117159.jpeg?auto=compress&cs=tinysrgb&w=800"
             alt=""
             className="w-full h-40 object-cover opacity-30"
           />

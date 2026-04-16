@@ -33,8 +33,8 @@ const PHOTOS_BY_CATEGORY: Record<string, string[]> = {
     "https://images.unsplash.com/photo-1514432324607-a09d9b4aefda?w=800&h=500&fit=crop", // Vietnamese drip coffee
     "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&h=500&fit=crop", // Coffee and pastry
     "https://images.unsplash.com/photo-1521302200778-33500795e128?w=800&h=500&fit=crop", // Vietnamese iced coffee
-    "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800&h=500&fit=crop", // Hanoi Old Quarter alley cafe
-    "https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=800&h=500&fit=crop", // Hanoi colonial cafe street
+    "https://images.pexels.com/photos/28117159/pexels-photo-28117159.jpeg?auto=compress&cs=tinysrgb&w=800", // Hanoi Old Quarter alley cafe
+    "https://images.pexels.com/photos/30739567/pexels-photo-30739567.jpeg?auto=compress&cs=tinysrgb&w=800", // Hanoi bustling street
   ],
   restaurant: [
     "https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?w=800&h=500&fit=crop", // Vietnamese pho bowl
@@ -46,8 +46,8 @@ const PHOTOS_BY_CATEGORY: Record<string, string[]> = {
     "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&h=500&fit=crop", // Vietnamese restaurant interior
   ],
   cultural: [
-    "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800&h=500&fit=crop", // Hanoi Old Quarter
-    "https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=800&h=500&fit=crop", // Hanoi colonial street
+    "https://images.pexels.com/photos/30739567/pexels-photo-30739567.jpeg?auto=compress&cs=tinysrgb&w=800", // Hanoi Old Quarter
+    "https://images.pexels.com/photos/28117159/pexels-photo-28117159.jpeg?auto=compress&cs=tinysrgb&w=800", // Hanoi old quarter vendors
     "https://images.unsplash.com/photo-1569154941061-e231b4725ef1?w=800&h=500&fit=crop", // Vietnam temple
     "https://images.unsplash.com/photo-1573455494060-c5595004fb6c?w=800&h=500&fit=crop", // Hanoi Hoan Kiem area
     "https://images.unsplash.com/photo-1555921015-5532091f6026?w=800&h=500&fit=crop", // Vietnam pagoda
@@ -57,13 +57,13 @@ const PHOTOS_BY_CATEGORY: Record<string, string[]> = {
   nature: [
     "https://images.unsplash.com/photo-1573455494060-c5595004fb6c?w=800&h=500&fit=crop", // Hoan Kiem Lake area
     "https://images.unsplash.com/photo-1555921015-5532091f6026?w=800&h=500&fit=crop", // Vietnam lake/garden
-    "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800&h=500&fit=crop", // Hanoi tree-lined streets
-    "https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=800&h=500&fit=crop", // Hanoi greenery
+    "https://images.pexels.com/photos/30739567/pexels-photo-30739567.jpeg?auto=compress&cs=tinysrgb&w=800", // Hanoi tree-lined streets
+    "https://images.pexels.com/photos/28117159/pexels-photo-28117159.jpeg?auto=compress&cs=tinysrgb&w=800", // Hanoi street scene
     "https://images.unsplash.com/photo-1571984405176-5958bd9ac31d?w=800&h=500&fit=crop", // Vietnam tropical garden
   ],
   nightlife: [
-    "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800&h=500&fit=crop", // Hanoi Old Quarter evening
-    "https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=800&h=500&fit=crop", // Hanoi street at dusk
+    "https://images.pexels.com/photos/28117159/pexels-photo-28117159.jpeg?auto=compress&cs=tinysrgb&w=800", // Hanoi Old Quarter evening
+    "https://images.pexels.com/photos/30739567/pexels-photo-30739567.jpeg?auto=compress&cs=tinysrgb&w=800", // Hanoi traffic at dusk
     "https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800&h=500&fit=crop", // Bar interior
     "https://images.unsplash.com/photo-1566417713940-fe7c737a9ef2?w=800&h=500&fit=crop", // Night street
     "https://images.unsplash.com/photo-1569154941061-e231b4725ef1?w=800&h=500&fit=crop", // Vietnam lanterns at night
@@ -76,8 +76,8 @@ const PHOTOS_BY_CATEGORY: Record<string, string[]> = {
     "https://images.unsplash.com/photo-1569154941061-e231b4725ef1?w=800&h=500&fit=crop", // Vietnam craft/cultural activity
   ],
   art: [
-    "https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=800&h=500&fit=crop", // Hanoi colonial architecture
-    "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800&h=500&fit=crop", // Hanoi Old Quarter murals
+    "https://images.pexels.com/photos/28117159/pexels-photo-28117159.jpeg?auto=compress&cs=tinysrgb&w=800", // Hanoi old street architecture
+    "https://images.pexels.com/photos/30739567/pexels-photo-30739567.jpeg?auto=compress&cs=tinysrgb&w=800", // Hanoi Old Quarter murals
     "https://images.unsplash.com/photo-1569154941061-e231b4725ef1?w=800&h=500&fit=crop", // Vietnam traditional art
     "https://images.unsplash.com/photo-1571984405176-5958bd9ac31d?w=800&h=500&fit=crop", // Vietnam architecture/art
     "https://images.unsplash.com/photo-1573455494060-c5595004fb6c?w=800&h=500&fit=crop", // Hanoi artistic street scene
