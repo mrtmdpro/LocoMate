@@ -8,7 +8,7 @@
 
 ## PART 1: FEATURE AUDIT
 
-### What's built and working (27 pages, 9 API routers, 47 endpoints)
+### What's built and working (29 pages, 10 API routers, 50 endpoints)
 
 | # | Feature | PRD Ref | Status | Quality |
 |---|---------|---------|--------|---------|
@@ -17,16 +17,15 @@
 | 3 | Email/password registration with hero banner, trust badge | FR-AUTH-01/02 | Done | Good |
 | 4 | Login with hero banner, Google/Apple OAuth buttons (demo) | FR-AUTH-01 | Done | Good |
 | 5 | 4-step onboarding questionnaire (8 data variables) | FR-AUTH-03 | Done | Good |
-| 6 | Home dashboard with timeline, Who's Nearby, host promo | - | Done | Good |
+| 6 | Home dashboard with timeline, experiences carousel, host promo, eSIM | - | Done | Good |
 | 7 | Place feed (LocoRec) with 996 real Hanoi places, Featured Gems hero, List/Map toggle | FR-REC-01/03 | Done | Good |
 | 8 | Interactive Leaflet map view with category-colored markers and popups | FR-REC-03 | Done | Good |
 | 9 | Place detail with Locomate Story card, personality match reasons, OSM map embed, reviews | FR-REC-04 | Done | Good |
 | 10 | Place save/bookmark with persistent DB storage, yellow toggle button | - | Done | Good |
 | 11 | Slug-based human-readable place URLs (Vietnamese diacritic support) | - | Done | Good |
-| 12 | Swipe-based traveler matching with compatibility score | FR-MATCH-01/02 | Done | Good |
-| 13 | Match success celebration modal | FR-MATCH-03 | Done | Good |
-| 14 | Chat inbox with New Matches section, status badges | FR-MATCH-04 | Done | Good |
-| 15 | 1:1 chat with action chips (Share Plan, Suggest Place, Call) | FR-MATCH-04 | Done | Good |
+| 12 | ~~Swipe-based traveler matching~~ | FR-MATCH-01/02 | **Dropped** | Pivot |
+| 13 | Chat inbox with status badges (host messaging) | FR-MATCH-04 | Done | Good |
+| 14 | 1:1 chat with action chips (Plan a tour, Suggest Place, Call) | FR-MATCH-04 | Done | Good |
 | 16 | Tour builder with hero banner, time-of-day pills, price summary | FR-TOUR-01 | Done | Good |
 | 17 | AI tour generation engine (cosine similarity + route optimization) | FR-TOUR-02 | Done | Good |
 | 18 | Tour preview with free/locked stops paywall | FR-TOUR-03 | Done | Good |
@@ -92,15 +91,22 @@
 
 1. **The Tour Generation Engine** -- Core value proposition. Demo the full flow: onboarding -> profile -> generate tour -> preview -> pay -> full itinerary. The cosine similarity scoring and "Why this fits you" explanation is the wow factor.
 
-2. **The Three-Subsystem Integration** -- LocoRec (discover) -> Premium Experiences (immerse) -> Customized Tour (monetize) + eSIM affiliate (utility revenue). No competitor integrates all three.
+2. **The Three-Subsystem Integration** -- LocoRec (discover) -> Premium Experiences (immerse) -> Customized Tour (monetize) + eSIM affiliate (utility revenue).
 
-3. **Personalization Visible Everywhere** -- Personality label on profile, "Why it fits you" on place detail, compatibility score on match, personalization rationale on tour. All from the same profile engine.
+3. **Personalization Visible Everywhere** -- Personality label on profile, "Why it fits you" on place detail, personalization rationale on tour. All from the same profile engine.
 
 4. **The Diverse Persona Demo** -- Log in as Alex (Deep Explorer) vs Sam (Thrill Seeker) vs Elena (Culture Scholar). Same app, different experience.
 
 5. **The Map View** -- Switch to Map mode in Explore to show 996 real Hanoi places with category-colored markers, photo popups, and direct navigation.
 
-6. **Real Data, Not Mock** -- 996 real places from OpenStreetMap with actual coordinates, photos from Pexels/Wikimedia, and locally-scored experience/emotional tags.
+6. **Real Data, Not Mock** -- 996 real places from OpenStreetMap with actual coordinates, Hanoi-specific photos, and locally-scored experience/emotional tags.
+
+### Known trust-breaking issues for demos (MUST FIX before investor sessions)
+
+1. **Fake OAuth** -- "Continue with Google/Apple" buttons silently log in as demo user. Either remove or clearly label as "Demo login". Investors clicking these will question integrity.
+2. **"5,000+ solo travelers" claim** -- No evidence. Remove or replace with verifiable metric (e.g., "996 real Hanoi places" or "6 curated experiences").
+3. **Product pages behind auth wall** -- `/explore`, `/experiences`, `/esim` redirect to login. Investors sharing links see an empty page. Add public preview mode or demo bypass.
+4. **Decorative header** -- Landing page hamburger menu has no function. Avatar is a stock photo. Remove or wire up.
 
 ---
 
@@ -237,35 +243,41 @@ This is remarkably low for a tech startup because:
 | Competitor | What they do | What LOCOMATE does differently |
 |-----------|-------------|-------------------------------|
 | Google Maps / TikTok | Information discovery | **Personalized itinerary from profile data, not search** |
+| ChatGPT + Google Maps | Free AI itineraries | **Curated local data (996 places), emotional/experience tags, bookable host add-on** |
 | Klook / GetYourGuide | Pre-packaged tours | **AI generates unique tours per individual in real-time** |
 | Airbnb Experiences | Host-led experiences | **Host is optional add-on, not the starting point; 10x cheaper** |
 | Withlocals | 1:1 guide booking | **AI-first, guide-second; $10 vs $50-100** |
-| Bumble/Tinder Travel | Social matching | **Travel-purpose matching, not dating; leads to shared itineraries** |
 
-**The moat is the integration.** No one else connects profile-driven place discovery + companion matching + AI itinerary design in a single flow. Competitors solve one piece. LOCOMATE solves the chain.
+**Honest moat assessment:** The moat today is **execution speed + local relationships** (hostels, hosts, curated experiences) more than technology. The product integration (discover -> experience -> tour) is **product differentiation**, not a structural barrier. A funded competitor or OTA feature team could replicate the concept. The defensible advantage comes from: (1) first-mover relationships with Hanoi hostels/hosts, (2) curated experience content that requires local partnerships, and (3) growing place/review data over time.
 
 ### Risk Matrix
 
 | Risk | Likelihood | Impact | Mitigation |
 |------|-----------|--------|-----------|
+| **No proof of paid demand** | High | Critical | Payments not wired yet; must validate with real transactions before scaling |
+| **Host supply chain** (quality, availability, payouts) | High | High | Dashboard is mock data; need real ops before Solo Mate/Experiences launch |
 | Low initial demand | Medium | High | Offer generous free tier; validate with hostel pilot |
 | Host quality inconsistency | Medium | High | Rating system, background checks, training program |
-| Competitor copies the model | Low | Medium | First-mover in Hanoi; data moat grows with usage |
-| Vietnamese regulatory issues | Low | Medium | Register as proper tourism business; consult legal |
+| **"ChatGPT + Google Maps" displacement** | Medium | High | Differentiate on curated local data, bookable experiences, host relationships |
+| **Thin break-even margin** | Medium | High | Phase 3 is ~+2M net on ~147M revenue; 5% miss erases profit |
+| Competitor copies the model | Low | Medium | First-mover in Hanoi; local relationships are the real defense |
+| Vietnamese regulatory issues | Low | Medium | Register as tourism business; Decree 13/2023 compliance needed |
 | Payment friction (foreign cards) | Medium | Medium | Dual gateway (Stripe + VNPay); QR payments |
 | AI tour quality disappointing | Medium | High | Curate module library manually; AI enhances, doesn't replace |
+| **Single-city English-only** | Medium | Medium | Limits TAM and host adoption; Vietnamese language deferred to Phase 3 |
 
 ### Key Metrics to Track
 
 | Metric | Definition | Phase 1 Target | North Star? |
 |--------|-----------|---------------|------------|
-| **Successful Experiences** | Completed tour + rating >= 4.5 | 50/month | Yes |
-| Organic download rate | Non-paid app installs from target segment | 60-70% organic | |
+| **Successful Experiences** | Completed tour/experience + rating >= 4.5 | 50/month | Yes |
+| Organic install rate | Non-paid app installs from target segment | 60-70% organic | |
 | Onboarding completion | % who finish all 4 steps | >= 70% | |
-| Preview-to-purchase | % who buy after seeing free preview | >= 15% | |
-| Match-to-chat | % of matches that send a message | >= 40% | |
+| Preview-to-purchase | % who buy after seeing free tour preview | >= 15% | |
+| Experience booking rate | % who book a premium experience | >= 5% | |
 | Host active rate | % of hosts accepting requests weekly | >= 80% | |
-| Return purchase rate | % who buy a 2nd tour | >= 20% | |
+| Return purchase rate | % who buy a 2nd tour/experience | >= 20% | |
+| eSIM conversion | % of users who click through to GoHub | >= 10% | |
 | NPS | Net Promoter Score from post-tour survey | >= 50 | |
 
 ---
@@ -290,9 +302,74 @@ This is remarkably low for a tech startup because:
 
 ### Strategic priorities (next 3 months)
 
-1. **Hostel partnership pilot** -- Place QR codes in 10 Hanoi hostels. Highest-ROI distribution channel.
-2. **TikTok content engine** -- 15 "Hidden Hanoi" short-form videos/month ending with app CTA.
-3. **Featured Places (B2B)** -- Paid placement for 5-10 hidden-gem cafes/restaurants in LocoRec feed.
-4. **Custom domain** -- Move from `loco-mate.vercel.app` to `locomate.app` or `locomate.vn`.
-5. **PWA setup** -- Service worker, offline splash, Add to Home Screen prompt for mobile users.
-6. **Real payment integration** -- Configure Stripe live keys or VNPay/MoMo for Vietnamese users.
+**CRITICAL (must do before any revenue or investor pitch):**
+1. **Wire real payments** -- Configure Stripe live keys or VNPay/MoMo. Without this, revenue is zero.
+2. **Build experience booking backend** -- `experienceBookings` table + `experience.book` mutation + payment integration. Premium Experiences is a core revenue line.
+3. **Fix or remove fake OAuth** -- "Continue with Google/Apple" currently uses demo login. Either implement real OAuth or remove the buttons.
+4. **Remove unverifiable claims** -- "5,000+ solo travelers" has no evidence. Replace with real metrics.
+
+**HIGH (needed for public launch):**
+5. **Real host operations** -- Dynamic host dashboard, verification workflow, payout system, booking confirmations.
+6. **Custom domain** -- Move from `loco-mate.vercel.app` to `locomate.app` or `locomate.vn`.
+7. **PWA setup** -- manifest.json, service worker, Add to Home Screen, offline splash.
+8. **Analytics** -- Vercel Analytics or PostHog for funnel metrics and conversion tracking.
+
+**GROWTH (post-launch):**
+9. **Hostel partnership pilot** -- QR codes in 10 Hanoi hostels. Highest-ROI distribution channel.
+10. **TikTok content engine** -- 15 "Hidden Hanoi" short-form videos/month ending with app CTA.
+11. **Featured Places (B2B)** -- Paid placement for 5-10 hidden-gem cafes/restaurants in LocoRec feed.
+12. **Vietnamese language** -- Required for host adoption and local partnerships.
+
+---
+
+## PART 4: CRITICAL BUSINESS REVIEW (April 14, 2026)
+
+### Honest Stage Assessment
+
+| Dimension | Rating | Notes |
+|-----------|--------|-------|
+| Technical MVP | **Strong** | 29 pages, 996 places, 10 routers, 50 endpoints, Leaflet map, brand identity |
+| UI/UX polish | **Good** | Matches Stitch designs, consistent brand, animations, loading states |
+| Business readiness | **Weak** | No live payments, no bookings, fake OAuth, unvalidated projections |
+| Investor readiness | **Moderate** | Good narrative but docs have stale LocoMatch refs, no live metrics |
+| Launch readiness | **Not ready** | Cannot process payments or fulfill experiences |
+
+### What's Real vs What's Theoretical
+
+| Aspect | Status |
+|--------|--------|
+| Product UI | Real -- 29 pages deployed and functional |
+| 996 Hanoi places | Real -- from OpenStreetMap with verified coordinates |
+| Tour generation engine | Real -- cosine similarity + route optimization works |
+| Brand identity | Real -- logo, favicon, Stitch designs, brand guide |
+| Revenue ($147M VND/mo projection) | **Theoretical** -- payments not wired, no real transactions |
+| Unit economics (LTV:CAC 7.5x) | **Theoretical** -- no acquisition data, no cohort retention |
+| "96% gross margin" on Loco Route | **Theoretical** -- ignores support, refunds, moderation, content upkeep |
+| CAC of 50,000 VND ($2) | **Aspirational** -- no channel-level data to validate |
+| LTV of 1.5 transactions | **Unvalidated** -- solo travelers typically visit Hanoi once |
+| 6 Premium Experiences | **Content only** -- "Book Now" shows a toast, no fulfillment |
+| Host marketplace | **Mock** -- dashboard shows hardcoded data, no payouts |
+
+### What Investors Will Ask That We Cannot Yet Answer
+
+1. "Show 90 days of real GMV, conversion rates, and refunds"
+2. "What's your actual CAC by channel and payback period?"
+3. "How do you defend against ChatGPT generating a free Hanoi itinerary?"
+4. "What's your host churn rate and incident rate?"
+5. "3-person team at $1,200/month total -- is that realistic for the scope?"
+6. "What's the entity structure in Vietnam? Tourism license? Payment processing?"
+7. "Is 1.5 transactions realistic for one-time Hanoi visitors?"
+
+### Path from Demo to Business
+
+```
+Current (Demo/Pilot) --> Wire Payments --> First Real Sale --> Hostel Pilot
+--> 90 Days Data --> Validate Unit Economics --> Investor Pitch with Proof
+```
+
+The gap between "looks like a product" and "operates as a business" requires:
+- **Live payment processing** (Stripe/VNPay)
+- **Experience booking + fulfillment** (booking table, host notifications, confirmations)
+- **Real host onboarding** (verification, payouts, scheduling)
+- **Analytics pipeline** (conversion tracking, cohort retention)
+- **Legal entity** (tourism business registration, TOS, privacy policy)

@@ -530,7 +530,7 @@ Host Flow:
 | App downloads (organic from target segment) | 500 | 10,000+ |
 | Onboarding completion rate | >= 70% | >= 80% |
 | Tour conversion rate (preview -> purchase) | >= 15% | >= 25% |
-| Match success rate (match -> chat) | >= 40% | >= 60% |
+| Experience booking rate | >= 5% | >= 15% |
 | Host active rate (weekly) | >= 80% | >= 85% |
 | Average host rating | >= 4.5/5 | >= 4.5/5 |
 | Experience return rate (2nd purchase) | >= 20% | >= 35% |

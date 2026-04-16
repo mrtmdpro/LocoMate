@@ -48,21 +48,35 @@
 
 ---
 
+## CRITICAL FOR REVENUE (must do before launch)
+
+- [ ] **BIZ-01: Wire real payments** -- Stripe SDK installed but not connected. Configure live keys or VNPay/MoMo. Without this, revenue is zero.
+
+- [ ] **BIZ-02: Experience booking backend** -- "Book Now" shows a toast. Build `experienceBookings` table + `experience.book` mutation + payment flow + host notification.
+
+- [ ] **BIZ-03: Fix or remove fake OAuth** -- "Continue with Google/Apple" silently logs in as demo user. Actively misleading. Either implement real OAuth or remove buttons.
+
+- [ ] **BIZ-04: Remove unverifiable claims** -- "Trusted by 5,000+ solo travelers" has no evidence. Replace with verifiable metrics.
+
+- [ ] **BIZ-05: Real host operations** -- Dynamic host dashboard (not mock data), verification workflow, payout system, booking confirmations.
+
+- [ ] **BIZ-06: Analytics pipeline** -- No conversion tracking. Add Vercel Analytics or PostHog to measure funnel and prove KPIs.
+
+---
+
 ## FUTURE FEATURES (Phase 2 roadmap)
 
-- [ ] **FEAT-01: Experience booking backend** -- "Book Now" button currently shows a toast placeholder. Build `experienceBookings` table + `experience.book` mutation + payment integration.
+- [ ] **FEAT-01: GoHub eSIM API integration** -- Currently affiliate links only. Contact partnership@gohub.com for API credentials.
 
-- [ ] **FEAT-02: GoHub eSIM API integration** -- Currently affiliate links only. Contact partnership@gohub.com for API credentials. Build `esim.router.ts` with `getPlans`, `createOrder`, `getOrderStatus` for in-app purchase.
+- [ ] **FEAT-02: Push notifications** -- No PWA service worker or FCM setup. Needed for tour reminders and booking confirmations.
 
-- [ ] **FEAT-03: Real Google/Apple OAuth** -- Login/register have branded OAuth buttons but route through demo login. Configure NextAuth or Auth.js with real provider credentials.
+- [ ] **FEAT-03: Vietnamese language (i18n)** -- All strings are hardcoded English. Required for host adoption and local partnerships.
 
-- [ ] **FEAT-04: Push notifications** -- No PWA service worker or FCM setup. Needed for tour reminders, host messages, booking confirmations.
+- [ ] **FEAT-04: Tour editing** -- Users can't swap/reorder stops after generation. Add `tour.editStops` mutation.
 
-- [ ] **FEAT-05: Vietnamese language (i18n)** -- All strings are hardcoded English. Extract to i18n keys for `vi` locale support.
+- [ ] **FEAT-05: Custom domain** -- Move from `loco-mate.vercel.app` to `locomate.app` or `locomate.vn`.
 
-- [ ] **FEAT-06: Tour editing** -- Users can't swap/reorder stops after tour generation. Add `tour.editStops` mutation with re-optimization.
-
-- [ ] **FEAT-07: Custom domain** -- Move from `loco-mate.vercel.app` to `locomate.app` or `locomate.vn` for brand credibility.
+- [ ] **FEAT-06: PWA setup** -- manifest.json, service worker, offline splash, Add to Home Screen.
 
 ---
 
