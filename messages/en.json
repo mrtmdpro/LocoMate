@@ -1,0 +1,1944 @@
+{
+  "_meta": {
+    "purpose": "English UI strings for the Locomate app. Keys are namespaced by route or shared component (e.g. `home.greeting.eyebrow`, `nav.tabs.home`). See messages/README.md for the brand-voice strings that intentionally remain Vietnamese in both locales."
+  },
+  "brand": {
+    "name": "Locomate",
+    "slogan": "Go a place, know its grace.",
+    "city": "Hà Nội",
+    "themeLight": "Nắng Sớm Tràng An",
+    "themeDark": "Đêm Sâu Phố Cổ"
+  },
+  "common": {
+    "back": "Back",
+    "cancel": "Cancel",
+    "save": "Save",
+    "saving": "Saving…",
+    "continue": "Continue",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "loading": "Loading…",
+    "tryAgain": "Try again",
+    "comingSoon": "Coming soon",
+    "seeAll": "See all",
+    "shopAll": "Shop all",
+    "status": {
+      "succeeded": "Succeeded",
+      "pending": "Pending",
+      "failed": "Failed",
+      "refunded": "Refunded",
+      "partial_refund": "Partial refund",
+      "cancelled": "Cancelled",
+      "confirmed": "Confirmed",
+      "in_progress": "In progress",
+      "completed": "Completed",
+      "upcoming": "Upcoming",
+      "paid": "Paid",
+      "needs_wrapup": "Needs wrap-up",
+      "published": "Published",
+      "draft": "Draft",
+      "rejected": "Rejected",
+      "archived": "Archived",
+      "unknown": "Unknown"
+    },
+    "relativeDate": {
+      "today": "Today",
+      "tomorrow": "Tomorrow",
+      "yesterday": "Yesterday"
+    },
+    "paymentMethods": {
+      "card": "Credit / debit card",
+      "card_sub": "Visa, Mastercard, JCB",
+      "vnpay": "VNPay",
+      "vnpay_sub": "Local bank transfer",
+      "momo": "MoMo",
+      "momo_sub": "E-wallet",
+      "bank_transfer": "Bank transfer",
+      "cash": "Cash on site",
+      "qr": "QR payment",
+      "qr_sub": "MoMo, VNPay QR"
+    }
+  },
+  "chat": {
+    "relative": {
+      "now": "now",
+      "minutes": "{n}m",
+      "hours": "{n}h",
+      "days": "{n}d"
+    },
+    "inbox": {
+      "title": "Messages",
+      "export": "Export",
+      "exporting": "Exporting…",
+      "exportFailed": "Export failed",
+      "exportSuccess": "Messages exported",
+      "searchPlaceholder": "Search names and recent messages…",
+      "searchAria": "Search conversations",
+      "filterAria": "Filter conversations",
+      "filterAll": "All",
+      "filterUnread": "Unread",
+      "empty": {
+        "title": "No messages yet",
+        "body": "Message a host directly from their profile, or book a tour to connect with your guide.",
+        "browseHosts": "Browse hosts →"
+      },
+      "youPrefix": "You: {text}",
+      "sayHello": "Say hello!",
+      "fallbackName": "Conversation",
+      "hostBadge": "Host"
+    },
+    "conversation": {
+      "headerHostBadge": "Host",
+      "liveAria": "Live connection active",
+      "liveTitle": "Real-time updates on",
+      "fallbackName": "Conversation",
+      "backAria": "Back to messages",
+      "optionsAria": "Conversation options",
+      "conversationWithAria": "Conversation with {name}",
+      "chips": {
+        "browseActivities": "Browse activities",
+        "suggestPlace": "Suggest a place",
+        "tonight": "Tonight?",
+        "thanks": "Thanks!"
+      },
+      "empty": "Say hello to start the conversation.",
+      "waitingFor": "Waiting for {name} to reply",
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "srYou": "You",
+      "srPrefix": "{sender} at {time}:",
+      "save": "Save",
+      "cancel": "Cancel",
+      "edited": "(edited)",
+      "seen": "Seen",
+      "imagePlaceholder": "[image]",
+      "imageAlt": "Shared image",
+      "typing": "{name} is typing…",
+      "composerPlaceholder": "Type a message…",
+      "composerAria": "Compose message",
+      "sendAria": "Send message",
+      "attachAria": "Attach image",
+      "reactAria": "React",
+      "reactWithAria": "React with {emoji}",
+      "reactionAria": "{emoji} reaction{me, select, true {, you reacted} other {}} ({count})",
+      "reactedByMe": ", you reacted",
+      "editAria": "Edit message",
+      "editTitle": "Edit (15 min window)",
+      "unsendAria": "Unsend message",
+      "unsendTitle": "Unsend (24 h window)",
+      "unsendConfirm": "Unsend this message?",
+      "reportAria": "Report message",
+      "reportTitle": "Report",
+      "toast": {
+        "sendFailed": "Failed to send",
+        "editFailed": "Edit failed",
+        "unsendFailed": "Unsend failed",
+        "reactionFailed": "Reaction failed",
+        "reportSubmitted": "Report submitted. Our team will review it.",
+        "reportFailed": "Report failed",
+        "userBlocked": "User blocked. You won't see their messages anymore.",
+        "blockFailed": "Block failed",
+        "uploadAuthRequired": "Please sign in again to upload images.",
+        "uploadFailed": "Upload failed"
+      },
+      "reportDialog": {
+        "title": "Report this message",
+        "body": "We'll review this with our trust & safety team. Your identity stays private.",
+        "cancel": "Cancel",
+        "reason": {
+          "harassment": "Harassment",
+          "spam": "Spam",
+          "inappropriate": "Inappropriate",
+          "scam": "Scam",
+          "off_platform": "Off-platform offer",
+          "other": "Other"
+        }
+      },
+      "blockDialog": {
+        "title": "Conversation options",
+        "body": "Blocking hides this conversation from both sides. You can unblock later from Settings.",
+        "blockCta": "Block {name}",
+        "cancel": "Cancel"
+      }
+    }
+  },
+  "cart": {
+    "addButton": {
+      "idle": "Add to cart",
+      "pending": "Adding…",
+      "success": "Added",
+      "soldOut": "Sold out",
+      "pickSlot": "Pick a time above",
+      "toast": {
+        "success": "Added to cart",
+        "description": "Ready to check out whenever you are.",
+        "viewCart": "View cart",
+        "addFailed": "Couldn't add to cart"
+      }
+    },
+    "page": {
+      "signedOut": {
+        "title": "Sign in to see your cart",
+        "cta": "Sign in"
+      },
+      "empty": {
+        "eyebrow": "Empty cart",
+        "headline": "A basket waiting to fill.",
+        "body": "Browse fixed tours, pick individual activities, or grab an eSIM for your trip.",
+        "browseTours": "Browse tours",
+        "seeActivities": "See activities"
+      },
+      "header": {
+        "eyebrow": "Your cart",
+        "title": "Cart.",
+        "itemCount": "{count, plural, =1 {1 item} other {# items}}"
+      },
+      "conflicts": {
+        "title": "{count, plural, =1 {Time conflict} other {# time conflicts}}",
+        "overlap": "<b>{labelA}</b> overlaps with <b>{labelB}</b>",
+        "hint": "Remove or reschedule one of these items to check out."
+      },
+      "line": {
+        "remove": "Remove",
+        "qtyOne": "Qty 1",
+        "fallback": "Item",
+        "esimLabel": "eSIM · {gb} GB",
+        "esimSubtitle": "Activates on arrival",
+        "guideLabel": "Local guide add-on",
+        "guideForSubtitle": "For {title}"
+      },
+      "summary": {
+        "title": "Order summary",
+        "subtotalLabel": "Subtotal ({count, plural, =1 {1 item} other {# items}})",
+        "estimatedTotal": "Estimated total",
+        "subtotalShort": "Subtotal",
+        "checkout": "Checkout",
+        "resolveConflicts": "Resolve conflicts",
+        "processing": "Processing…",
+        "bundleNote": "Bundle discounts (eSIM, merch) apply automatically on the next step."
+      },
+      "toast": {
+        "updateFailed": "Could not update",
+        "orderFailed": "Could not create order"
+      }
+    }
+  },
+  "nav": {
+    "tabs": {
+      "fixedTour": "Fixed Tour",
+      "customizedTour": "Customized Tour",
+      "store": "Store",
+      "cart": "Cart",
+      "dashboard": "Dashboard",
+      "listings": "Listings",
+      "earnings": "Earnings",
+      "routes": "Routes",
+      "home": "Home",
+      "myTours": "My Tours",
+      "profile": "Profile",
+      "explore": "Explore",
+      "activities": "Activities",
+      "letters": "Letters",
+      "saved": "Saved",
+      "settings": "Settings",
+      "messages": "Messages"
+    },
+    "menu": {
+      "openMenu": "Open menu",
+      "primaryNav": "Primary navigation",
+      "accountNav": "Account and navigation menu",
+      "signOut": "Sign out",
+      "signedIn": "Signed in",
+      "cartBadge": "{count, plural, =1 {# item in cart} other {# items in cart}}"
+    },
+    "topNav": {
+      "locomateHome": "Locomate home"
+    }
+  },
+  "themeToggle": {
+    "eyebrow": "Appearance",
+    "themeLight": "Nắng Sớm Tràng An",
+    "themeDark": "Đêm Sâu Phố Cổ",
+    "descLight": "Cream wash. Heritage warmth.",
+    "descDark": "Lacquered forest. Parchment text.",
+    "modeLight": "Light",
+    "modeDark": "Dark",
+    "srLight": "Nắng Sớm Tràng An",
+    "srDark": "Đêm Sâu Phố Cổ",
+    "controlAria": "Theme mode"
+  },
+  "home": {
+    "locationPin": "Hà Nội",
+    "greeting": {
+      "eyebrow": "Hello, {name}",
+      "slogan": "Go a place, know its grace."
+    },
+    "chapter": {
+      "morning": { "long": "For this morning", "short": "Morning" },
+      "afternoon": { "long": "For this afternoon", "short": "Afternoon" },
+      "evening": { "long": "For tonight", "short": "Evening" },
+      "personalisedSubtitle": "Sorted to your taste",
+      "seeAll15": "See all 15"
+    },
+    "subtitle": {
+      "v0": "Phở's piping hot, alleys are calling — ready when you are?",
+      "v1": "Which hidden corner of Hà Nội is calling your name today?",
+      "v2": "The Old Quarter is calling your name, {name}.",
+      "v3": "Fixed tour or freestyle — either way, you're in for a treat."
+    },
+    "search": {
+      "aria": "Search Hanoi experiences",
+      "placeholder": "Search Hà Nội — phở, workshops, places…"
+    },
+    "activeTrip": {
+      "eyebrow": "Your day in Hà Nội",
+      "title": "Wheels turning, road waiting.",
+      "viewFull": "View full plan",
+      "fallbackStop": "Stop {n}",
+      "optimise": "Optimise route"
+    },
+    "twoPath": {
+      "fixed": {
+        "eyebrow": "Fixed tours",
+        "title": "Co-designed, ready to roll.",
+        "body": "A standardised arc with a local guide along for the ride. From 480k — every penny well spent."
+      },
+      "flexible": {
+        "eyebrow": "Flexible tours",
+        "title": "Build your day, hour by hour.",
+        "body": "Tickets and workshops on one timeline. The logic handles clashes so you can go with the flow."
+      }
+    },
+    "features": {
+      "eyebrow": "What we do",
+      "title": "Six features, one heart.",
+      "body": "Locomate is a standardised-with-flex travel platform. AI is the friend whispering hints — never the one behind the wheel.",
+      "aiMatch": {
+        "kicker": "AI Match",
+        "title": "Made for you, not the algorithm.",
+        "body": "Not a black-box recommender. A plainspoken word in your ear — right pace, right taste, right tongue, right distance.",
+        "tag": "AI · Explainable"
+      },
+      "fixed": {
+        "kicker": "Fixed Tours",
+        "title": "Co-designed, ready to roll.",
+        "body": "A standardised arc: 1 attraction + 1–2 small workshops + 1 local meal. Same shape, different soul in every city.",
+        "tagFixed": "Fixed",
+        "tagGuide": "+ Guide"
+      },
+      "flexible": {
+        "kicker": "Flexible Tours",
+        "title": "Build your day, hour by hour.",
+        "body": "Pick attractions and workshops on one shared timeline. Subway transfers and workshop reset windows are sorted before you blink.",
+        "tagFlexible": "Flexible",
+        "tagWorkshop": "Workshop"
+      },
+      "guides": {
+        "kicker": "Local Guides",
+        "title": "The right guide, the right vibe.",
+        "body": "More than an open calendar. We surface 1–2 guides who genuinely love what you've built — and tell you why before you pick. Birds of a feather, after all.",
+        "tagGuide": "+ Guide"
+      },
+      "esim": {
+        "kicker": "eSIM",
+        "title": "Online the moment wheels touch down.",
+        "body": "Bundled into your itinerary. Switches on the second you land, scoped to your tour days. No kiosk scramble, no SIM-swap dance.",
+        "tag": "eSIM 1GB / day"
+      },
+      "merch": {
+        "kicker": "Merch",
+        "title": "Bring a slice of Hà Nội home.",
+        "body": "A short shelf of locally-designed pieces — áo, mũ, ceramic — discounted only for tour guests. Small souvenirs, big heart.",
+        "tag": "Merch"
+      }
+    },
+    "hiddenGems": {
+      "title": "Gems in the rough",
+      "topChoice": "TOP CHOICE"
+    },
+    "activities": {
+      "title": "Workshops & activities",
+      "subtitle": "Pick your tickets, paint your day."
+    },
+    "hosts": {
+      "title": "Meet our local hosts",
+      "subtitle": "Verified Hanoians — designing and telling each story themselves.",
+      "verified": "Verified host",
+      "newHost": "New host",
+      "statLine": "{rating}★ · {tours} tours"
+    },
+    "merch": {
+      "title": "Hanoi merch",
+      "subtitle": "Bundle with a tour — two birds, one ticket. Up to 25% off.",
+      "bundleBadge": "-{pct}% BUNDLE"
+    },
+    "esim": {
+      "title": "Bundle an eSIM with any tour.",
+      "subtitle": "Live the second you land. 10% off at checkout — best of both worlds."
+    }
+  },
+  "profile": {
+    "title": "Profile",
+    "appSettingsAria": "App settings",
+    "signOut": "Sign Out",
+    "sections": {
+      "personal": "Personal",
+      "activity": "Activity",
+      "accountSecurity": "Account & Security"
+    },
+    "personality": {
+      "eyebrow": "Travel Personality",
+      "defaultLabel": "The Hanoi Adventurer",
+      "localFit": "{score}% Local Fit"
+    },
+    "preferences": {
+      "title": "My Preferences",
+      "fallback": "Set your travel style",
+      "budgetFallback": "budget",
+      "eyebrow": "Preferences",
+      "customisedTour": {
+        "eyebrow": "Customised tour",
+        "subtitle": "Locomate will apply these preferences when you build a Customised Tour. You can still override per trip."
+      },
+      "matching": {
+        "eyebrow": "Matching engine",
+        "title": "Hồ sơ AI Match.",
+        "subtitle": "General preferences that shape your initial recommendations."
+      },
+      "intent": {
+        "title": "What brings you to Hanoi?",
+        "helper": "Pick up to 3",
+        "options": {
+          "relax": "Relax & Recharge",
+          "culture": "Explore Culture",
+          "meet": "Meet New People",
+          "food": "Food & Drink",
+          "adventure": "Adventure"
+        }
+      },
+      "style": {
+        "title": "Your travel style",
+        "chill": "Chill & Relaxed",
+        "explore": "Explore & Discover",
+        "plan": "Plan Everything",
+        "spontaneous": "Go Spontaneous"
+      },
+      "interests": {
+        "title": "Interests",
+        "options": {
+          "streetFood": "Street Food",
+          "hiddenCafes": "Hidden Cafes",
+          "temples": "Temples",
+          "markets": "Markets",
+          "photography": "Photography",
+          "rooftops": "Rooftops",
+          "art": "Art",
+          "nightlife": "Nightlife"
+        }
+      },
+      "budget": {
+        "title": "Daily budget",
+        "options": {
+          "low": "$ Budget",
+          "medium": "$$ Moderate",
+          "high": "$$$ Premium"
+        }
+      },
+      "company": {
+        "title": "Travel company",
+        "options": {
+          "solo": "Solo",
+          "meet_new": "Open",
+          "group": "Group"
+        }
+      },
+      "timePref": {
+        "title": "Best time to explore",
+        "options": {
+          "morning": "Morning",
+          "afternoon": "Afternoon",
+          "evening": "Evening",
+          "late_night": "Late night"
+        }
+      },
+      "saveButton": {
+        "idle": "Save & Update Personality",
+        "pending": "Saving..."
+      },
+      "toast": {
+        "savedWithLabel": "Preferences saved! You are: {label}",
+        "saveFailed": "Failed to save preferences",
+        "tourPrefsSaved": "Tour preferences saved. Locomate will remember for your next trip.",
+        "tourPrefsSaveFailed": "Couldn't save tour preferences"
+      },
+      "tourForm": {
+        "guideStyle": {
+          "eyebrow": "Your guide",
+          "title": "Guide style",
+          "sub": "Who would you like alongside you?"
+        },
+        "meal": {
+          "eyebrow": "Your meal",
+          "title": "Meal",
+          "sub": "So restaurants and artisans prep the right flavours.",
+          "vegetarian": "Vegetarian",
+          "noSpice": "No spice",
+          "allergiesLabel": "Food allergies",
+          "allergyPlaceholder": "Add another allergy…",
+          "addAllergy": "Add",
+          "removeAllergyAria": "Remove {item}"
+        },
+        "route": {
+          "eyebrow": "Your route",
+          "title": "Route",
+          "sub": "How would you like to get around?"
+        },
+        "groupSize": {
+          "eyebrow": "Your group",
+          "title": "Group size",
+          "sub": "How many in your party?"
+        },
+        "save": {
+          "idle": "Save preferences",
+          "pending": "Saving…"
+        }
+      }
+    },
+    "stats": {
+      "savedPlaces": "SAVED PLACES",
+      "toursTaken": "TOURS TAKEN",
+      "experiences": "EXPERIENCES"
+    },
+    "activity": {
+      "savedPlaces": {
+        "title": "Saved Places",
+        "count": "{count, plural, =0 {— items} =1 {1 item} other {# items}}"
+      },
+      "tourHistory": {
+        "title": "Tour History",
+        "count": "{count, plural, =0 {none completed} =1 {1 completed} other {# completed}}"
+      }
+    },
+    "rows": {
+      "securitySettings": "Security Settings",
+      "paymentHistory": "Payment History",
+      "vietnamEsim": "Vietnam eSIM"
+    },
+    "emergency": {
+      "title": "Emergency Contacts",
+      "addContact": "Add contact",
+      "addCta": "+ Add emergency contact",
+      "add": "Add",
+      "primary": "Primary",
+      "nameLabel": "Name",
+      "phoneLabel": "Phone",
+      "relationshipLabel": "Relationship",
+      "relationshipMotherPlaceholder": "e.g. Mother",
+      "relationshipFriendPlaceholder": "e.g. Friend",
+      "contactNamePlaceholder": "Contact name",
+      "toastAdded": "Contact added",
+      "toastUpdated": "Contact updated",
+      "toastRemoved": "Contact removed"
+    },
+    "spokenLanguages": {
+      "title": "Spoken languages",
+      "subtitle": "So hosts can greet you in your mother tongue.",
+      "summaryEmpty": "Add languages",
+      "summaryCount": "{count} selected",
+      "toastSaved": "Languages saved",
+      "toastError": "Couldn't save languages"
+    }
+  },
+  "settings": {
+    "eyebrow": "Settings",
+    "title": "Tune your trip.",
+    "deleteAccount": "Delete account",
+    "sections": {
+      "appearance": "Appearance",
+      "account": "Account",
+      "notifications": "Notifications",
+      "privacy": "Privacy",
+      "about": "About"
+    },
+    "nickname": {
+      "eyebrow": "Nickname",
+      "helper": "Locomate will address you by this name in the app, emails, and thank-you letters.",
+      "placeholder": "e.g. The Wayfarer",
+      "save": "Save nickname",
+      "saving": "Saving…",
+      "clear": "Clear",
+      "toastSaved": "Locomate will call you that from now on.",
+      "toastError": "Couldn't save nickname"
+    },
+    "account": {
+      "displayName": "Display Name",
+      "email": "Email",
+      "changePassword": "Change Password",
+      "changePasswordSoon": "Password change coming soon",
+      "switchToTraveler": {
+        "label": "Switch to traveler mode",
+        "helper": "Pause your host profile and browse Hà Nội as a traveler.",
+        "dialogTitle": "Switch to traveler mode?",
+        "dialogPauseProfile": "Your host profile will be paused — you won't appear in matching or /hosts.",
+        "dialogDraftListings": "{count, plural, =0 {No published listings to move.} =1 {1 published listing will move to drafts.} other {# published listings will move to drafts.}}",
+        "dialogReversible": "You can switch back to host at any time. Your verification is preserved.",
+        "confirm": "Switch to traveler",
+        "cancel": "Stay as host",
+        "toastSuccess": "Welcome back. You're browsing as a traveler.",
+        "toastError": "Couldn't switch to traveler. Please try again."
+      }
+    },
+    "notifications": {
+      "push": "Push Notifications",
+      "emailDigest": "Email Digest"
+    },
+    "privacy": {
+      "locationSharing": "Location Sharing",
+      "dataUsage": "Data Usage",
+      "dataUsageSoon": "Data usage details coming soon"
+    },
+    "about": {
+      "version": "Version",
+      "terms": "Terms of Service",
+      "termsSoon": "Terms of Service page coming soon",
+      "privacy": "Privacy Policy",
+      "privacySoon": "Privacy Policy page coming soon",
+      "licenses": "Licenses",
+      "licensesSoon": "Licenses page coming soon"
+    },
+    "appLanguage": {
+      "eyebrow": "App language",
+      "aria": "App language",
+      "toastError": "Couldn't sync language to your account",
+      "label": {
+        "en": "English",
+        "vi": "Tiếng Việt"
+      },
+      "sub": {
+        "en": "App in English",
+        "vi": "Ứng dụng tiếng Việt"
+      }
+    }
+  },
+  "experiences": {
+    "anchorAria": "Jump to chapter",
+    "tourCount": "{count, plural, =0 {no tours} =1 {1 tour} other {# tours}}",
+    "matchBadge": "{pct}% match",
+    "matchAria": "{pct}% match",
+    "durationMax": "{hours}h · Max {max}",
+    "topMatch": {
+      "eyebrow": "Top match for you",
+      "matchSuffix": "{pct}% match",
+      "whyItFitsTwo": "Strong on your <em>{axisOne}</em> and <em>{axisTwo}</em> axes.",
+      "whyItFitsOne": "Strong on your <em>{axisOne}</em> axis.",
+      "durationMaxPrice": "{hours}h · Max {max} · {price}",
+      "viewCta": "View this tour",
+      "browseCta": "Browse all matches",
+      "axis": {
+        "art": "Art & Aesthetic",
+        "history": "Deep History",
+        "culinary": "Culinary Enthusiast",
+        "slowLiving": "Slow Living"
+      },
+      "quizPrompt": {
+        "eyebrow": "Personalised picks · Locked",
+        "title": "Take 5 minutes, get 15 tours tuned to you.",
+        "subtitle": "Answer the quiz once. We'll rank every Fixed Tour by your taste — your top match leads the page from then on.",
+        "cta": "Take the quiz"
+      }
+    },
+    "hero": {
+      "eyebrow": "Fixed Tour",
+      "slogan": "Taste the place. Play your way.",
+      "subtitle": "15 trips, ready to roll. Sorted by the rhythm of the day, then tuned to your taste.",
+      "personalised": "Tuned to your taste — your best match leads each chapter.",
+      "retakeQuiz": "Not quite your gu? Take the quiz again"
+    },
+    "chapters": {
+      "morning": {
+        "shortLabel": "Morning · 06:00",
+        "title": "Dawn rises on the streets.",
+        "tagline": "Early sun · 06:00 – 11:30 · raw energy"
+      },
+      "afternoon": {
+        "shortLabel": "Afternoon · 13:30",
+        "title": "Noon, taken slowly.",
+        "tagline": "Workshop · 13:30 – 17:30 · touching memory"
+      },
+      "evening": {
+        "shortLabel": "Evening · 18:00",
+        "title": "Lanterns at first dark.",
+        "tagline": "Backstreets · 18:00 – 22:30 · the warmth of fermented things"
+      }
+    },
+    "hosts": {
+      "eyebrow": "By Local Hosts",
+      "shortLabel": "Local Tours",
+      "slogan": "Go with a local.",
+      "subtitle": "Hanoians design it, Hanoians tell the story. No tickets, no queues — your table, your day.",
+      "hostBadge": "Host",
+      "hostedBy": "Hosted by <name></name>",
+      "durationMinutes": "{m}m",
+      "maxGroupSize": "Max {max}"
+    }
+  },
+  "publicShell": {
+    "ctaTitle": "Discover your Hà Nội.",
+    "ctaSubtitle": "Free account · personalised tours",
+    "ctaButton": "Sign up free"
+  },
+  "esim": {
+    "hero": {
+      "eyebrow": "eSIM · Powered by GoHub",
+      "title": "Connected the moment you land.",
+      "subtitle": "Pick a plan, scan a QR, walk out of the airport on Vietnamese 4G/5G. Bundle with any tour and save 10% in the bargain.",
+      "badges": {
+        "instant": "Instant activation",
+        "noSim": "No physical SIM",
+        "onLanding": "Activates on landing"
+      }
+    },
+    "plans": {
+      "eyebrow": "Pick a plan",
+      "title": "Four sizes. One QR code.",
+      "popularBadge": "Popular",
+      "durationLabel": "{data} for {days} days",
+      "dataGb": "{gb} GB",
+      "dataUnlimited": "Unlimited",
+      "saveBadge": "Save 10% when bundled with a tour.",
+      "addToCart": "Add to cart",
+      "adding": "Adding…",
+      "name": {
+        "quickTrip": "Quick Trip",
+        "explorer": "Explorer",
+        "extendedStay": "Extended Stay",
+        "unlimited": "Unlimited"
+      },
+      "toast": {
+        "added": "eSIM added to cart. Bundle with a tour to save 10%.",
+        "addFailed": "Could not add eSIM"
+      }
+    },
+    "howItWorks": {
+      "eyebrow": "How it works",
+      "title": "Three steps. Two minutes.",
+      "step1Title": "Choose a plan",
+      "step1Desc": "Pick the data plan that fits your trip length.",
+      "step2Title": "Get your QR code",
+      "step2Desc": "Delivered to your email instantly after purchase.",
+      "step3Title": "Scan & connect",
+      "step3Desc": "Open phone settings, scan the QR, you're online."
+    },
+    "faq": {
+      "eyebrow": "FAQ",
+      "title": "Asked & answered.",
+      "q1": "What is an eSIM?",
+      "a1": "An eSIM is a digital SIM that lets you activate a mobile data plan without a physical SIM card. Most phones made after 2018 support eSIM.",
+      "q2": "How do I activate?",
+      "a2": "After purchase, you'll receive a QR code. Scan it in your phone's settings to activate your Vietnam data plan. Takes about 2 minutes.",
+      "q3": "Does it work on my phone?",
+      "a3": "eSIM works on iPhone XS and newer, Samsung Galaxy S20+, Google Pixel 3+ and most modern Android phones. Check gohub.com for the full compatibility list.",
+      "q4": "When should I activate?",
+      "a4": "You can purchase anytime and activate when you land in Vietnam. The plan starts counting from the moment you activate."
+    },
+    "browseAll": "Browse all Vietnam eSIM plans",
+    "affiliateDisclosure": "Powered by GoHub. Locomate may earn a commission from purchases made through these links."
+  },
+  "shop": {
+    "eyebrow": "Merch",
+    "hero": "Take a slice of place home.",
+    "subtitle": "Designed in Hà Nội, made in Bắc Ninh. Bundle with a tour for extra off.",
+    "empty": "No products in this category yet.",
+    "bundleBadge": "−{pct}% with tour",
+    "filters": {
+      "all": "All",
+      "apparel": "Apparel",
+      "accessories": "Accessories",
+      "souvenirs": "Souvenirs",
+      "prints": "Prints"
+    },
+    "detail": {
+      "notFound": "Product not found.",
+      "backToList": "← Back to shop",
+      "variant": "Variant",
+      "quantity": "Quantity",
+      "total": "Total",
+      "inStock": "In stock",
+      "onlyNLeft": "Only {n} left"
+    }
+  },
+  "store": {
+    "eyebrow": "Store",
+    "hero": "Take Hà Nội home with you.",
+    "subtitle": "Merch designed by local artists, data plans that just work. Bundle either with a tour for a small thank-you discount.",
+    "tiles": {
+      "merch": {
+        "eyebrow": "Merch",
+        "title": "Crafted goods",
+        "blurb": "Apparel, prints, and souvenirs from Hà Nội workshops."
+      },
+      "esim": {
+        "eyebrow": "Connectivity",
+        "title": "Vietnam eSIM",
+        "blurb": "Activate before you land. From 145.000 VNĐ for a week of data."
+      },
+      "browse": "Browse"
+    },
+    "trending": {
+      "title": "Trending in the shop",
+      "seeAll": "See all merch →"
+    }
+  },
+  "tours": {
+    "eyebrow": "My adventures",
+    "hero": "Tours you've taken.",
+    "untitledFallback": "Hanoi tour",
+    "stopsCount": "{n, plural, =0 {no stops} =1 {1 stop} other {# stops}}",
+    "completedBadge": "Completed",
+    "empty": {
+      "eyebrow": "No tours yet",
+      "title": "Hà Nội is ready when you are.",
+      "body": "Browse curated Fixed Tours or build your own from à-la-carte activities. We'll guide you the rest of the way.",
+      "ctaPrimary": "Browse Fixed Tours",
+      "ctaSecondary": "Browse Hà Nội places"
+    }
+  },
+  "wrapUp": {
+    "stats": {
+      "eyebrow": "Your journey, in numbers",
+      "totalTime": "{n, plural, =0 {0 minutes} =1 {1 minute} other {# minutes}}",
+      "totalTimeHours": "{h, plural, =1 {1 hour} other {# hours}} {m, plural, =0 {} =1 {1 minute} other {# minutes}}",
+      "totalStops": "{n, plural, =0 {0 stops} =1 {1 stop} other {# stops}}",
+      "totalKm": "{km} km walked",
+      "personaTitle": "Today you were a",
+      "personaTitles": {
+        "art_aesthetic": "Lover of beautiful things",
+        "deep_history": "Keeper of old stories",
+        "culinary": "Hungry explorer of streets",
+        "slow_living": "Dreamer-walker",
+        "balanced": "Open-hearted wanderer"
+      }
+    },
+    "coupon": {
+      "yourGift": "A small gift",
+      "discountN": "{pct}% off your next tour",
+      "expires": "Valid until {date}",
+      "copy": "Copy code",
+      "copied": "Coupon code copied",
+      "copyFailed": "Couldn't copy — please copy it by hand."
+    }
+  },
+  "letter": {
+    "waxSealLabel": "Locomate seal",
+    "brandOpening": "Hi {nickname}, every long journey begins with a single step, and Locomate is so glad to have walked today's with you. Thank you for wandering with us through every corner of the city.",
+    "greetingEyebrow": "To {nickname}",
+    "visitedEyebrow": "Where you went",
+    "shareCta": "Download / share to story",
+    "shareTitle": "A letter from Locomate",
+    "shareText": "A keepsake from today's wander with Locomate.",
+    "shareDone": "Shared",
+    "shareDownloaded": "Saved as image",
+    "shareFailed": "Couldn't share the letter — please try again."
+  },
+  "checkout": {
+    "coupon": {
+      "title": "Promo code",
+      "placeholder": "WRAP-XXXXXX",
+      "apply": "Apply",
+      "checking": "Checking…",
+      "remove": "Remove",
+      "applied": "−{pct}% applied",
+      "subtotal": "Subtotal",
+      "discountLine": "Wrap-up discount ({pct}%)",
+      "invalidFormat": "Coupon code looks like WRAP-XXXXXX.",
+      "invalidExpired": "This coupon has expired.",
+      "invalidUsed": "This coupon has already been used.",
+      "invalidNotYours": "This coupon belongs to another traveler.",
+      "invalidTour": "This coupon can't be used on this tour.",
+      "invalidGeneric": "Sorry, this coupon isn't valid."
+    }
+  },
+  "activities": {
+    "category": {
+      "workshop": "Workshop",
+      "food": "Food",
+      "culinary": "Culinary",
+      "cultural": "Cultural",
+      "adventure": "Adventure",
+      "nightlife": "Nightlife",
+      "art": "Art",
+      "tour_lite": "Mini tour",
+      "ticket": "Ticket",
+      "performance": "Performance",
+      "class": "Class"
+    },
+    "atom": {
+      "fromTour": "Piece from tour: {tour}"
+    },
+    "detail": {
+      "notFound": "Activity not found",
+      "backToList": "← Back to activities",
+      "hostedBy": "Hosted by {name}",
+      "aLocal": "a local",
+      "viewProfile": "· View profile →",
+      "durationHours": "{h}h",
+      "durationHoursMinutes": "{h}h {m}m",
+      "upToGuests": "up to {n} guests",
+      "rating": "★ {rating}",
+      "highlights": "Highlights",
+      "pickTime": "Pick a time",
+      "noSlots": "No upcoming slots. Check back soon or message the host.",
+      "noSlotsButton": "No slots available",
+      "seatsLeft": "{n} left",
+      "guests": "Guests",
+      "upToPerSlot": "Up to {n} per slot",
+      "upToN": "Up to {n}",
+      "addLocalGuide": "Add a local guide",
+      "guideLanguages": "English + Vietnamese narration",
+      "from": "From",
+      "perGuest": "per guest",
+      "localGuide": "Local guide",
+      "total": "Total",
+      "noChargeYet": "You won't be charged until checkout."
+    },
+    "list": {
+      "heading": "Activities",
+      "subtitle": "A-la-carte tickets, workshops, and classes. Mix them into your day.",
+      "filters": {
+        "all": "All",
+        "workshops": "Workshops",
+        "tickets": "Tickets",
+        "food": "Food",
+        "walking": "Walking",
+        "performance": "Performance",
+        "classes": "Classes"
+      },
+      "empty": {
+        "title": "No activities in this category yet",
+        "subtitle": "Try a different filter above."
+      },
+      "category": {
+        "workshop": "Workshop",
+        "ticket": "Ticket",
+        "food": "Food",
+        "tour_lite": "Walking",
+        "performance": "Performance",
+        "class": "Class",
+        "cultural": "Cultural",
+        "culinary": "Culinary",
+        "adventure": "Adventure",
+        "nightlife": "Nightlife",
+        "art": "Art"
+      }
+    }
+  },
+  "fixedTour": {
+    "chapter": {
+      "MORNING_SHIFT": "Dawn rises on the streets.",
+      "AFTERNOON_SHIFT": "Noon, taken slowly.",
+      "EVENING_SHIFT": "Lanterns at first dark."
+    },
+    "matchPill": "{pct}% match for your taste",
+    "facts": {
+      "duration": "Duration",
+      "durationValue": "{hours}h",
+      "groupSize": "Group max",
+      "groupSizeValue": "{n, plural, =1 {1 guest} other {# guests}}",
+      "pricePerPerson": "Per person"
+    },
+    "itinerary": {
+      "title": "Itinerary",
+      "kickoff": "Kickoff",
+      "offset": "+{h, plural, =0 {} other {#h}}{m, plural, =0 {} other {#m}}",
+      "stepCount": "{n, plural, =1 {1 stop} other {# stops}}"
+    },
+    "tags": {
+      "title": "Material"
+    },
+    "book": {
+      "title": "Book this tour",
+      "dateLabel": "Date",
+      "startTimeLabel": "Start time",
+      "groupSizeLabel": "Guests",
+      "totalLabel": "Total",
+      "pricePerCount": "{price} × {n, plural, =1 {1 guest} other {# guests}}",
+      "cta": "Book this tour",
+      "ctaPending": "Holding your seat…",
+      "errorFallback": "Couldn't reserve the tour.",
+      "minParticipantsHint": "Minimum {n} guests",
+      "soloEscape": "Solo? Build your own at Customized Tour →",
+      "minParticipantsError": "This tour needs at least {n} guests. Try the Customized Tour to build the same itinerary on your own."
+    },
+    "story": {
+      "readEnglish": "Read in English →",
+      "readVietnamese": "← Đọc tiếng Việt"
+    }
+  },
+  "auth": {
+    "login": {
+      "welcomeBack": "Welcome back — make yourself at home.",
+      "continueAdventure": "Hà Nội's still calling — pick up where you left off.",
+      "emailLabel": "Email",
+      "emailPlaceholder": "you@example.com",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Your password",
+      "signIn": "Sign In",
+      "signingIn": "Signing in…",
+      "welcome": "Welcome — come on in!",
+      "orContinue": "or continue with",
+      "continueWithGoogle": "Continue with Google",
+      "appleSoon": "Apple sign-in coming soon",
+      "appleSoonTooltip": "Apple sign-in is coming soon",
+      "noAccount": "Don't have an account? <link>Create one</link>",
+      "trustLine": "996 real Hanoi places. 6 hand-picked experiences — go right, meet right.",
+      "oauthError": {
+        "email_exists": "That email is already registered with a password. Sign in below with your password to continue.",
+        "email_exists_with_email": "The email {email} is already registered with a password. Sign in below with your password to continue.",
+        "access_denied": "Google sign-in was cancelled. You can try again any time.",
+        "state": "Your sign-in session expired or was tampered with. Please try again.",
+        "token": "We couldn't verify your Google account. Please try again.",
+        "exchange": "We couldn't verify your Google account. Please try again.",
+        "server": "Something went wrong on our side. Please try again in a moment.",
+        "not_configured": "Google sign-in is not configured on this deployment yet. Please use your email and password.",
+        "unverified_google": "Google has not verified this email yet. Please verify it with Google, then retry.",
+        "inactive": "This account is deactivated. Contact support if you believe this is a mistake.",
+        "handoff": "Your sign-in link expired. Please sign in again."
+      }
+    },
+    "register": {
+      "hero": "A thousand-mile journey starts here.",
+      "subhero": "Find your kindred spirits in Hà Nội.",
+      "roles": {
+        "traveler": "Traveler",
+        "host": "Local Host"
+      },
+      "displayNameLabel": "Display Name",
+      "displayNamePlaceholder": "Your name",
+      "emailLabel": "Email",
+      "emailPlaceholder": "you@example.com",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Min 8 characters",
+      "createAccount": "Create Account",
+      "creating": "Creating account…",
+      "orSignUp": "or sign up with",
+      "signUpWithGoogle": "Sign up with Google",
+      "appleSoon": "Apple sign-in coming soon",
+      "appleSoonTooltip": "Apple sign-in is coming soon",
+      "haveAccount": "Already have an account? <link>Sign in</link>",
+      "trustLine": "996 real Hanoi places. 6 hand-picked experiences. Your privacy stays yours — no ifs, no buts."
+    },
+    "complete": {
+      "signingIn": "Opening the door for you…"
+    }
+  },
+  "plan": {
+    "topMatch": {
+      "eyebrow": "Top template for you",
+      "matchSuffix": "{pct}% match",
+      "whyItFitsTwo": "Strong on your <em>{axisOne}</em> and <em>{axisTwo}</em> axes.",
+      "whyItFitsOne": "Strong on your <em>{axisOne}</em> axis.",
+      "durationMaxPrice": "~{hours}h · Group of {max} · from {price}",
+      "viewCta": "Open this template",
+      "browseCta": "Build a day from activities",
+      "axis": {
+        "art": "Art & Aesthetic",
+        "history": "Deep History",
+        "culinary": "Culinary Enthusiast",
+        "slowLiving": "Slow Living"
+      },
+      "quizPrompt": {
+        "eyebrow": "Personalised templates · Locked",
+        "title": "Take 5 minutes, get a day plan tuned to you.",
+        "subtitle": "Answer the quiz once. We'll rank every customized template by your taste — your top match leads the page from then on.",
+        "cta": "Take the quiz"
+      }
+    },
+    "template": {
+      "eyebrow": "Customized template",
+      "matchBadge": "{pct}% match",
+      "durationLabel": "Suggested length",
+      "durationValue": "~{hours} hours",
+      "groupLabel": "Designed for",
+      "groupValue": "{max, plural, =1 {1 traveler} other {a group of #}}",
+      "priceLabel": "Estimated budget",
+      "priceValueFrom": "From {price}",
+      "themeLabel": "Theme",
+      "themeValue": {
+        "heritage": "Heritage",
+        "food": "Food",
+        "craft": "Craft",
+        "quiet": "Slow / Quiet",
+        "social": "Social",
+        "balanced": "Balanced"
+      },
+      "primaryCta": "Build my day from this",
+      "primaryCtaHint": "We'll seed your day with activities matching this template — you stay in control of what stays in your cart.",
+      "secondaryCta": "Browse all activities",
+      "backCta": "Back to all templates",
+      "notFound": "We can't find this template. It may have been retired.",
+      "loading": "Loading template…"
+    },
+    "build": {
+      "recipes": {
+        "eyebrow": "Guide handbook",
+        "title": "Day recipes.",
+        "expand": "Open recipes",
+        "collapse": "Hide recipes",
+        "soloNudge": "Travelling alone? No worries — Fixed Tours need at least 2 people, but you can use this Customized Tour feature to build the exact same itinerary just for yourself!",
+        "empty": "No recipes available yet. Check back soon.",
+        "noSteps": "This tour has no published steps yet.",
+        "recipeMeta": "~{minutes} min · from {price}",
+        "stepOffset": "Step",
+        "addToDay": "Add to day",
+        "comingSoon": "Coming soon",
+        "viewFullTour": "See the full tour →"
+      }
+    }
+  },
+  "host": {
+    "dashboard": {
+      "welcomeBack": "Welcome back,",
+      "hostFallback": "Host",
+      "toast": {
+        "acceptingOn": "You're accepting requests",
+        "acceptingOff": "You're paused",
+        "acceptingFailed": "Could not update availability"
+      },
+      "setup": {
+        "title": "Finish your host setup",
+        "body": "You're signed in as a host but your host profile is not set up yet. Complete the wizard to start accepting tours.",
+        "cta": "Open host setup"
+      },
+      "stats": {
+        "todayVnd": "Today VND",
+        "rating": "Rating",
+        "totalTours": "Total tours"
+      },
+      "balance": {
+        "title": "Your balance",
+        "viewEarnings": "View earnings →",
+        "available": "Available",
+        "readyToPayout": "Ready to pay out",
+        "pending": "Pending",
+        "awaitingCompletion": "Awaiting tour completion",
+        "inReview": "In review",
+        "processing": "Payments still processing",
+        "nextPayout": "Next payout",
+        "firstPayoutHint": "Complete a tour to earn your first payout"
+      },
+      "availability": {
+        "title": "Accepting Requests",
+        "openBody": "Travelers can book you today.",
+        "pausedBody": "You're paused. Flip on to accept new bookings."
+      },
+      "draftPrompt": {
+        "title": "{count, plural, =1 {You have 1 draft to publish} other {You have # drafts to publish}}",
+        "body": "Finish writing it to start receiving bookings."
+      },
+      "marketplace": {
+        "eyebrow": "Marketplace",
+        "title": "My experiences",
+        "published": "{count, plural, =1 {1 published} other {# published}}",
+        "draft": "{count, plural, =1 {1 draft} other {# drafts}}",
+        "archived": "{count, plural, =1 {1 archived} other {# archived}}"
+      },
+      "today": {
+        "title": "Today's Bookings",
+        "untitledTour": "Custom Hanoi tour",
+        "travelerFallback": "a traveler",
+        "withTraveler": "with {name}",
+        "atTime": " at {time}",
+        "statusInProgress": "In progress",
+        "statusConfirmed": "Confirmed",
+        "empty": {
+          "title": "No bookings today",
+          "body": "Enjoy the day off, or check your upcoming calendar."
+        }
+      },
+      "upcoming": {
+        "title": "Coming up",
+        "seeAll": "See all",
+        "guests": "{n, plural, =1 {1 guest} other {# guests}}"
+      },
+      "browseMarketplace": {
+        "title": "Browse the marketplace",
+        "body": "See what other hosts are offering."
+      },
+      "actions": {
+        "updateProfile": "Update profile",
+        "accountSecurity": "Account security"
+      }
+    },
+    "bookings": {
+      "title": "Bookings",
+      "backToDashboard": "Back to dashboard",
+      "hostOnly": "You need to be signed in as a host to view bookings.",
+      "untitledTour": "Custom Hanoi tour",
+      "travelerFallback": "Traveler",
+      "guests": "{n, plural, =1 {1 guest} other {# guests}}",
+      "speaks": "Speaks",
+      "dateTbd": "Date TBD",
+      "tabs": {
+        "upcoming": "Upcoming",
+        "past": "Past"
+      },
+      "empty": {
+        "upcomingTitle": "No upcoming bookings",
+        "upcomingBody": "When travelers book you, they'll show up here. Make sure your listings are published and you're accepting requests.",
+        "pastTitle": "No past bookings yet",
+        "pastBody": "Once you've hosted your first tour it'll appear here.",
+        "manageListings": "Manage listings →"
+      }
+    },
+    "earnings": {
+      "title": "Earnings",
+      "backToDashboard": "← Dashboard",
+      "hostOnly": "You need to be signed in as a host to view earnings.",
+      "periodAria": "Earnings period",
+      "period": {
+        "last7": "Last 7 days",
+        "last30": "Last 30 days",
+        "last90": "Last 90 days",
+        "lastYear": "Last year",
+        "last7Lower": "last 7 days",
+        "last30Lower": "last 30 days",
+        "last90Lower": "last 90 days",
+        "lastYearLower": "last year"
+      },
+      "hero": {
+        "eyebrow": "Total earned · {period}",
+        "bookings": "{n, plural, =1 {1 booking} other {# bookings}}",
+        "previously": "vs {amount} ({n, plural, =1 {1 booking} other {# bookings}}) previously"
+      },
+      "kpi": {
+        "available": {
+          "label": "Available",
+          "help": "Money from completed tours, ready to pay out on the next weekly cycle."
+        },
+        "pending": {
+          "label": "Pending",
+          "help": "Earned but locked until the tour itself is completed."
+        },
+        "lifetime": {
+          "label": "Lifetime paid out",
+          "help": "Total you've received in prior payouts."
+        },
+        "next": {
+          "label": "Next payout",
+          "help": "Payouts settle weekly on Mondays. Estimated arrival: {date}.",
+          "pending": "pending",
+          "empty": "No funds yet"
+        }
+      },
+      "revenue": {
+        "title": "Revenue",
+        "subtitle": "Stacked bars show your net take-home vs the {pct}% platform fee.",
+        "total": "Total",
+        "empty": "No revenue in {period}.",
+        "legend": {
+          "net": "Your net ({pct}%)",
+          "fee": "Platform fee ({pct}%)"
+        }
+      },
+      "tooltip": {
+        "gross": "Gross",
+        "net": "Your net",
+        "fee": "Platform fee"
+      },
+      "byExperience": {
+        "title": "By experience",
+        "subtitle": "How each listing is pulling its weight.",
+        "bookings": "{n, plural, =1 {1 booking} other {# bookings}}",
+        "ratingAria": "rating {rating}",
+        "last": "last {date}",
+        "netLabel": "net"
+      },
+      "sort": {
+        "net": "Sort: Net earned",
+        "bookings": "Sort: Bookings",
+        "rating": "Sort: Rating",
+        "lastBooked": "Sort: Last booked"
+      },
+      "transactions": {
+        "title": "Transactions",
+        "subtitle": "Last {n} payments · gross / fee / net.",
+        "exportCsv": "Export CSV",
+        "customTour": "Custom tour",
+        "travelerFallback": "Traveler",
+        "feeLabel": "fee {amount}"
+      },
+      "commission": {
+        "title": "Commission",
+        "subtitle": "LOCOMATE takes a flat {pct}% on each booking. Here's the lifetime split:",
+        "gross": "Gross booked",
+        "fee": "Platform fee",
+        "net": "Your net",
+        "bookings": "{n, plural, =1 {1 booking} other {# bookings}}",
+        "refunded": "{amount} refunded"
+      },
+      "payouts": {
+        "title": "Payout history",
+        "subtitle": "Weekly settlements. Automated processing is coming; today's rows are recorded manually.",
+        "paidOn": "Paid {date}"
+      },
+      "empty": {
+        "noListings": {
+          "title": "No listings yet",
+          "body": "Publish your first experience to start earning.",
+          "cta": "Create listing"
+        },
+        "transactions": {
+          "title": "No transactions",
+          "body": "Completed tours will show up here."
+        },
+        "payouts": {
+          "title": "No payouts yet",
+          "body": "Your first payout will appear here after your first completed tour."
+        }
+      }
+    },
+    "experiences": {
+      "list": {
+        "title": "My experiences",
+        "subtitle": "Create and manage your host-led tours. Travelers see your published ones in the marketplace.",
+        "new": "+ New",
+        "back": "← Back",
+        "tabs": {
+          "published": "Published",
+          "draft": "Drafts",
+          "archived": "Archived"
+        },
+        "empty": {
+          "heading": "Nothing here yet",
+          "published": "Publish a draft to list it in the marketplace.",
+          "draft": "Start a new experience to see it here.",
+          "archived": "Archived experiences live here for your records."
+        },
+        "row": {
+          "bookings": "{n, plural, =1 {1 booking} other {# bookings}}",
+          "edit": "Edit",
+          "preview": "Preview",
+          "publish": "Publish",
+          "archive": "Archive",
+          "confirmPublish": "Publish this experience to the marketplace?",
+          "confirmArchive": "Take this experience off the marketplace?"
+        },
+        "toast": {
+          "published": "Experience published",
+          "archived": "Experience archived"
+        }
+      },
+      "edit": {
+        "loadError": "That experience could not be loaded.",
+        "backToList": "Back to my experiences",
+        "lockedTitle": "Published experiences can't be edited directly.",
+        "lockedBody": "Archive this listing to take it off the marketplace, then you can make changes in a new draft."
+      },
+      "preview": {
+        "notFound": "Experience not found.",
+        "badge": "Preview · {status}",
+        "facts": {
+          "duration": "Duration",
+          "maxGroup": "Max group",
+          "price": "Price"
+        },
+        "sections": {
+          "about": "About",
+          "highlights": "Highlights",
+          "typicalDay": "A typical day",
+          "included": "Included"
+        },
+        "edit": "Edit",
+        "archived": "Archived",
+        "archiveToEdit": "Archive to edit"
+      },
+      "wizard": {
+        "title": {
+          "new": "New experience",
+          "edit": "Edit experience"
+        },
+        "stepCounter": "Step {current} of 5",
+        "step1": {
+          "heading": "The basics",
+          "title": "Title",
+          "titlePlaceholder": "e.g. Dawn at the Red River",
+          "titleHelper": "At least 8 characters. Shown as the listing headline.",
+          "subtitle": "Subtitle (optional)",
+          "subtitlePlaceholder": "One-line tagline",
+          "category": "Category",
+          "duration": "Duration",
+          "maxGroup": "Max group size"
+        },
+        "step2": {
+          "heading": "Your story",
+          "description": "Description",
+          "descriptionPlaceholder": "Why should a traveler choose this tour? What happens, what makes it yours?",
+          "descriptionHelper": "At least 100 characters. ({count} / 100)",
+          "highlights": "Highlights",
+          "highlightsHint": "Add at least 1. Shown as bullet points on the detail page.",
+          "included": "What's included",
+          "includedHint": "Bottled water, entrance fees, etc."
+        },
+        "step3": {
+          "heading": "Schedule",
+          "subtitle": "Add at least one stop so travelers know what a typical booking looks like. Times are illustrative — you can adjust per booking.",
+          "stopPlaceholder": "e.g. Coffee tasting at Giang",
+          "addStop": "Add",
+          "remove": "Remove"
+        },
+        "step4": {
+          "heading": "Photos",
+          "subtitle": "At least 3 photos (https URLs). The first photo is the cover. Real photo upload coming soon — for now, paste links.",
+          "cover": "COVER",
+          "urlPlaceholder": "https://...",
+          "addPhoto": "Add"
+        },
+        "step5": {
+          "heading": "Pricing",
+          "subtitle": "Set the price a traveler sees. LOCOMATE keeps {pct}% to fund the platform; the rest goes to you.",
+          "price": "Price",
+          "verifyHint": "Complete your ID verification before publishing.",
+          "openSetup": "Open host setup",
+          "payout": {
+            "set": "You set",
+            "platform": "LOCOMATE keeps ({pct}%)",
+            "receive": "You receive"
+          }
+        },
+        "category": {
+          "cultural": "Cultural",
+          "food": "Food",
+          "nightlife": "Nightlife",
+          "nature": "Nature",
+          "workshop": "Workshop",
+          "art": "Art",
+          "photography": "Photography"
+        },
+        "tagList": {
+          "addPlaceholder": "Add {label}…",
+          "add": "Add"
+        },
+        "actions": {
+          "back": "Back",
+          "saveContinue": "Save & continue",
+          "publish": "Publish",
+          "publishing": "Publishing…"
+        },
+        "toast": {
+          "published": "Published! Your experience is live in the marketplace.",
+          "verifyHint": "You'll need to finish ID verification before you can publish.",
+          "timeFormat": "Time must be HH:MM in 24h format.",
+          "photoUrlScheme": "Photo URL must start with http(s)://",
+          "photoLimit": "Maximum 10 photos."
+        },
+        "validation": {
+          "titleLength": "Title must be at least 8 characters.",
+          "descriptionLength": "Description must be at least 100 characters.",
+          "highlightRequired": "Add at least one highlight.",
+          "scheduleRequired": "Add at least one schedule stop.",
+          "photosRequired": "At least 3 photos are required.",
+          "priceRange": "Price must be between {min} and {max} VND."
+        }
+      }
+    }
+  },
+  "explore": {
+    "header": "Explore Hanoi",
+    "viewList": "List",
+    "viewMap": "Map",
+    "searchPlaceholder": "Search hidden gems...",
+    "loadingMap": "Loading map...",
+    "loadingPlaces": "Loading places...",
+    "featuredGems": "Featured Gems",
+    "viewAll": "VIEW ALL",
+    "topChoice": "TOP CHOICE",
+    "surprise": "Surprise Discovery",
+    "surpriseTag": "RANDOM GEM",
+    "popularNearYou": "Popular Near You",
+    "noPlaces": "No places found. Try different filters!",
+    "reviews": "{n, plural, =1 {1 review} other {# reviews}}",
+    "reviewsLabel": "reviews",
+    "budgetFriendly": "{range} Budget Friendly",
+    "filters": {
+      "all": "All",
+      "cafe": "Cafe",
+      "restaurant": "Restaurant",
+      "cultural": "Cultural",
+      "nature": "Nature",
+      "nightlife": "Nightlife",
+      "workshop": "Workshop",
+      "art": "Art"
+    },
+    "detail": {
+      "notFound": "Place not found",
+      "reviewsCount": "({n, plural, =1 {1 review} other {# reviews}})",
+      "addToTour": "Add to Tour",
+      "signUpToPlan": "Sign up to plan your tour",
+      "locomateStory": "The Locomate story",
+      "curatedNote": "Curated by Locomate · Verified Hidden Gem",
+      "whyFits": "Why it fits you",
+      "reasons": {
+        "soloTitle": "Perfect for Solo Travelers",
+        "soloHighAuth": "Minimal chatter and communal tables make it comfortable to sit alone with a book or journal.",
+        "soloDefault": "A welcoming environment that's easy to enjoy at your own pace.",
+        "accessTitle": "Easy Accessibility",
+        "accessNear": "just minutes from the Old Quarter",
+        "accessConvenient": "in a convenient area",
+        "accessQuiet": "yet feels miles away from the noise",
+        "accessLively": "with a lively local atmosphere",
+        "accessTemplate": "Located {where}, {atmosphere}.",
+        "uniqueTitle": "Unique Experience",
+        "uniqueDesc": "This is a rare find that most tourists miss. Our data shows high uniqueness scores from local curators."
+      },
+      "location": "Location",
+      "openInGmaps": "Open in Google Maps",
+      "mapTitle": "Location map",
+      "ctaPrompt": "Want a personalized Hanoi itinerary?",
+      "ctaBody": "Create a free account and we'll build a tour around your personality.",
+      "ctaButton": "Create Free Account",
+      "toastSaved": "Place saved to favorites!",
+      "toastRemoved": "Place removed from favorites"
+    }
+  },
+  "saved": {
+    "title": "Saved Places",
+    "places": "{n, plural, =1 {1 place} other {# places}}",
+    "emptyTitle": "No saved places yet",
+    "emptyCategoryTitle": "No places in this category",
+    "emptyBody": "Tap the bookmark icon on any place to save it!",
+    "emptyCategoryBody": "Try a different filter",
+    "explorePlaces": "Explore Places",
+    "filters": {
+      "all": "All",
+      "cafe": "Cafe",
+      "restaurant": "Restaurant",
+      "cultural": "Cultural",
+      "nature": "Nature",
+      "nightlife": "Nightlife",
+      "art": "Art",
+      "workshop": "Workshop"
+    }
+  },
+  "hosts": {
+    "eyebrow": "Local hosts",
+    "title": "Paired by personality.",
+    "subhero": "Đồng hành cùng bạn, theo cách riêng bạn.",
+    "intro": "Verified Hà Nội-ans who design and lead the experiences. We surface 1–2 who actually love what you've built — and tell you why before you pick.",
+    "languageLabel": "Language",
+    "topRated": "Top rated (4.5★ +)",
+    "verified": "Verified host",
+    "newHost": "New host",
+    "stats": "{rating}★ · {reviews} reviews · {tours} tours",
+    "empty": {
+      "eyebrow": "No hosts here",
+      "title": "Loosen a filter, find a guide.",
+      "body": "Try clearing the language filter or stepping below the 4.5-star threshold — there are great new hosts in every category.",
+      "cta": "Clear all filters"
+    },
+    "filters": {
+      "all": "All",
+      "food": "Food",
+      "photography": "Photography",
+      "culture": "Culture",
+      "history": "History",
+      "cafe": "Cafe",
+      "art": "Art",
+      "nightlife": "Nightlife",
+      "walking": "Walking"
+    },
+    "languages": {
+      "any": "Any language",
+      "english": "English",
+      "vietnamese": "Vietnamese",
+      "french": "French",
+      "japanese": "Japanese"
+    }
+  },
+  "checkoutPage": {
+    "title": "Checkout",
+    "orderId": "Order #{id}",
+    "backToCart": "Back to cart",
+    "summary": "Order summary",
+    "subtotal": "Subtotal",
+    "bundleDiscount": "Bundle discount",
+    "total": "Total",
+    "orderNotFound": "Order not found.",
+    "backToCartLink": "Back to cart →",
+    "paymentMethod": "Payment method",
+    "testModeNotice": "Payments are simulated in test mode. Real gateway wiring coming soon.",
+    "paid": "Paid",
+    "processing": "Processing...",
+    "pay": "Pay {amount}",
+    "paymentConfirmed": "Payment confirmed",
+    "paymentFailed": "Payment failed",
+    "tour": {
+      "title": "Checkout",
+      "orderSummary": "Order Summary",
+      "tourLabel": "Tour",
+      "untitled": "Hanoi Discovery",
+      "totalLabel": "Total",
+      "priceUnavailable": "Price unavailable",
+      "priceUnavailableHint": "Price unavailable — please retry",
+      "paymentMethodTitle": "Payment Method",
+      "refundPolicy": "Free cancellation up to 24h before tour start. Your payment is secure.",
+      "securePayment": "Secure Payment — {amount}",
+      "processing": "Processing..."
+    }
+  },
+  "onboardingLegacy": {
+    "chat": {
+      "card": {
+        "title": "Trò chuyện với Locomate",
+        "body": "Trắc nghiệm tính cách dưới dạng chat. Chọn tông giọng AI rồi để Locomate hỏi 5 câu.",
+        "cta": "Mở chat"
+      }
+    },
+    "host": {
+      "title": "Actually, I'm a host",
+      "body": "Share your Hanoi with travelers. Create tours, set your price, keep 80%.",
+      "cta": "Host setup →",
+      "loading": "...",
+      "toastSuccess": "Welcome, host! Let's set up your profile.",
+      "toastError": "Could not switch to host. Please try again."
+    },
+    "step1": {
+      "heading": "What brings you to Hanoi?",
+      "subtitle": "Pick up to 3",
+      "scenarioPrompt": "You have 3 hours in Hanoi. What do you do?",
+      "scenarios": {
+        "A": "Sit at a quiet lakeside cafe",
+        "B": "Visit a hidden temple",
+        "C": "Try 3 different street foods",
+        "D": "Find a rooftop bar and meet people"
+      }
+    },
+    "step2": {
+      "heading": "Your travel style",
+      "subtitle": "Slide to find your style",
+      "chill": "Chill & Relaxed",
+      "explore": "Explore & Discover",
+      "plan": "Plan Everything",
+      "spontaneous": "Go Spontaneous"
+    },
+    "step3": {
+      "heading": "What excites you?",
+      "subtitle": "Select your interests",
+      "budget": "Daily budget"
+    },
+    "step4": {
+      "heading": "Social & timing",
+      "subtitle": "Almost done!",
+      "company": "Travel company",
+      "companyOptions": {
+        "solo": "Solo & Quiet",
+        "meet_new": "Open to Meeting People",
+        "group": "Looking for a Group"
+      },
+      "bestTime": "Best time to explore",
+      "time": {
+        "morning": "morning",
+        "afternoon": "afternoon",
+        "evening": "evening",
+        "late_night": "late night"
+      }
+    },
+    "step5": {
+      "eyebrow": "Một chút nữa thôi",
+      "heading": "Locomate xin phép được gọi bạn là gì?",
+      "subtitle": "Một danh xưng để chúng tôi xưng hô với bạn xuyên suốt hành trình. Có thể bỏ qua — bạn đổi sau ở mục Settings.",
+      "placeholder": "Ví dụ: Kẻ lữ hành"
+    },
+    "intents": {
+      "Relax & Recharge": "Relax & Recharge",
+      "Explore Culture": "Explore Culture",
+      "Meet New People": "Meet New People",
+      "Food & Drink": "Food & Drink",
+      "Adventure": "Adventure"
+    },
+    "interests": {
+      "Street Food": "Street Food",
+      "Hidden Cafes": "Hidden Cafes",
+      "Temples": "Temples",
+      "Markets": "Markets",
+      "Photography": "Photography",
+      "Rooftops": "Rooftops",
+      "Art": "Art",
+      "Nightlife": "Nightlife"
+    },
+    "nav": {
+      "back": "Back",
+      "continue": "Continue",
+      "submitting": "Đang chuẩn bị…",
+      "finishWithName": "Bắt đầu hành trình, {name}",
+      "finish": "Bắt đầu hành trình"
+    }
+  },
+  "onboarding": {
+    "chat": {
+      "tonePicker": {
+        "eyebrow": "One thing before we start",
+        "title": "What voice should Locomate use with you?",
+        "subtitle": "You can switch the voice any time from Settings.",
+        "footerPrompt": "Prefer the old way?",
+        "footerLink": "Back to the quick quiz"
+      },
+      "toneSub": {
+        "thuThi": "Warm, unhurried",
+        "homHinh": "Playful, a wink in every line",
+        "trucDien": "One idea per line"
+      },
+      "progress": {
+        "eyebrow": "Question {current} / {total}",
+        "title": "Chatting with Locomate."
+      },
+      "done": {
+        "eyebrow": "Locomate has read you",
+        "ctaSubmit": "Enter Locomate",
+        "ctaSubmitting": "Entering…",
+        "ctaPreferences": "Set detailed preferences"
+      },
+      "personality": {
+        "heritage": "You read the city through architecture, courtyards, and moss-covered walls. Locomate will lead with Thanh Tao Xứ Bắc for you.",
+        "food": "Taste is your gateway — Locomate will lead with Hương Men Nồng Say and back-alley kitchens on your journey.",
+        "craft": "You want to touch the craft, not just see it. Locomate will lead with Hồn Đất Nghệ Nhân for you.",
+        "quiet": "You need stillness. Locomate will pair you with quieter routes and unhurried guides.",
+        "social": "Doors are always open. Locomate will pair you with small groups, lively guides, and journeys that meet new people.",
+        "balanced": "You sit in balance — Locomate will keep your journey wide-banded, a different colour each day."
+      },
+      "saveError": "Couldn't save your result"
+    }
+  },
+  "landing": {
+    "eyebrow": "Hanoi, your way",
+    "headlinePart1": "Browse tours.",
+    "headlinePart2": "Book activities.",
+    "headlinePart3": "Build your day.",
+    "body": "Curated Hanoi tours with real guides, plus a-la-carte workshops, classes, and tickets. Mix what you want, skip what you don't.",
+    "features": {
+      "fixedTours": "Fixed Tours",
+      "activitiesTickets": "Activities & Tickets",
+      "hanoiMerch": "Hanoi Merch"
+    },
+    "actions": {
+      "getStarted": "Get started",
+      "haveAccount": "I have an account"
+    },
+    "nav": {
+      "explore": "Explore",
+      "tours": "Tours",
+      "activities": "Activities",
+      "profile": "Profile"
+    }
+  },
+  "hostSetup": {
+    "step1": {
+      "heading": "Become a Local Host",
+      "subtitle": "Share your love for Hanoi with travelers",
+      "addPhoto": "Add photo",
+      "bioLabel": "Your bio",
+      "bioPlaceholder": "Tell travelers what makes you a great host..."
+    },
+    "step2": {
+      "heading": "Your expertise",
+      "subtitle": "Help us connect you with the right travelers",
+      "languagesLabel": "Languages",
+      "specialtiesLabel": "Specialties"
+    },
+    "step3": {
+      "heading": "Availability",
+      "subtitle": "When can you host?"
+    },
+    "step4": {
+      "heading": "Identity verification",
+      "subtitle": "Required for traveler trust and safety",
+      "uploadTitle": "Upload ID document",
+      "uploadSubtitle": "CCCD or Passport (front side)",
+      "standardsTitle": "Host Standards",
+      "standards": {
+        "punctual": "Be punctual and professional",
+        "safety": "Maintain traveler safety at all times",
+        "reviewed": "Quality reviewed after every tour",
+        "training": "Continuous training and support"
+      }
+    },
+    "languages": {
+      "vietnamese": "Vietnamese",
+      "english": "English",
+      "french": "French",
+      "japanese": "Japanese",
+      "korean": "Korean",
+      "chinese": "Chinese",
+      "spanish": "Spanish"
+    },
+    "specialties": {
+      "streetFood": "Street Food",
+      "history": "History",
+      "photography": "Photography",
+      "hiddenCafes": "Hidden Cafes",
+      "art": "Art",
+      "nightlife": "Nightlife",
+      "nature": "Nature",
+      "walkingTours": "Walking Tours"
+    },
+    "days": {
+      "mon": "Mon",
+      "tue": "Tue",
+      "wed": "Wed",
+      "thu": "Thu",
+      "fri": "Fri",
+      "sat": "Sat",
+      "sun": "Sun"
+    },
+    "actions": {
+      "back": "Back",
+      "continue": "Continue",
+      "submit": "Submit for Review",
+      "submitting": "Submitting..."
+    }
+  },
+  "security": {
+    "heading": "Security",
+    "sections": {
+      "password": "Password",
+      "twoFA": "Two-Factor Authentication",
+      "verification": "Verification",
+      "dangerZone": "Danger Zone"
+    },
+    "password": {
+      "label": "Password",
+      "lastChangedNever": "Last changed: Never",
+      "changeBtn": "Change",
+      "toastComingSoon": "Password change coming soon"
+    },
+    "twoFA": {
+      "label": "Enable 2FA",
+      "subtitle": "Secure your account with an extra layer of protection",
+      "toastEnabled": "2FA enabled",
+      "toastDisabled": "2FA disabled"
+    },
+    "verification": {
+      "email": "Email",
+      "emailFallback": "--",
+      "verified": "Verified",
+      "unverified": "Unverified",
+      "passwordLabel": "Password sign-in",
+      "passwordSet": "Password set",
+      "passwordNotSet": "Not set (Google only)",
+      "enabled": "Enabled",
+      "off": "Off",
+      "googleLabel": "Google sign-in",
+      "googleLinked": "Linked to your account",
+      "googleNotLinked": "Not linked",
+      "googleBadgeLinked": "Linked",
+      "hostIdentity": "Host identity",
+      "hostApproved": "ID verified",
+      "hostRejected": "Verification rejected",
+      "hostPending": "Pending review",
+      "hostBadgeVerified": "Verified",
+      "hostBadgeRejected": "Rejected",
+      "hostBadgePending": "Pending",
+      "hostDashboard": "Open host dashboard →"
+    },
+    "dangerZone": {
+      "deleteTitle": "Delete account",
+      "deleteBody": "Permanently remove your profile, saved places, tours, messages, and linked Google account. This cannot be undone.",
+      "deleteBtn": "Delete"
+    },
+    "deleteDialog": {
+      "title": "Delete your account?",
+      "description": "This permanently erases your profile, saved places, tour history, messages, emergency contacts, and linked sign-in methods. There is no undo.",
+      "reviewsNotice": "Reviews and chat messages you wrote remain visible to other users but will no longer show your name.",
+      "confirmEmailLabel": "Type your email to confirm",
+      "confirmEmailPlaceholder": "you@example.com",
+      "passwordLabel": "Current password",
+      "keepCta": "Keep my account",
+      "deleteCta": "Delete my account",
+      "deletingCta": "Deleting..."
+    },
+    "toast": {
+      "accountDeleted": "Account deleted. We're sorry to see you go."
+    }
+  },
+  "tour": {
+    "review": {
+      "heading": "How was your tour?",
+      "subtitle": "Your rating helps us improve and helps other travelers choose",
+      "tapToRate": "Tap to rate",
+      "ratingFeedback": {
+        "low": "We'll do better next time",
+        "mid": "Great to hear!",
+        "high": "Amazing! You loved it!"
+      },
+      "commentTitle": "Tell us more (optional)",
+      "commentPlaceholder": "What did you enjoy most? Any suggestions?",
+      "submitCta": "Submit Review",
+      "submittingCta": "Submitting...",
+      "skipCta": "Skip for now",
+      "toastThankYou": "Thank you for your review!",
+      "done": {
+        "title": "Thanks for reviewing!",
+        "body": "Your feedback helps us create better experiences for solo travelers in Hanoi.",
+        "exploreMoreCta": "Explore More",
+        "profileCta": "My Profile"
+      }
+    },
+    "preview": {
+      "notFound": "Tour not found",
+      "badge": "Personalized Preview",
+      "hoursDuration": "{hours}h duration",
+      "stopsCount": "{count} stops",
+      "previewTitle": "Your morning preview",
+      "moreStopsHidden": "+{count} more stops hidden. Unlock the full itinerary!",
+      "whyFits": "Why this fits you",
+      "costLabel": "Estimated cost range",
+      "costRange": "{min}k - {max}k {currency}",
+      "addHostTitle": "Add a Local Host",
+      "addHostBody": "A verified Hanoi insider to guide you through every stop.",
+      "browseHostsCta": "Browse Hosts +{price}",
+      "unlockCta": "Unlock Full Itinerary — {price}",
+      "priceUnavailable": "Price unavailable — please retry",
+      "esimTitle": "📶 Don't forget your eSIM!",
+      "esimBody": "Get instant Vietnam data from $5.90",
+      "packageType": {
+        "solo_mate": "Solo Mate",
+        "social_tour": "Social Tour",
+        "fixed_tour": "Fixed Tour"
+      }
+    }
+  },
+  "payments": {
+    "heading": "Payment History",
+    "totalSpent": "Total Spent",
+    "transactions": "Transactions",
+    "untitledTour": "Untitled tour",
+    "emptyDate": "--",
+    "empty": {
+      "title": "No payments yet",
+      "body": "Your transaction history will appear here",
+      "cta": "Plan a Tour"
+    }
+  },
+  "orders": {
+    "detail": {
+      "notFound": "Order not found.",
+      "confirmedTitle": "Booking confirmed",
+      "confirmedSubtitle": "Order #{shortId} · Paid on {date}",
+      "heading": "Order",
+      "whatYouBooked": "What you booked",
+      "subtotal": "Subtotal",
+      "bundleDiscount": "Bundle discount",
+      "total": "Total",
+      "actions": {
+        "backHome": "Back to home",
+        "browseMore": "Browse more"
+      },
+      "kind": {
+        "activity": "Activity",
+        "esim": "eSIM",
+        "merch": "Merch",
+        "tour": "Tour"
+      }
+    }
+  }
+}

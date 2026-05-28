@@ -49,3 +49,15 @@ export const hostProcedure = protectedProcedure.use(async ({ ctx, next }) => {
   }
   return next({ ctx });
 });
+
+/**
+ * Admin-only procedure. Used by the merch CMS and (future) moderation UI.
+ * Mounted above `protectedProcedure` so the ctx.user narrowing from the
+ * parent middleware still applies.
+ */
+export const adminProcedure = protectedProcedure.use(async ({ ctx, next }) => {
+  if (ctx.user.role !== "admin") {
+    throw new TRPCError({ code: "FORBIDDEN", message: "Admin access required" });
+  }
+  return next({ ctx });
+});

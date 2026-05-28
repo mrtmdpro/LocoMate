@@ -1,0 +1,1944 @@
+{
+  "_meta": {
+    "purpose": "Vietnamese UI strings for the Locomate app. Keys mirror messages/en.json. Brand-voice strings (slogan, folk-pair, theme nicknames, city) keep the same Vietnamese-flavoured value in both locales -- see messages/README.md."
+  },
+  "brand": {
+    "name": "Locomate",
+    "slogan": "Đi cho đúng, gặp cho trúng.",
+    "city": "Hà Nội",
+    "themeLight": "Nắng Sớm Tràng An",
+    "themeDark": "Đêm Sâu Phố Cổ"
+  },
+  "common": {
+    "back": "Quay lại",
+    "cancel": "Huỷ",
+    "save": "Lưu",
+    "saving": "Đang lưu…",
+    "continue": "Tiếp tục",
+    "delete": "Xoá",
+    "edit": "Sửa",
+    "close": "Đóng",
+    "loading": "Đang tải…",
+    "tryAgain": "Thử lại",
+    "comingSoon": "Sắp ra mắt",
+    "seeAll": "Xem tất cả",
+    "shopAll": "Xem tất cả",
+    "status": {
+      "succeeded": "Thành công",
+      "pending": "Đang xử lý",
+      "failed": "Thất bại",
+      "refunded": "Đã hoàn",
+      "partial_refund": "Hoàn một phần",
+      "cancelled": "Đã huỷ",
+      "confirmed": "Đã xác nhận",
+      "in_progress": "Đang diễn ra",
+      "completed": "Hoàn thành",
+      "upcoming": "Sắp diễn ra",
+      "paid": "Đã thanh toán",
+      "needs_wrapup": "Cần khép lại",
+      "published": "Đã đăng",
+      "draft": "Bản nháp",
+      "rejected": "Bị từ chối",
+      "archived": "Lưu trữ",
+      "unknown": "Không xác định"
+    },
+    "relativeDate": {
+      "today": "Hôm nay",
+      "tomorrow": "Ngày mai",
+      "yesterday": "Hôm qua"
+    },
+    "paymentMethods": {
+      "card": "Thẻ tín dụng / ghi nợ",
+      "card_sub": "Visa, Mastercard, JCB",
+      "vnpay": "VNPay",
+      "vnpay_sub": "Chuyển khoản ngân hàng nội địa",
+      "momo": "MoMo",
+      "momo_sub": "Ví điện tử",
+      "bank_transfer": "Chuyển khoản ngân hàng",
+      "cash": "Tiền mặt tại điểm",
+      "qr": "Thanh toán QR",
+      "qr_sub": "MoMo, VNPay QR"
+    }
+  },
+  "chat": {
+    "relative": {
+      "now": "vừa xong",
+      "minutes": "{n} phút",
+      "hours": "{n} giờ",
+      "days": "{n} ngày"
+    },
+    "inbox": {
+      "title": "Tin nhắn",
+      "export": "Xuất",
+      "exporting": "Đang xuất…",
+      "exportFailed": "Xuất thất bại",
+      "exportSuccess": "Đã xuất tin nhắn",
+      "searchPlaceholder": "Tìm theo tên và tin nhắn gần đây…",
+      "searchAria": "Tìm cuộc trò chuyện",
+      "filterAria": "Lọc cuộc trò chuyện",
+      "filterAll": "Tất cả",
+      "filterUnread": "Chưa đọc",
+      "empty": {
+        "title": "Chưa có tin nhắn nào",
+        "body": "Nhắn tin trực tiếp cho host từ trang hồ sơ, hoặc đặt tour để kết nối với hướng dẫn viên.",
+        "browseHosts": "Xem danh sách host →"
+      },
+      "youPrefix": "Bạn: {text}",
+      "sayHello": "Chào nào!",
+      "fallbackName": "Cuộc trò chuyện",
+      "hostBadge": "Host"
+    },
+    "conversation": {
+      "headerHostBadge": "Host",
+      "liveAria": "Đang kết nối thời gian thực",
+      "liveTitle": "Đang nhận cập nhật trực tiếp",
+      "fallbackName": "Cuộc trò chuyện",
+      "backAria": "Quay lại tin nhắn",
+      "optionsAria": "Tuỳ chọn cuộc trò chuyện",
+      "conversationWithAria": "Cuộc trò chuyện với {name}",
+      "chips": {
+        "browseActivities": "Xem hoạt động",
+        "suggestPlace": "Gợi ý địa điểm",
+        "tonight": "Tối nay?",
+        "thanks": "Cảm ơn!"
+      },
+      "empty": "Chào để bắt đầu cuộc trò chuyện.",
+      "waitingFor": "Đang chờ {name} trả lời",
+      "today": "Hôm nay",
+      "yesterday": "Hôm qua",
+      "srYou": "Bạn",
+      "srPrefix": "{sender} lúc {time}:",
+      "save": "Lưu",
+      "cancel": "Huỷ",
+      "edited": "(đã chỉnh sửa)",
+      "seen": "Đã xem",
+      "imagePlaceholder": "[ảnh]",
+      "imageAlt": "Ảnh đã chia sẻ",
+      "typing": "{name} đang nhập…",
+      "composerPlaceholder": "Nhập tin nhắn…",
+      "composerAria": "Soạn tin nhắn",
+      "sendAria": "Gửi tin nhắn",
+      "attachAria": "Đính kèm ảnh",
+      "reactAria": "Thả cảm xúc",
+      "reactWithAria": "Thả {emoji}",
+      "reactionAria": "Cảm xúc {emoji}{me, select, true {, bạn đã thả} other {}} ({count})",
+      "reactedByMe": ", bạn đã thả",
+      "editAria": "Chỉnh sửa tin nhắn",
+      "editTitle": "Chỉnh sửa (trong 15 phút)",
+      "unsendAria": "Thu hồi tin nhắn",
+      "unsendTitle": "Thu hồi (trong 24 giờ)",
+      "unsendConfirm": "Thu hồi tin nhắn này?",
+      "reportAria": "Báo cáo tin nhắn",
+      "reportTitle": "Báo cáo",
+      "toast": {
+        "sendFailed": "Gửi thất bại",
+        "editFailed": "Chỉnh sửa thất bại",
+        "unsendFailed": "Thu hồi thất bại",
+        "reactionFailed": "Không thả được cảm xúc",
+        "reportSubmitted": "Đã gửi báo cáo. Đội ngũ của chúng tôi sẽ xem xét.",
+        "reportFailed": "Báo cáo thất bại",
+        "userBlocked": "Đã chặn người dùng. Bạn sẽ không thấy tin nhắn của họ nữa.",
+        "blockFailed": "Chặn thất bại",
+        "uploadAuthRequired": "Vui lòng đăng nhập lại để tải ảnh lên.",
+        "uploadFailed": "Tải ảnh thất bại"
+      },
+      "reportDialog": {
+        "title": "Báo cáo tin nhắn này",
+        "body": "Chúng tôi sẽ xem xét cùng đội Tin cậy & An toàn. Danh tính của bạn được giữ kín.",
+        "cancel": "Huỷ",
+        "reason": {
+          "harassment": "Quấy rối",
+          "spam": "Spam",
+          "inappropriate": "Không phù hợp",
+          "scam": "Lừa đảo",
+          "off_platform": "Đề nghị giao dịch ngoài nền tảng",
+          "other": "Khác"
+        }
+      },
+      "blockDialog": {
+        "title": "Tuỳ chọn cuộc trò chuyện",
+        "body": "Chặn sẽ ẩn cuộc trò chuyện này ở cả hai phía. Bạn có thể bỏ chặn sau trong phần Cài đặt.",
+        "blockCta": "Chặn {name}",
+        "cancel": "Huỷ"
+      }
+    }
+  },
+  "cart": {
+    "addButton": {
+      "idle": "Thêm vào giỏ",
+      "pending": "Đang thêm…",
+      "success": "Đã thêm",
+      "soldOut": "Hết hàng",
+      "pickSlot": "Chọn giờ ở trên",
+      "toast": {
+        "success": "Đã thêm vào giỏ",
+        "description": "Sẵn sàng thanh toán khi bạn muốn.",
+        "viewCart": "Xem giỏ hàng",
+        "addFailed": "Không thêm được vào giỏ"
+      }
+    },
+    "page": {
+      "signedOut": {
+        "title": "Đăng nhập để xem giỏ hàng của bạn",
+        "cta": "Đăng nhập"
+      },
+      "empty": {
+        "eyebrow": "Giỏ trống",
+        "headline": "Một chiếc giỏ chờ đầy.",
+        "body": "Khám phá tour cố định, chọn từng hoạt động riêng lẻ, hoặc thêm một eSIM cho chuyến đi.",
+        "browseTours": "Xem tour",
+        "seeActivities": "Xem hoạt động"
+      },
+      "header": {
+        "eyebrow": "Giỏ của bạn",
+        "title": "Giỏ hàng.",
+        "itemCount": "{count, plural, =1 {1 món} other {# món}}"
+      },
+      "conflicts": {
+        "title": "{count, plural, =1 {Trùng giờ} other {# trùng giờ}}",
+        "overlap": "<b>{labelA}</b> trùng giờ với <b>{labelB}</b>",
+        "hint": "Xoá hoặc đổi giờ một trong những mục này để thanh toán."
+      },
+      "line": {
+        "remove": "Xoá",
+        "qtyOne": "SL 1",
+        "fallback": "Mục",
+        "esimLabel": "eSIM · {gb} GB",
+        "esimSubtitle": "Kích hoạt khi tới nơi",
+        "guideLabel": "Hướng dẫn viên địa phương",
+        "guideForSubtitle": "Cho {title}"
+      },
+      "summary": {
+        "title": "Tóm tắt đơn hàng",
+        "subtotalLabel": "Tạm tính ({count, plural, =1 {1 món} other {# món}})",
+        "estimatedTotal": "Tổng dự kiến",
+        "subtotalShort": "Tạm tính",
+        "checkout": "Thanh toán",
+        "resolveConflicts": "Giải quyết trùng giờ",
+        "processing": "Đang xử lý…",
+        "bundleNote": "Khuyến mãi combo (eSIM, merch) sẽ tự áp dụng ở bước sau."
+      },
+      "toast": {
+        "updateFailed": "Không cập nhật được",
+        "orderFailed": "Không tạo được đơn hàng"
+      }
+    }
+  },
+  "nav": {
+    "tabs": {
+      "fixedTour": "Tour cố định",
+      "customizedTour": "Tour theo ý bạn",
+      "store": "Cửa hàng",
+      "cart": "Giỏ hàng",
+      "dashboard": "Bảng điều khiển",
+      "listings": "Danh sách",
+      "earnings": "Doanh thu",
+      "routes": "Lộ trình",
+      "home": "Trang chủ",
+      "myTours": "Tour của tôi",
+      "profile": "Hồ sơ",
+      "explore": "Khám phá",
+      "activities": "Hoạt động",
+      "letters": "Thư",
+      "saved": "Đã lưu",
+      "settings": "Cài đặt",
+      "messages": "Tin nhắn"
+    },
+    "menu": {
+      "openMenu": "Mở menu",
+      "primaryNav": "Điều hướng chính",
+      "accountNav": "Menu tài khoản & điều hướng",
+      "signOut": "Đăng xuất",
+      "signedIn": "Đã đăng nhập",
+      "cartBadge": "{count, plural, other {# món trong giỏ}}"
+    },
+    "topNav": {
+      "locomateHome": "Trang chủ Locomate"
+    }
+  },
+  "themeToggle": {
+    "eyebrow": "Giao diện",
+    "themeLight": "Nắng Sớm Tràng An",
+    "themeDark": "Đêm Sâu Phố Cổ",
+    "descLight": "Sắc kem ấm. Hơi ấm di sản.",
+    "descDark": "Rừng sơn mài. Chữ giấy bản.",
+    "modeLight": "Sáng",
+    "modeDark": "Tối",
+    "srLight": "Nắng Sớm Tràng An",
+    "srDark": "Đêm Sâu Phố Cổ",
+    "controlAria": "Chế độ giao diện"
+  },
+  "home": {
+    "locationPin": "Hà Nội",
+    "greeting": {
+      "eyebrow": "Xin chào, {name}",
+      "slogan": "Đi cho đúng, gặp cho trúng."
+    },
+    "chapter": {
+      "morning": { "long": "Cho buổi sáng nay", "short": "Sáng" },
+      "afternoon": { "long": "Cho buổi trưa nay", "short": "Trưa" },
+      "evening": { "long": "Cho tối nay", "short": "Tối" },
+      "personalisedSubtitle": "Sắp xếp theo gu của bạn",
+      "seeAll15": "Xem cả 15"
+    },
+    "subtitle": {
+      "v0": "Phở nóng hổi, ngõ nhỏ vẫy chào — đã sẵn sàng chưa?",
+      "v1": "Hôm nay lạc bước góc nào của Hà Nội cho vui?",
+      "v2": "Phố Cổ gọi tên rồi đấy, {name}!",
+      "v3": "Đi cố định hay tự ghép — đường nào cũng có hoa thơm trái ngọt."
+    },
+    "search": {
+      "aria": "Tìm trải nghiệm Hà Nội",
+      "placeholder": "Tìm Hà Nội — phở, workshop, địa điểm…"
+    },
+    "activeTrip": {
+      "eyebrow": "Một ngày của bạn ở Hà Nội",
+      "title": "Chân đã bước, đường đang chờ.",
+      "viewFull": "Xem toàn bộ lịch",
+      "fallbackStop": "Điểm dừng {n}",
+      "optimise": "Tối ưu lộ trình"
+    },
+    "twoPath": {
+      "fixed": {
+        "eyebrow": "Tour cố định",
+        "title": "Đã sắp đặt sẵn, đi là vui.",
+        "body": "Lộ trình chỉn chu, người dẫn bản địa đi cùng. Từ 480k — đáng đồng tiền bát gạo."
+      },
+      "flexible": {
+        "eyebrow": "Tour linh hoạt",
+        "title": "Tự ghép một ngày, vừa khít từng giờ.",
+        "body": "Vé và workshop trên một dòng thời gian. Hệ thống lo giùm bạn chuyện trùng giờ — đi đến nơi, về đến chốn."
+      }
+    },
+    "features": {
+      "eyebrow": "Locomate làm gì",
+      "title": "Sáu tính năng, một tấm lòng.",
+      "body": "Locomate là nền tảng du lịch chuẩn-mà-linh-hoạt. AI chỉ là người mách nước, không phải kẻ cầm cương.",
+      "aiMatch": {
+        "kicker": "AI Match",
+        "title": "Hợp gu mới hợp tình.",
+        "body": "Không phải hộp đen gợi ý. Một lời mách nước ngắn gọn — đúng nhịp, đúng gu, đúng tiếng, đúng đường.",
+        "tag": "AI · Có giải thích"
+      },
+      "fixed": {
+        "kicker": "Tour cố định",
+        "title": "Đã sắp đặt sẵn, đi là vui.",
+        "body": "Một khung chuẩn: 1 điểm tham quan + 1–2 workshop nhỏ + 1 bữa địa phương. Cùng dáng khác hồn, mỗi thành phố một vẻ.",
+        "tagFixed": "Cố định",
+        "tagGuide": "+ Người dẫn"
+      },
+      "flexible": {
+        "kicker": "Tour linh hoạt",
+        "title": "Tự ghép ngày, vừa khít từng giờ.",
+        "body": "Chọn điểm tham quan và workshop trên một timeline chung. Hệ thống lo chuyện tàu điện, giờ reset workshop — bạn cứ thong dong mà đi.",
+        "tagFlexible": "Linh hoạt",
+        "tagWorkshop": "Workshop"
+      },
+      "guides": {
+        "kicker": "Người dẫn địa phương",
+        "title": "Đúng người, đúng nẻo.",
+        "body": "Không chỉ là người trống lịch. Locomate gửi đến 1–2 người dẫn thật sự yêu chuyến đi của bạn, và nói rõ duyên cớ trước khi bạn chọn — buôn có bạn, đi có người.",
+        "tagGuide": "+ Người dẫn"
+      },
+      "esim": {
+        "kicker": "eSIM",
+        "title": "Vừa hạ cánh là có sóng.",
+        "body": "Đi kèm lịch trình. Tự bật khi xuống máy bay, đúng theo ngày tour. Khỏi xếp hàng ở quầy, khỏi mất công đổi sim.",
+        "tag": "eSIM 1GB / ngày"
+      },
+      "merch": {
+        "kicker": "Merch",
+        "title": "Mang một mảnh Hà Nội về nhà.",
+        "body": "Một kệ nho nhỏ các sản phẩm thiết kế bản địa — áo, mũ, gốm — giảm riêng cho khách của tour. Của ít lòng nhiều.",
+        "tag": "Merch"
+      }
+    },
+    "hiddenGems": {
+      "title": "Ngọc trong đá, hoa trong ngách",
+      "topChoice": "ĐƯỢC CHỌN"
+    },
+    "activities": {
+      "title": "Workshop & hoạt động",
+      "subtitle": "Chọn vé, ghép ngày, đi cho đã."
+    },
+    "hosts": {
+      "title": "Gặp người dẫn địa phương",
+      "subtitle": "Người Hà Nội đã xác minh — tự tay thiết kế, tự miệng kể chuyện.",
+      "verified": "Người dẫn đã xác minh",
+      "newHost": "Người dẫn mới",
+      "statLine": "{rating}★ · {tours} tour"
+    },
+    "merch": {
+      "title": "Merch Hà Nội",
+      "subtitle": "Đi cùng tour, vui đôi ngả — giảm tới 25%.",
+      "bundleBadge": "-{pct}% BUNDLE"
+    },
+    "esim": {
+      "title": "Ghép eSIM với bất kỳ tour nào.",
+      "subtitle": "Xuống máy bay là có sóng. Ghép tour bớt 10% — lợi cả đôi đường."
+    }
+  },
+  "profile": {
+    "title": "Hồ sơ",
+    "appSettingsAria": "Cài đặt ứng dụng",
+    "signOut": "Đăng xuất",
+    "sections": {
+      "personal": "Cá nhân",
+      "activity": "Hoạt động",
+      "accountSecurity": "Tài khoản & Bảo mật"
+    },
+    "personality": {
+      "eyebrow": "Tính cách du lịch",
+      "defaultLabel": "Lữ khách Hà Nội",
+      "localFit": "Hợp gu địa phương {score}%"
+    },
+    "preferences": {
+      "title": "Sở thích của tôi",
+      "fallback": "Đặt phong cách của bạn",
+      "budgetFallback": "ngân sách",
+      "eyebrow": "Sở thích",
+      "customisedTour": {
+        "eyebrow": "Customised tour",
+        "subtitle": "Locomate sẽ áp dụng các sở thích này khi bạn dựng Customised Tour. Bạn vẫn có thể đổi cho từng chuyến."
+      },
+      "matching": {
+        "eyebrow": "Matching engine",
+        "title": "Hồ sơ AI Match.",
+        "subtitle": "Các sở thích chung — quyết định những đề cử ban đầu."
+      },
+      "intent": {
+        "title": "Bạn đến Hà Nội vì điều gì?",
+        "helper": "Chọn tối đa 3",
+        "options": {
+          "relax": "Thư giãn & nạp năng lượng",
+          "culture": "Khám phá văn hoá",
+          "meet": "Gặp người mới",
+          "food": "Ăn uống",
+          "adventure": "Phiêu lưu"
+        }
+      },
+      "style": {
+        "title": "Phong cách của bạn",
+        "chill": "Thong dong",
+        "explore": "Khám phá",
+        "plan": "Lên kế hoạch chỉn chu",
+        "spontaneous": "Tuỳ hứng"
+      },
+      "interests": {
+        "title": "Sở thích",
+        "options": {
+          "streetFood": "Quà vặt phố",
+          "hiddenCafes": "Cà phê ẩn",
+          "temples": "Đền chùa",
+          "markets": "Chợ",
+          "photography": "Nhiếp ảnh",
+          "rooftops": "Sân thượng",
+          "art": "Nghệ thuật",
+          "nightlife": "Đời sống đêm"
+        }
+      },
+      "budget": {
+        "title": "Ngân sách mỗi ngày",
+        "options": {
+          "low": "$ Tiết kiệm",
+          "medium": "$$ Vừa phải",
+          "high": "$$$ Cao cấp"
+        }
+      },
+      "company": {
+        "title": "Đồng hành",
+        "options": {
+          "solo": "Một mình",
+          "meet_new": "Mở lòng",
+          "group": "Theo nhóm"
+        }
+      },
+      "timePref": {
+        "title": "Khung giờ ưa thích",
+        "options": {
+          "morning": "Sáng",
+          "afternoon": "Trưa",
+          "evening": "Chiều tối",
+          "late_night": "Đêm muộn"
+        }
+      },
+      "saveButton": {
+        "idle": "Lưu & cập nhật tính cách",
+        "pending": "Đang lưu..."
+      },
+      "toast": {
+        "savedWithLabel": "Đã lưu sở thích! Bạn là: {label}",
+        "saveFailed": "Lưu sở thích thất bại",
+        "tourPrefsSaved": "Sở thích đã lưu. Locomate sẽ ghi nhớ cho hành trình tới.",
+        "tourPrefsSaveFailed": "Lưu sở thích tour thất bại"
+      },
+      "tourForm": {
+        "guideStyle": {
+          "eyebrow": "Mạng lưới người dẫn đường",
+          "title": "Phong cách HDV",
+          "sub": "Bạn muốn ai đồng hành?"
+        },
+        "meal": {
+          "eyebrow": "Thiết lập khẩu vị",
+          "title": "Khẩu vị",
+          "sub": "Để nhà hàng và nghệ nhân chuẩn bị đúng vị.",
+          "vegetarian": "Ăn chay thanh tịnh",
+          "noSpice": "Không cay",
+          "allergiesLabel": "Dị ứng thực phẩm",
+          "allergyPlaceholder": "Thêm dị ứng khác…",
+          "addAllergy": "Thêm",
+          "removeAllergyAria": "Xoá {item}"
+        },
+        "route": {
+          "eyebrow": "Bản đồ định tuyến",
+          "title": "Di chuyển",
+          "sub": "Bạn muốn di chuyển bằng gì?"
+        },
+        "groupSize": {
+          "eyebrow": "Quy mô tri âm",
+          "title": "Nhóm đi",
+          "sub": "Đi cùng bao nhiêu người?"
+        },
+        "save": {
+          "idle": "Lưu sở thích",
+          "pending": "Đang lưu…"
+        }
+      }
+    },
+    "stats": {
+      "savedPlaces": "ĐỊA ĐIỂM ĐÃ LƯU",
+      "toursTaken": "TOUR ĐÃ ĐI",
+      "experiences": "TRẢI NGHIỆM"
+    },
+    "activity": {
+      "savedPlaces": {
+        "title": "Địa điểm đã lưu",
+        "count": "{count, plural, other {# địa điểm}}"
+      },
+      "tourHistory": {
+        "title": "Lịch sử tour",
+        "count": "{count, plural, other {# tour đã hoàn thành}}"
+      }
+    },
+    "rows": {
+      "securitySettings": "Bảo mật",
+      "paymentHistory": "Lịch sử thanh toán",
+      "vietnamEsim": "eSIM Việt Nam"
+    },
+    "emergency": {
+      "title": "Liên hệ khẩn cấp",
+      "addContact": "Thêm liên hệ",
+      "addCta": "+ Thêm liên hệ khẩn cấp",
+      "add": "Thêm",
+      "primary": "Chính",
+      "nameLabel": "Tên",
+      "phoneLabel": "Điện thoại",
+      "relationshipLabel": "Mối quan hệ",
+      "relationshipMotherPlaceholder": "VD: Mẹ",
+      "relationshipFriendPlaceholder": "VD: Bạn",
+      "contactNamePlaceholder": "Tên liên hệ",
+      "toastAdded": "Đã thêm liên hệ",
+      "toastUpdated": "Đã cập nhật liên hệ",
+      "toastRemoved": "Đã xoá liên hệ"
+    },
+    "spokenLanguages": {
+      "title": "Ngôn ngữ bạn nói",
+      "subtitle": "Để người dẫn chào bạn bằng tiếng mẹ đẻ — tiếng nào nhà ấy.",
+      "summaryEmpty": "Thêm ngôn ngữ",
+      "summaryCount": "Đã chọn {count}",
+      "toastSaved": "Đã lưu ngôn ngữ",
+      "toastError": "Không lưu được ngôn ngữ"
+    }
+  },
+  "settings": {
+    "eyebrow": "Cài đặt",
+    "title": "Tinh chỉnh chuyến đi.",
+    "deleteAccount": "Xoá tài khoản",
+    "sections": {
+      "appearance": "Giao diện",
+      "account": "Tài khoản",
+      "notifications": "Thông báo",
+      "privacy": "Quyền riêng tư",
+      "about": "Giới thiệu"
+    },
+    "nickname": {
+      "eyebrow": "Danh xưng",
+      "helper": "Locomate sẽ gọi bạn bằng tên này trong app, email, và thư cảm ơn.",
+      "placeholder": "Ví dụ: Kẻ lữ hành",
+      "save": "Lưu danh xưng",
+      "saving": "Đang lưu…",
+      "clear": "Xoá",
+      "toastSaved": "Locomate sẽ gọi bạn như thế từ giờ.",
+      "toastError": "Không lưu được danh xưng"
+    },
+    "account": {
+      "displayName": "Tên hiển thị",
+      "email": "Email",
+      "changePassword": "Đổi mật khẩu",
+      "changePasswordSoon": "Tính năng đổi mật khẩu sắp ra mắt",
+      "switchToTraveler": {
+        "label": "Chuyển sang chế độ lữ khách",
+        "helper": "Tạm nghỉ vai trò host, dạo Hà Nội như một lữ khách.",
+        "dialogTitle": "Chuyển sang chế độ lữ khách?",
+        "dialogPauseProfile": "Hồ sơ host của bạn sẽ tạm dừng — không hiện trong matching hay /hosts.",
+        "dialogDraftListings": "{count, plural, =0 {Không có tour đã đăng nào để chuyển.} other {# tour đã đăng sẽ trở về bản nháp.}}",
+        "dialogReversible": "Bạn có thể quay lại làm host bất cứ lúc nào. Trạng thái xác minh vẫn được giữ.",
+        "confirm": "Chuyển sang lữ khách",
+        "cancel": "Vẫn làm host",
+        "toastSuccess": "Mừng bạn quay lại. Giờ bạn là một lữ khách.",
+        "toastError": "Không chuyển được sang lữ khách. Vui lòng thử lại."
+      }
+    },
+    "notifications": {
+      "push": "Thông báo đẩy",
+      "emailDigest": "Tóm tắt email"
+    },
+    "privacy": {
+      "locationSharing": "Chia sẻ vị trí",
+      "dataUsage": "Sử dụng dữ liệu",
+      "dataUsageSoon": "Chi tiết sử dụng dữ liệu sắp ra mắt"
+    },
+    "about": {
+      "version": "Phiên bản",
+      "terms": "Điều khoản dịch vụ",
+      "termsSoon": "Trang điều khoản dịch vụ sắp ra mắt",
+      "privacy": "Chính sách riêng tư",
+      "privacySoon": "Trang chính sách riêng tư sắp ra mắt",
+      "licenses": "Giấy phép",
+      "licensesSoon": "Trang giấy phép sắp ra mắt"
+    },
+    "appLanguage": {
+      "eyebrow": "Ngôn ngữ ứng dụng",
+      "aria": "Ngôn ngữ ứng dụng",
+      "toastError": "Không đồng bộ được ngôn ngữ vào tài khoản",
+      "label": {
+        "en": "English",
+        "vi": "Tiếng Việt"
+      },
+      "sub": {
+        "en": "App in English",
+        "vi": "Ứng dụng tiếng Việt"
+      }
+    }
+  },
+  "experiences": {
+    "anchorAria": "Nhảy tới chương",
+    "tourCount": "{count, plural, other {# tour}}",
+    "matchBadge": "{pct}% khớp",
+    "matchAria": "Khớp {pct}%",
+    "durationMax": "{hours}h · Tối đa {max}",
+    "topMatch": {
+      "eyebrow": "Lựa chọn dành cho bạn",
+      "matchSuffix": "Khớp {pct}%",
+      "whyItFitsTwo": "Khớp mạnh với gu <em>{axisOne}</em> và <em>{axisTwo}</em> của bạn.",
+      "whyItFitsOne": "Khớp mạnh với gu <em>{axisOne}</em> của bạn.",
+      "durationMaxPrice": "{hours}h · Tối đa {max} · {price}",
+      "viewCta": "Xem tour này",
+      "browseCta": "Xem tất cả các tour khớp",
+      "axis": {
+        "art": "Mỹ thuật",
+        "history": "Di sản",
+        "culinary": "Ẩm thực",
+        "slowLiving": "Sống chậm"
+      },
+      "quizPrompt": {
+        "eyebrow": "Gợi ý riêng · Đang khoá",
+        "title": "5 phút để chúng mình hiểu gu của bạn.",
+        "subtitle": "Trả lời khảo sát một lần. Mỗi Fixed Tour sẽ được xếp theo gu của bạn — tour khớp nhất sẽ luôn ở đầu trang.",
+        "cta": "Làm khảo sát"
+      }
+    },
+    "hero": {
+      "eyebrow": "Tour cố định",
+      "slogan": "Ăn tùy nơi, chơi tùy gu.",
+      "subtitle": "15 chuyến đã chỉn chu sẵn sàng. Sáng – trưa – tối có nhịp riêng, mỗi nhịp một gu.",
+      "personalised": "Đang sắp theo gu của bạn — tour khớp nhất đứng đầu mỗi chương.",
+      "retakeQuiz": "Chưa đúng gu? Thử lại tính cách khác"
+    },
+    "chapters": {
+      "morning": {
+        "shortLabel": "Sáng · 06:00",
+        "title": "Bình minh lên phố",
+        "tagline": "Nắng sớm · 06:00 – 11:30 · trong veo như sương"
+      },
+      "afternoon": {
+        "shortLabel": "Trưa · 13:30",
+        "title": "Nắng trưa thong dong",
+        "tagline": "Lớp thợ · 13:30 – 17:30 · chạm vào ký ức"
+      },
+      "evening": {
+        "shortLabel": "Tối · 18:00",
+        "title": "Lên đèn chớm đêm",
+        "tagline": "Ngách phố · 18:00 – 22:30 · hương men nồng say"
+      }
+    },
+    "hosts": {
+      "eyebrow": "Người Hà Nội",
+      "shortLabel": "Tour địa phương",
+      "slogan": "Đi với người bản địa.",
+      "subtitle": "Người Hà Nội tự tay thiết kế, tự miệng kể chuyện. Không vé, không xếp hàng — bàn ăn của riêng bạn, một ngày của riêng bạn.",
+      "hostBadge": "Host",
+      "hostedBy": "Do <name></name> dẫn",
+      "durationMinutes": "{m} phút",
+      "maxGroupSize": "Tối đa {max}"
+    }
+  },
+  "publicShell": {
+    "ctaTitle": "Khám phá Hà Nội của riêng bạn.",
+    "ctaSubtitle": "Tài khoản miễn phí · tour theo gu của bạn",
+    "ctaButton": "Đăng ký miễn phí"
+  },
+  "esim": {
+    "hero": {
+      "eyebrow": "eSIM · Cung cấp bởi GoHub",
+      "title": "Hạ cánh là online.",
+      "subtitle": "Chọn gói, quét mã QR, ra khỏi sân bay đã có 4G/5G Việt Nam trong tay. Ghép cùng tour bất kỳ — nhất cử lưỡng tiện, giảm thêm 10%.",
+      "badges": {
+        "instant": "Kích hoạt tức thì",
+        "noSim": "Khỏi cần SIM vật lý",
+        "onLanding": "Tự bật khi hạ cánh"
+      }
+    },
+    "plans": {
+      "eyebrow": "Chọn một gói",
+      "title": "Bốn cỡ, một mã QR.",
+      "popularBadge": "Được chọn nhiều",
+      "durationLabel": "{data} trong {days} ngày",
+      "dataGb": "{gb} GB",
+      "dataUnlimited": "Không giới hạn",
+      "saveBadge": "Giảm 10% khi ghép cùng tour.",
+      "addToCart": "Thêm vào giỏ",
+      "adding": "Đang thêm…",
+      "name": {
+        "quickTrip": "Đi nhanh",
+        "explorer": "Khám phá",
+        "extendedStay": "Ở dài ngày",
+        "unlimited": "Không giới hạn"
+      },
+      "toast": {
+        "added": "Đã thêm eSIM vào giỏ. Ghép cùng tour bớt 10% — lợi đôi đường.",
+        "addFailed": "Không thêm được eSIM"
+      }
+    },
+    "howItWorks": {
+      "eyebrow": "Cách thức",
+      "title": "Ba bước. Hai phút.",
+      "step1Title": "Chọn gói",
+      "step1Desc": "Chọn gói data hợp với độ dài chuyến đi.",
+      "step2Title": "Nhận mã QR",
+      "step2Desc": "Gửi tới email của bạn ngay sau khi mua.",
+      "step3Title": "Quét & kết nối",
+      "step3Desc": "Mở cài đặt điện thoại, quét mã QR — thế là online."
+    },
+    "faq": {
+      "eyebrow": "Hỏi đáp",
+      "title": "Hỏi nhanh, đáp gọn.",
+      "q1": "eSIM là gì?",
+      "a1": "eSIM là SIM dạng số, cho phép bạn kích hoạt gói cước mà khỏi cần thẻ SIM vật lý. Phần lớn điện thoại ra mắt từ 2018 đều hỗ trợ eSIM.",
+      "q2": "Tôi kích hoạt thế nào?",
+      "a2": "Sau khi mua, bạn nhận một mã QR. Quét mã trong phần Cài đặt điện thoại là kích hoạt được gói data Việt Nam — chỉ tầm 2 phút, dễ như ăn bánh.",
+      "q3": "Điện thoại của tôi có dùng được không?",
+      "a3": "eSIM dùng được trên iPhone XS trở lên, Samsung Galaxy S20+, Google Pixel 3+ và hầu hết Android đời mới. Xem danh sách đầy đủ tại gohub.com.",
+      "q4": "Khi nào nên kích hoạt?",
+      "a4": "Mua bất cứ lúc nào, kích hoạt khi vừa hạ cánh ở Việt Nam. Gói bắt đầu đếm ngày từ khoảnh khắc bạn kích hoạt."
+    },
+    "browseAll": "Xem tất cả gói eSIM Việt Nam",
+    "affiliateDisclosure": "Cung cấp bởi GoHub. Locomate có thể nhận hoa hồng từ các đơn hàng mua qua liên kết này."
+  },
+  "shop": {
+    "eyebrow": "Cửa hàng",
+    "hero": "Mang một mảnh Hà Nội về nhà.",
+    "subtitle": "Thiết kế ở Hà Nội, sản xuất tại Bắc Ninh. Ghép cùng một tour để được giảm thêm.",
+    "empty": "Chưa có sản phẩm trong danh mục này.",
+    "bundleBadge": "−{pct}% kèm tour",
+    "filters": {
+      "all": "Tất cả",
+      "apparel": "Trang phục",
+      "accessories": "Phụ kiện",
+      "souvenirs": "Quà lưu niệm",
+      "prints": "Tranh in"
+    },
+    "detail": {
+      "notFound": "Không tìm thấy sản phẩm.",
+      "backToList": "← Quay lại cửa hàng",
+      "variant": "Phiên bản",
+      "quantity": "Số lượng",
+      "total": "Tổng",
+      "inStock": "Còn hàng",
+      "onlyNLeft": "Chỉ còn {n}"
+    }
+  },
+  "store": {
+    "eyebrow": "Cửa hàng",
+    "hero": "Mang một mảnh Hà Nội về nhà.",
+    "subtitle": "Đồ lưu niệm do nghệ nhân địa phương thiết kế, eSIM dùng là chạy. Ghép cùng một tour để được giảm thêm một chút lòng cảm ơn.",
+    "tiles": {
+      "merch": {
+        "eyebrow": "Đồ lưu niệm",
+        "title": "Đồ thủ công Hà Nội",
+        "blurb": "Trang phục, tranh in và quà nhỏ từ các xưởng nghệ nhân Hà Nội."
+      },
+      "esim": {
+        "eyebrow": "Kết nối",
+        "title": "eSIM Việt Nam",
+        "blurb": "Kích hoạt trước khi hạ cánh. Từ 145.000₫ cho một tuần dữ liệu."
+      },
+      "browse": "Khám phá"
+    },
+    "trending": {
+      "title": "Đang được yêu thích",
+      "seeAll": "Xem tất cả →"
+    }
+  },
+  "tours": {
+    "eyebrow": "Hành trình của tôi",
+    "hero": "Những chuyến đi bạn đã đi qua.",
+    "untitledFallback": "Chuyến đi Hà Nội",
+    "stopsCount": "{n, plural, other {# điểm dừng}}",
+    "completedBadge": "Đã hoàn thành",
+    "empty": {
+      "eyebrow": "Chưa có chuyến đi nào",
+      "title": "Hà Nội sẵn sàng khi bạn sẵn sàng.",
+      "body": "Chọn một Fixed Tour có sẵn, hoặc tự ghép hành trình từ các hoạt động à-la-carte. Phần còn lại Locomate dẫn bạn đi.",
+      "ctaPrimary": "Xem tour có sẵn",
+      "ctaSecondary": "Khám phá Hà Nội"
+    }
+  },
+  "wrapUp": {
+    "stats": {
+      "eyebrow": "Hành trình thu nhỏ",
+      "totalTime": "{n, plural, =0 {0 phút} =1 {1 phút} other {# phút}}",
+      "totalTimeHours": "{h, plural, =1 {1 giờ} other {# giờ}} {m, plural, =0 {} =1 {1 phút} other {# phút}}",
+      "totalStops": "{n, plural, =0 {0 điểm dừng} =1 {1 điểm dừng} other {# điểm dừng}}",
+      "totalKm": "{km} km đã đi",
+      "personaTitle": "Hôm nay bạn là",
+      "personaTitles": {
+        "art_aesthetic": "Kẻ say mê cái đẹp",
+        "deep_history": "Người giữ chuyện cũ",
+        "culinary": "Kẻ săn vị phố",
+        "slow_living": "Kẻ lữ hành mộng mơ",
+        "balanced": "Người lữ hành phóng khoáng"
+      }
+    },
+    "coupon": {
+      "yourGift": "Một món quà nhỏ",
+      "discountN": "Giảm {pct}% cho hành trình tiếp theo",
+      "expires": "Có hiệu lực đến {date}",
+      "copy": "Sao chép mã",
+      "copied": "Đã sao chép mã coupon",
+      "copyFailed": "Không sao chép được — bạn copy thủ công giúp tụi mình nhé."
+    }
+  },
+  "letter": {
+    "waxSealLabel": "Dấu mộc Locomate",
+    "brandOpening": "Chào {nickname}, hành trình vạn dặm nào cũng bắt đầu từ một bước chân, và Locomate rất vinh hạnh được là người đồng hành trong bước chân khám phá hôm nay của bạn. Cảm ơn bạn vì đã cùng tụi mình len lỏi qua từng góc phố.",
+    "greetingEyebrow": "Gửi đến {nickname}",
+    "visitedEyebrow": "Đã ghé",
+    "shareCta": "Tải ảnh / Chia sẻ lên Story",
+    "shareTitle": "Một lá thư từ Locomate",
+    "shareText": "Một mảnh ký ức từ hành trình hôm nay cùng Locomate.",
+    "shareDone": "Đã chia sẻ",
+    "shareDownloaded": "Đã lưu thành ảnh",
+    "shareFailed": "Không chia sẻ được lá thư — bạn thử lại nhé."
+  },
+  "checkout": {
+    "coupon": {
+      "title": "Mã ưu đãi",
+      "placeholder": "WRAP-XXXXXX",
+      "apply": "Áp dụng",
+      "checking": "Đang kiểm tra…",
+      "remove": "Bỏ áp dụng",
+      "applied": "−{pct}% áp dụng",
+      "subtotal": "Tạm tính",
+      "discountLine": "Ưu đãi Wrap-up ({pct}%)",
+      "invalidFormat": "Mã có dạng WRAP-XXXXXX nhé.",
+      "invalidExpired": "Mã này đã hết hạn.",
+      "invalidUsed": "Mã này đã được sử dụng.",
+      "invalidNotYours": "Mã này thuộc về một lữ khách khác.",
+      "invalidTour": "Mã này chưa dùng được cho tour này.",
+      "invalidGeneric": "Tiếc quá, mã này không hợp lệ."
+    }
+  },
+  "activities": {
+    "category": {
+      "workshop": "Workshop",
+      "food": "Ẩm thực",
+      "culinary": "Ẩm thực",
+      "cultural": "Văn hoá",
+      "adventure": "Phiêu lưu",
+      "nightlife": "Về đêm",
+      "art": "Nghệ thuật",
+      "tour_lite": "Tour ngắn",
+      "ticket": "Vé trải nghiệm",
+      "performance": "Trình diễn",
+      "class": "Lớp học"
+    },
+    "atom": {
+      "fromTour": "Mảnh ghép từ tour: {tour}"
+    },
+    "detail": {
+      "notFound": "Không tìm thấy hoạt động",
+      "backToList": "← Quay lại danh sách hoạt động",
+      "hostedBy": "Do {name} dẫn",
+      "aLocal": "người địa phương",
+      "viewProfile": "· Xem hồ sơ →",
+      "durationHours": "{h} tiếng",
+      "durationHoursMinutes": "{h} tiếng {m} phút",
+      "upToGuests": "tối đa {n} khách",
+      "rating": "★ {rating}",
+      "highlights": "Điểm nổi bật",
+      "pickTime": "Chọn thời gian",
+      "noSlots": "Hiện chưa có lịch khả dụng. Vui lòng quay lại sau hoặc liên hệ chủ trải nghiệm.",
+      "noSlotsButton": "Tạm hết lịch",
+      "seatsLeft": "còn {n}",
+      "guests": "Số khách",
+      "upToPerSlot": "Tối đa {n} mỗi suất",
+      "upToN": "Tối đa {n}",
+      "addLocalGuide": "Thêm hướng dẫn viên địa phương",
+      "guideLanguages": "Thuyết minh tiếng Anh + tiếng Việt",
+      "from": "Từ",
+      "perGuest": "mỗi khách",
+      "localGuide": "Hướng dẫn viên",
+      "total": "Tổng",
+      "noChargeYet": "Bạn chưa bị tính phí cho đến khi thanh toán."
+    },
+    "list": {
+      "heading": "Hoạt động",
+      "subtitle": "Vé lẻ, workshop và lớp học — ghép vào ngày của bạn theo cách bạn thích.",
+      "filters": {
+        "all": "Tất cả",
+        "workshops": "Workshop",
+        "tickets": "Vé",
+        "food": "Ẩm thực",
+        "walking": "Đi bộ",
+        "performance": "Trình diễn",
+        "classes": "Lớp học"
+      },
+      "empty": {
+        "title": "Chưa có hoạt động trong nhóm này",
+        "subtitle": "Thử chọn nhóm khác phía trên."
+      },
+      "category": {
+        "workshop": "Workshop",
+        "ticket": "Vé",
+        "food": "Ẩm thực",
+        "tour_lite": "Đi bộ",
+        "performance": "Trình diễn",
+        "class": "Lớp học",
+        "cultural": "Văn hoá",
+        "culinary": "Ẩm thực",
+        "adventure": "Phiêu lưu",
+        "nightlife": "Về đêm",
+        "art": "Nghệ thuật"
+      }
+    }
+  },
+  "fixedTour": {
+    "chapter": {
+      "MORNING_SHIFT": "Bình minh lên phố",
+      "AFTERNOON_SHIFT": "Nắng trưa thong dong",
+      "EVENING_SHIFT": "Lên đèn chớm đêm"
+    },
+    "matchPill": "{pct}% khớp với gu của bạn",
+    "facts": {
+      "duration": "Thời lượng",
+      "durationValue": "{hours} giờ",
+      "groupSize": "Nhóm tối đa",
+      "groupSizeValue": "{n, plural, other {# khách}}",
+      "pricePerPerson": "Giá / người"
+    },
+    "itinerary": {
+      "title": "Hành trình",
+      "kickoff": "Khởi cuộc",
+      "offset": "+{h, plural, =0 {} other {#h}}{m, plural, =0 {} other {#m}}",
+      "stepCount": "{n, plural, other {# chặng}}"
+    },
+    "tags": {
+      "title": "Chất liệu"
+    },
+    "book": {
+      "title": "Đặt tour",
+      "dateLabel": "Ngày",
+      "startTimeLabel": "Giờ bắt đầu",
+      "groupSizeLabel": "Số khách",
+      "totalLabel": "Tổng",
+      "pricePerCount": "{price} × {n, plural, other {# khách}}",
+      "cta": "Đặt tour",
+      "ctaPending": "Đang giữ chỗ…",
+      "errorFallback": "Không đặt được tour",
+      "minParticipantsHint": "Tối thiểu {n} người",
+      "soloEscape": "Đi một mình? Tự xếp lịch tại Tour tự thiết kế →",
+      "minParticipantsError": "Tour này cần ít nhất {n} người. Hãy thử Tour tự thiết kế để xếp một lịch trình y hệt cho riêng bạn."
+    },
+    "story": {
+      "readEnglish": "Read in English →",
+      "readVietnamese": "← Đọc tiếng Việt"
+    }
+  },
+  "auth": {
+    "login": {
+      "welcomeBack": "Đi xa rồi lại về — vui quá đi thôi!",
+      "continueAdventure": "Hà Nội còn ngỏ, chân còn đi.",
+      "emailLabel": "Email",
+      "emailPlaceholder": "ban@example.com",
+      "passwordLabel": "Mật khẩu",
+      "passwordPlaceholder": "Mật khẩu của bạn",
+      "signIn": "Đăng nhập",
+      "signingIn": "Đang đăng nhập…",
+      "welcome": "Chào bạn, vào nhà thôi!",
+      "orContinue": "hoặc đăng nhập bằng",
+      "continueWithGoogle": "Tiếp tục với Google",
+      "appleSoon": "Đăng nhập Apple sắp ra mắt",
+      "appleSoonTooltip": "Đăng nhập Apple đang sắp ra mắt",
+      "noAccount": "Chưa có tài khoản? <link>Tạo mới</link>",
+      "trustLine": "996 địa điểm thật ở Hà Nội. 6 trải nghiệm tuyển chọn — đi cho đúng, gặp cho trúng.",
+      "oauthError": {
+        "email_exists": "Email này đã đăng ký kèm mật khẩu. Hãy đăng nhập bằng mật khẩu bên dưới.",
+        "email_exists_with_email": "Email {email} đã đăng ký kèm mật khẩu. Hãy đăng nhập bằng mật khẩu bên dưới.",
+        "access_denied": "Đã huỷ đăng nhập Google. Bạn có thể thử lại bất cứ lúc nào.",
+        "state": "Phiên đăng nhập đã hết hạn hoặc bị thay đổi. Vui lòng thử lại.",
+        "token": "Không xác minh được tài khoản Google. Vui lòng thử lại.",
+        "exchange": "Không xác minh được tài khoản Google. Vui lòng thử lại.",
+        "server": "Có lỗi từ phía chúng tôi. Vui lòng thử lại sau giây lát.",
+        "not_configured": "Đăng nhập Google chưa được bật ở bản deploy này. Hãy dùng email và mật khẩu.",
+        "unverified_google": "Google chưa xác minh email này. Hãy xác minh với Google rồi thử lại.",
+        "inactive": "Tài khoản này đã bị khoá. Liên hệ hỗ trợ nếu bạn cho rằng có nhầm lẫn.",
+        "handoff": "Liên kết đăng nhập đã hết hạn. Vui lòng đăng nhập lại."
+      }
+    },
+    "register": {
+      "hero": "Đi một ngày đàng, học một sàng khôn.",
+      "subhero": "Tìm bạn đồng hành giữa lòng phố cổ.",
+      "roles": {
+        "traveler": "Du khách",
+        "host": "Người dẫn địa phương"
+      },
+      "displayNameLabel": "Tên hiển thị",
+      "displayNamePlaceholder": "Tên của bạn",
+      "emailLabel": "Email",
+      "emailPlaceholder": "ban@example.com",
+      "passwordLabel": "Mật khẩu",
+      "passwordPlaceholder": "Tối thiểu 8 ký tự",
+      "createAccount": "Tạo tài khoản",
+      "creating": "Đang tạo tài khoản…",
+      "orSignUp": "hoặc đăng ký bằng",
+      "signUpWithGoogle": "Đăng ký với Google",
+      "appleSoon": "Đăng nhập Apple sắp ra mắt",
+      "appleSoonTooltip": "Đăng nhập Apple đang sắp ra mắt",
+      "haveAccount": "Đã có tài khoản? <link>Đăng nhập</link>",
+      "trustLine": "996 địa điểm thật ở Hà Nội. 6 trải nghiệm tuyển chọn. Riêng tư của bạn — vẫn là của bạn, không sang ai cả."
+    },
+    "complete": {
+      "signingIn": "Đang mở cửa cho bạn vào nhà…"
+    }
+  },
+  "plan": {
+    "topMatch": {
+      "eyebrow": "Mẫu lịch trình dành cho bạn",
+      "matchSuffix": "Khớp {pct}%",
+      "whyItFitsTwo": "Khớp mạnh với gu <em>{axisOne}</em> và <em>{axisTwo}</em> của bạn.",
+      "whyItFitsOne": "Khớp mạnh với gu <em>{axisOne}</em> của bạn.",
+      "durationMaxPrice": "~{hours}h · Nhóm {max} người · từ {price}",
+      "viewCta": "Mở mẫu này",
+      "browseCta": "Tự ghép từ các trải nghiệm",
+      "axis": {
+        "art": "Mỹ thuật",
+        "history": "Di sản",
+        "culinary": "Ẩm thực",
+        "slowLiving": "Sống chậm"
+      },
+      "quizPrompt": {
+        "eyebrow": "Gợi ý riêng · Đang khoá",
+        "title": "5 phút để chúng mình hiểu gu của bạn.",
+        "subtitle": "Trả lời khảo sát một lần. Mỗi mẫu sẽ được xếp theo gu của bạn — mẫu khớp nhất sẽ luôn ở đầu trang.",
+        "cta": "Làm khảo sát"
+      }
+    },
+    "template": {
+      "eyebrow": "Mẫu lịch trình tuỳ chỉnh",
+      "matchBadge": "Khớp {pct}%",
+      "durationLabel": "Thời lượng gợi ý",
+      "durationValue": "~{hours} giờ",
+      "groupLabel": "Phù hợp cho",
+      "groupValue": "{max, plural, =1 {1 người} other {nhóm # người}}",
+      "priceLabel": "Ngân sách ước tính",
+      "priceValueFrom": "Từ {price}",
+      "themeLabel": "Chủ đề",
+      "themeValue": {
+        "heritage": "Di sản",
+        "food": "Ẩm thực",
+        "craft": "Thủ công",
+        "quiet": "Chậm rãi",
+        "social": "Sôi động",
+        "balanced": "Cân bằng"
+      },
+      "primaryCta": "Bắt đầu một ngày từ mẫu này",
+      "primaryCtaHint": "Chúng mình sẽ gợi ý các trải nghiệm khớp mẫu này — bạn vẫn toàn quyền chỉnh giỏ hàng.",
+      "secondaryCta": "Xem tất cả trải nghiệm",
+      "backCta": "Quay lại danh sách mẫu",
+      "notFound": "Không tìm thấy mẫu này. Có thể đã được gỡ xuống.",
+      "loading": "Đang tải mẫu…"
+    },
+    "build": {
+      "recipes": {
+        "eyebrow": "Cẩm nang hướng dẫn",
+        "title": "Công thức xếp lịch.",
+        "expand": "Mở cẩm nang",
+        "collapse": "Thu lại",
+        "soloNudge": "Bạn đi một mình? Đừng lo — các Tour cố định (Fixed Tour) yêu cầu tối thiểu từ 2 người trở lên, nhưng bạn hoàn toàn có thể dùng tính năng Tự thiết kế (Customized Tour) này để xếp một lịch trình y hệt cho riêng 1 mình bạn khám phá!",
+        "empty": "Chưa có công thức nào sẵn sàng. Quay lại sau nhé.",
+        "noSteps": "Tour này chưa có bước được công bố.",
+        "recipeMeta": "~{minutes} phút · từ {price}",
+        "stepOffset": "Mốc",
+        "addToDay": "Thêm vào ngày",
+        "comingSoon": "Đang cập nhật",
+        "viewFullTour": "Xem cả lịch trình →"
+      }
+    }
+  },
+  "host": {
+    "dashboard": {
+      "welcomeBack": "Chào mừng trở lại,",
+      "hostFallback": "Host",
+      "toast": {
+        "acceptingOn": "Đang nhận yêu cầu mới",
+        "acceptingOff": "Đã tạm dừng nhận yêu cầu",
+        "acceptingFailed": "Không cập nhật được trạng thái"
+      },
+      "setup": {
+        "title": "Hoàn tất hồ sơ host",
+        "body": "Bạn đăng nhập với vai trò host nhưng chưa hoàn thiện hồ sơ. Hoàn tất wizard để bắt đầu nhận tour.",
+        "cta": "Mở thiết lập host"
+      },
+      "stats": {
+        "todayVnd": "Hôm nay (VND)",
+        "rating": "Đánh giá",
+        "totalTours": "Tổng tour"
+      },
+      "balance": {
+        "title": "Số dư của bạn",
+        "viewEarnings": "Xem doanh thu →",
+        "available": "Khả dụng",
+        "readyToPayout": "Sẵn sàng chi trả",
+        "pending": "Chờ xử lý",
+        "awaitingCompletion": "Đợi tour hoàn thành",
+        "inReview": "Đang xem xét",
+        "processing": "Thanh toán đang xử lý",
+        "nextPayout": "Lần chi trả tới",
+        "firstPayoutHint": "Hoàn thành một tour để nhận lần chi trả đầu tiên"
+      },
+      "availability": {
+        "title": "Nhận yêu cầu",
+        "openBody": "Khách có thể đặt tour của bạn hôm nay.",
+        "pausedBody": "Bạn đang tạm dừng. Bật lên để nhận đặt tour mới."
+      },
+      "draftPrompt": {
+        "title": "{count, plural, other {Bạn có # bản nháp cần đăng}}",
+        "body": "Hoàn thiện nội dung để bắt đầu nhận đặt tour."
+      },
+      "marketplace": {
+        "eyebrow": "Marketplace",
+        "title": "Trải nghiệm của tôi",
+        "published": "{count, plural, other {# đã đăng}}",
+        "draft": "{count, plural, other {# bản nháp}}",
+        "archived": "{count, plural, other {# đã lưu trữ}}"
+      },
+      "today": {
+        "title": "Đặt tour hôm nay",
+        "untitledTour": "Tour Hà Nội tuỳ chỉnh",
+        "travelerFallback": "một lữ khách",
+        "withTraveler": "với {name}",
+        "atTime": " lúc {time}",
+        "statusInProgress": "Đang diễn ra",
+        "statusConfirmed": "Đã xác nhận",
+        "empty": {
+          "title": "Hôm nay chưa có đặt tour",
+          "body": "Nghỉ một ngày, hoặc xem lịch sắp tới của bạn."
+        }
+      },
+      "upcoming": {
+        "title": "Sắp tới",
+        "seeAll": "Xem tất cả",
+        "guests": "{n, plural, other {# khách}}"
+      },
+      "browseMarketplace": {
+        "title": "Khám phá marketplace",
+        "body": "Xem các host khác đang cung cấp gì."
+      },
+      "actions": {
+        "updateProfile": "Cập nhật hồ sơ",
+        "accountSecurity": "Bảo mật tài khoản"
+      }
+    },
+    "bookings": {
+      "title": "Đặt tour",
+      "backToDashboard": "Quay lại bảng điều khiển",
+      "hostOnly": "Bạn cần đăng nhập với vai trò host để xem đặt tour.",
+      "untitledTour": "Tour Hà Nội tuỳ chỉnh",
+      "travelerFallback": "Lữ khách",
+      "guests": "{n, plural, other {# khách}}",
+      "speaks": "Nói",
+      "dateTbd": "Chưa rõ ngày",
+      "tabs": {
+        "upcoming": "Sắp tới",
+        "past": "Đã qua"
+      },
+      "empty": {
+        "upcomingTitle": "Chưa có đặt tour sắp tới",
+        "upcomingBody": "Khi có lữ khách đặt tour, họ sẽ hiện ở đây. Đảm bảo trải nghiệm của bạn đã đăng và bạn đang nhận yêu cầu.",
+        "pastTitle": "Chưa có đặt tour đã qua",
+        "pastBody": "Khi bạn đã dẫn tour đầu tiên, nó sẽ xuất hiện ở đây.",
+        "manageListings": "Quản lý trải nghiệm →"
+      }
+    },
+    "earnings": {
+      "title": "Doanh thu",
+      "backToDashboard": "← Bảng điều khiển",
+      "hostOnly": "Bạn cần đăng nhập với vai trò host để xem doanh thu.",
+      "periodAria": "Khoảng thời gian doanh thu",
+      "period": {
+        "last7": "7 ngày qua",
+        "last30": "30 ngày qua",
+        "last90": "90 ngày qua",
+        "lastYear": "Năm qua",
+        "last7Lower": "7 ngày qua",
+        "last30Lower": "30 ngày qua",
+        "last90Lower": "90 ngày qua",
+        "lastYearLower": "năm qua"
+      },
+      "hero": {
+        "eyebrow": "Tổng thu nhập · {period}",
+        "bookings": "{n, plural, other {# lượt đặt}}",
+        "previously": "so với {amount} ({n, plural, other {# lượt đặt}}) kỳ trước"
+      },
+      "kpi": {
+        "available": {
+          "label": "Khả dụng",
+          "help": "Tiền từ các tour đã hoàn thành, sẵn sàng chi trả vào kỳ tuần tiếp theo."
+        },
+        "pending": {
+          "label": "Chờ xử lý",
+          "help": "Đã ghi nhận nhưng bị khoá tới khi tour hoàn thành."
+        },
+        "lifetime": {
+          "label": "Tổng đã chi trả",
+          "help": "Tổng số tiền bạn đã nhận trong các lần chi trả trước."
+        },
+        "next": {
+          "label": "Lần chi trả tới",
+          "help": "Chi trả vào thứ Hai hàng tuần. Dự kiến: {date}.",
+          "pending": "đang chờ",
+          "empty": "Chưa có khoản nào"
+        }
+      },
+      "revenue": {
+        "title": "Doanh thu",
+        "subtitle": "Cột chồng hiển thị phần thực nhận so với {pct}% phí nền tảng.",
+        "total": "Tổng",
+        "empty": "Không có doanh thu trong {period}.",
+        "legend": {
+          "net": "Bạn nhận ({pct}%)",
+          "fee": "Phí nền tảng ({pct}%)"
+        }
+      },
+      "tooltip": {
+        "gross": "Tổng",
+        "net": "Bạn nhận",
+        "fee": "Phí nền tảng"
+      },
+      "byExperience": {
+        "title": "Theo trải nghiệm",
+        "subtitle": "Mỗi trải nghiệm đang đóng góp ra sao.",
+        "bookings": "{n, plural, other {# lượt đặt}}",
+        "ratingAria": "đánh giá {rating}",
+        "last": "lần cuối {date}",
+        "netLabel": "thực nhận"
+      },
+      "sort": {
+        "net": "Sắp xếp: Thực nhận",
+        "bookings": "Sắp xếp: Lượt đặt",
+        "rating": "Sắp xếp: Đánh giá",
+        "lastBooked": "Sắp xếp: Lần đặt gần nhất"
+      },
+      "transactions": {
+        "title": "Giao dịch",
+        "subtitle": "{n} thanh toán gần nhất · tổng / phí / thực nhận.",
+        "exportCsv": "Xuất CSV",
+        "customTour": "Tour tuỳ chỉnh",
+        "travelerFallback": "Lữ khách",
+        "feeLabel": "phí {amount}"
+      },
+      "commission": {
+        "title": "Hoa hồng",
+        "subtitle": "LOCOMATE thu cố định {pct}% mỗi lượt đặt. Tỉ lệ trọn đời:",
+        "gross": "Tổng đã đặt",
+        "fee": "Phí nền tảng",
+        "net": "Bạn nhận",
+        "bookings": "{n, plural, other {# lượt đặt}}",
+        "refunded": "đã hoàn {amount}"
+      },
+      "payouts": {
+        "title": "Lịch sử chi trả",
+        "subtitle": "Chi trả theo tuần. Tự động hoá đang được triển khai; các dòng hiện tại được ghi nhận thủ công.",
+        "paidOn": "Đã chi trả {date}"
+      },
+      "empty": {
+        "noListings": {
+          "title": "Chưa có trải nghiệm nào",
+          "body": "Đăng trải nghiệm đầu tiên để bắt đầu thu nhập.",
+          "cta": "Tạo trải nghiệm"
+        },
+        "transactions": {
+          "title": "Chưa có giao dịch",
+          "body": "Các tour đã hoàn thành sẽ xuất hiện ở đây."
+        },
+        "payouts": {
+          "title": "Chưa có khoản chi trả",
+          "body": "Khoản chi trả đầu tiên sẽ xuất hiện ở đây sau tour hoàn thành đầu tiên của bạn."
+        }
+      }
+    },
+    "experiences": {
+      "list": {
+        "title": "Trải nghiệm của tôi",
+        "subtitle": "Tạo và quản lý các tour bạn dẫn. Lữ khách thấy bản đã đăng trong marketplace.",
+        "new": "+ Mới",
+        "back": "← Quay lại",
+        "tabs": {
+          "published": "Đã đăng",
+          "draft": "Bản nháp",
+          "archived": "Đã lưu trữ"
+        },
+        "empty": {
+          "heading": "Chưa có gì ở đây",
+          "published": "Đăng một bản nháp để liệt kê trong marketplace.",
+          "draft": "Bắt đầu trải nghiệm mới để thấy ở đây.",
+          "archived": "Các trải nghiệm đã lưu trữ ở đây cho hồ sơ của bạn."
+        },
+        "row": {
+          "bookings": "{n, plural, other {# lượt đặt}}",
+          "edit": "Sửa",
+          "preview": "Xem trước",
+          "publish": "Đăng",
+          "archive": "Lưu trữ",
+          "confirmPublish": "Đăng trải nghiệm này lên marketplace?",
+          "confirmArchive": "Gỡ trải nghiệm này khỏi marketplace?"
+        },
+        "toast": {
+          "published": "Đã đăng trải nghiệm",
+          "archived": "Đã lưu trữ trải nghiệm"
+        }
+      },
+      "edit": {
+        "loadError": "Không tải được trải nghiệm này.",
+        "backToList": "Quay lại trải nghiệm của tôi",
+        "lockedTitle": "Trải nghiệm đã đăng không sửa trực tiếp được.",
+        "lockedBody": "Lưu trữ trải nghiệm để gỡ khỏi marketplace, rồi tạo bản nháp mới để chỉnh sửa."
+      },
+      "preview": {
+        "notFound": "Không tìm thấy trải nghiệm.",
+        "badge": "Xem trước · {status}",
+        "facts": {
+          "duration": "Thời lượng",
+          "maxGroup": "Nhóm tối đa",
+          "price": "Giá"
+        },
+        "sections": {
+          "about": "Giới thiệu",
+          "highlights": "Điểm nổi bật",
+          "typicalDay": "Một ngày điển hình",
+          "included": "Bao gồm"
+        },
+        "edit": "Sửa",
+        "archived": "Đã lưu trữ",
+        "archiveToEdit": "Lưu trữ để sửa"
+      },
+      "wizard": {
+        "title": {
+          "new": "Trải nghiệm mới",
+          "edit": "Sửa trải nghiệm"
+        },
+        "stepCounter": "Bước {current} / 5",
+        "step1": {
+          "heading": "Thông tin cơ bản",
+          "title": "Tiêu đề",
+          "titlePlaceholder": "Ví dụ: Bình minh trên sông Hồng",
+          "titleHelper": "Tối thiểu 8 ký tự. Hiển thị làm tiêu đề trải nghiệm.",
+          "subtitle": "Phụ đề (không bắt buộc)",
+          "subtitlePlaceholder": "Tagline một dòng",
+          "category": "Danh mục",
+          "duration": "Thời lượng",
+          "maxGroup": "Số khách tối đa"
+        },
+        "step2": {
+          "heading": "Câu chuyện của bạn",
+          "description": "Mô tả",
+          "descriptionPlaceholder": "Vì sao lữ khách nên chọn tour này? Có gì diễn ra, điều gì khiến nó là của bạn?",
+          "descriptionHelper": "Tối thiểu 100 ký tự. ({count} / 100)",
+          "highlights": "Điểm nổi bật",
+          "highlightsHint": "Thêm ít nhất 1. Hiển thị dạng gạch đầu dòng ở trang chi tiết.",
+          "included": "Đã bao gồm",
+          "includedHint": "Nước đóng chai, vé vào cửa, v.v."
+        },
+        "step3": {
+          "heading": "Lịch trình",
+          "subtitle": "Thêm ít nhất một điểm dừng để lữ khách biết một lượt đặt thông thường ra sao. Thời gian chỉ mang tính minh hoạ — bạn có thể điều chỉnh theo từng lượt đặt.",
+          "stopPlaceholder": "Ví dụ: Nếm cà phê tại Giảng",
+          "addStop": "Thêm",
+          "remove": "Xoá"
+        },
+        "step4": {
+          "heading": "Ảnh",
+          "subtitle": "Tối thiểu 3 ảnh (URL https). Ảnh đầu là ảnh bìa. Tải ảnh trực tiếp sẽ sớm có — hiện tại dán link.",
+          "cover": "BÌA",
+          "urlPlaceholder": "https://...",
+          "addPhoto": "Thêm"
+        },
+        "step5": {
+          "heading": "Định giá",
+          "subtitle": "Đặt giá lữ khách thấy. LOCOMATE giữ {pct}% để vận hành nền tảng; phần còn lại thuộc về bạn.",
+          "price": "Giá",
+          "verifyHint": "Hoàn tất xác minh ID trước khi đăng.",
+          "openSetup": "Mở thiết lập host",
+          "payout": {
+            "set": "Bạn đặt",
+            "platform": "LOCOMATE giữ ({pct}%)",
+            "receive": "Bạn nhận"
+          }
+        },
+        "category": {
+          "cultural": "Văn hoá",
+          "food": "Ẩm thực",
+          "nightlife": "Về đêm",
+          "nature": "Thiên nhiên",
+          "workshop": "Workshop",
+          "art": "Nghệ thuật",
+          "photography": "Nhiếp ảnh"
+        },
+        "tagList": {
+          "addPlaceholder": "Thêm {label}…",
+          "add": "Thêm"
+        },
+        "actions": {
+          "back": "Quay lại",
+          "saveContinue": "Lưu & tiếp tục",
+          "publish": "Đăng",
+          "publishing": "Đang đăng…"
+        },
+        "toast": {
+          "published": "Đã đăng! Trải nghiệm của bạn đã lên marketplace.",
+          "verifyHint": "Bạn cần hoàn tất xác minh ID trước khi đăng.",
+          "timeFormat": "Thời gian phải dạng HH:MM 24h.",
+          "photoUrlScheme": "URL ảnh phải bắt đầu bằng http(s)://",
+          "photoLimit": "Tối đa 10 ảnh."
+        },
+        "validation": {
+          "titleLength": "Tiêu đề tối thiểu 8 ký tự.",
+          "descriptionLength": "Mô tả tối thiểu 100 ký tự.",
+          "highlightRequired": "Thêm ít nhất một điểm nổi bật.",
+          "scheduleRequired": "Thêm ít nhất một điểm dừng.",
+          "photosRequired": "Cần tối thiểu 3 ảnh.",
+          "priceRange": "Giá phải từ {min} đến {max} VND."
+        }
+      }
+    }
+  },
+  "explore": {
+    "header": "Khám phá Hà Nội",
+    "viewList": "Danh sách",
+    "viewMap": "Bản đồ",
+    "searchPlaceholder": "Tìm ngọc trong ngách...",
+    "loadingMap": "Đang tải bản đồ...",
+    "loadingPlaces": "Đang tải địa điểm...",
+    "featuredGems": "Ngọc nổi bật",
+    "viewAll": "XEM TẤT CẢ",
+    "topChoice": "ĐƯỢC CHỌN",
+    "surprise": "Khám phá bất ngờ",
+    "surpriseTag": "NGỌC NGẪU NHIÊN",
+    "popularNearYou": "Phổ biến quanh bạn",
+    "noPlaces": "Không tìm thấy địa điểm. Thử bộ lọc khác!",
+    "reviews": "{n, plural, other {# đánh giá}}",
+    "reviewsLabel": "đánh giá",
+    "budgetFriendly": "{range} Hợp túi tiền",
+    "filters": {
+      "all": "Tất cả",
+      "cafe": "Cafe",
+      "restaurant": "Nhà hàng",
+      "cultural": "Văn hoá",
+      "nature": "Thiên nhiên",
+      "nightlife": "Về đêm",
+      "workshop": "Workshop",
+      "art": "Nghệ thuật"
+    },
+    "detail": {
+      "notFound": "Không tìm thấy địa điểm",
+      "reviewsCount": "({n, plural, other {# đánh giá}})",
+      "addToTour": "Thêm vào tour",
+      "signUpToPlan": "Đăng ký để lên kế hoạch tour",
+      "locomateStory": "Câu chuyện Locomate",
+      "curatedNote": "Tuyển chọn bởi Locomate · Ngọc ẩn đã xác minh",
+      "whyFits": "Vì sao hợp với bạn",
+      "reasons": {
+        "soloTitle": "Hợp với lữ khách solo",
+        "soloHighAuth": "Không gian yên tĩnh, bàn chung — thoải mái ngồi một mình với một cuốn sách hay nhật ký.",
+        "soloDefault": "Môi trường thân thiện, dễ tận hưởng theo nhịp của bạn.",
+        "accessTitle": "Dễ tiếp cận",
+        "accessNear": "chỉ vài phút từ Phố Cổ",
+        "accessConvenient": "ở khu vực thuận tiện",
+        "accessQuiet": "nhưng vẫn yên ả như cách xa náo nhiệt",
+        "accessLively": "với không khí địa phương sôi động",
+        "accessTemplate": "Toạ lạc {where}, {atmosphere}.",
+        "uniqueTitle": "Trải nghiệm độc đáo",
+        "uniqueDesc": "Một viên ngọc hiếm mà phần lớn du khách bỏ qua. Dữ liệu của chúng tôi cho thấy điểm độc đáo rất cao từ các curator địa phương."
+      },
+      "location": "Vị trí",
+      "openInGmaps": "Mở trên Google Maps",
+      "mapTitle": "Bản đồ vị trí",
+      "ctaPrompt": "Bạn muốn một lịch trình Hà Nội cá nhân hoá?",
+      "ctaBody": "Tạo tài khoản miễn phí — chúng tôi sẽ dựng tour theo gu của bạn.",
+      "ctaButton": "Tạo tài khoản miễn phí",
+      "toastSaved": "Đã lưu địa điểm vào yêu thích!",
+      "toastRemoved": "Đã gỡ khỏi yêu thích"
+    }
+  },
+  "saved": {
+    "title": "Địa điểm đã lưu",
+    "places": "{n, plural, other {# địa điểm}}",
+    "emptyTitle": "Chưa lưu địa điểm nào",
+    "emptyCategoryTitle": "Không có địa điểm trong nhóm này",
+    "emptyBody": "Bấm vào biểu tượng lưu trên bất kỳ địa điểm nào để lưu lại!",
+    "emptyCategoryBody": "Thử bộ lọc khác",
+    "explorePlaces": "Khám phá địa điểm",
+    "filters": {
+      "all": "Tất cả",
+      "cafe": "Cafe",
+      "restaurant": "Nhà hàng",
+      "cultural": "Văn hoá",
+      "nature": "Thiên nhiên",
+      "nightlife": "Về đêm",
+      "art": "Nghệ thuật",
+      "workshop": "Workshop"
+    }
+  },
+  "hosts": {
+    "eyebrow": "Người dẫn địa phương",
+    "title": "Paired by personality.",
+    "subhero": "Đồng hành cùng bạn, theo cách riêng bạn.",
+    "intro": "Người Hà Nội đã xác minh — tự tay thiết kế và dẫn dắt trải nghiệm. Chúng mình gợi ý 1–2 người thật sự yêu thứ bạn xếp — và nói rõ duyên cớ trước khi bạn chọn.",
+    "languageLabel": "Ngôn ngữ",
+    "topRated": "Đánh giá cao (4.5★ +)",
+    "verified": "Host đã xác minh",
+    "newHost": "Host mới",
+    "stats": "{rating}★ · {reviews} đánh giá · {tours} tour",
+    "empty": {
+      "eyebrow": "Không có host",
+      "title": "Nới một bộ lọc, gặp một người dẫn.",
+      "body": "Thử bỏ bộ lọc ngôn ngữ hoặc hạ ngưỡng 4.5 sao — luôn có host mới hay ở mọi danh mục.",
+      "cta": "Xoá tất cả bộ lọc"
+    },
+    "filters": {
+      "all": "Tất cả",
+      "food": "Ẩm thực",
+      "photography": "Nhiếp ảnh",
+      "culture": "Văn hoá",
+      "history": "Lịch sử",
+      "cafe": "Cafe",
+      "art": "Nghệ thuật",
+      "nightlife": "Về đêm",
+      "walking": "Đi bộ"
+    },
+    "languages": {
+      "any": "Mọi ngôn ngữ",
+      "english": "Tiếng Anh",
+      "vietnamese": "Tiếng Việt",
+      "french": "Tiếng Pháp",
+      "japanese": "Tiếng Nhật"
+    }
+  },
+  "checkoutPage": {
+    "title": "Thanh toán",
+    "orderId": "Đơn hàng #{id}",
+    "backToCart": "Quay lại giỏ",
+    "summary": "Tóm tắt đơn hàng",
+    "subtotal": "Tạm tính",
+    "bundleDiscount": "Giảm giá combo",
+    "total": "Tổng",
+    "orderNotFound": "Không tìm thấy đơn hàng.",
+    "backToCartLink": "Quay lại giỏ →",
+    "paymentMethod": "Phương thức thanh toán",
+    "testModeNotice": "Thanh toán đang chạy ở chế độ test. Tích hợp cổng thật sẽ sớm có.",
+    "paid": "Đã thanh toán",
+    "processing": "Đang xử lý...",
+    "pay": "Thanh toán {amount}",
+    "paymentConfirmed": "Đã xác nhận thanh toán",
+    "paymentFailed": "Thanh toán thất bại",
+    "tour": {
+      "title": "Thanh toán",
+      "orderSummary": "Tóm tắt đơn hàng",
+      "tourLabel": "Tour",
+      "untitled": "Khám phá Hà Nội",
+      "totalLabel": "Tổng",
+      "priceUnavailable": "Chưa có giá",
+      "priceUnavailableHint": "Chưa có giá — vui lòng thử lại",
+      "paymentMethodTitle": "Phương thức thanh toán",
+      "refundPolicy": "Huỷ miễn phí đến 24h trước khi tour bắt đầu. Thanh toán của bạn được bảo mật.",
+      "securePayment": "Thanh toán an toàn — {amount}",
+      "processing": "Đang xử lý..."
+    }
+  },
+  "onboardingLegacy": {
+    "chat": {
+      "card": {
+        "title": "Trò chuyện với Locomate",
+        "body": "Trắc nghiệm tính cách dưới dạng chat. Chọn tông giọng AI rồi để Locomate hỏi 5 câu.",
+        "cta": "Mở chat"
+      }
+    },
+    "host": {
+      "title": "Thật ra, mình là host",
+      "body": "Chia sẻ Hà Nội của bạn với lữ khách. Tạo tour, đặt giá, giữ 80%.",
+      "cta": "Thiết lập host →",
+      "loading": "...",
+      "toastSuccess": "Chào mừng, host! Cùng thiết lập hồ sơ của bạn.",
+      "toastError": "Không chuyển sang host được. Vui lòng thử lại."
+    },
+    "step1": {
+      "heading": "Bạn đến Hà Nội vì điều gì?",
+      "subtitle": "Chọn tối đa 3",
+      "scenarioPrompt": "Bạn có 3 tiếng ở Hà Nội. Bạn làm gì?",
+      "scenarios": {
+        "A": "Ngồi quán cà phê yên tĩnh bên hồ",
+        "B": "Tham quan một ngôi đền ẩn",
+        "C": "Thử 3 món quà vặt vỉa hè",
+        "D": "Tìm quán rooftop và gặp người mới"
+      }
+    },
+    "step2": {
+      "heading": "Phong cách du lịch",
+      "subtitle": "Trượt để tìm gu của bạn",
+      "chill": "Thong dong",
+      "explore": "Khám phá",
+      "plan": "Lên kế hoạch chỉn chu",
+      "spontaneous": "Tuỳ hứng"
+    },
+    "step3": {
+      "heading": "Điều gì làm bạn thích thú?",
+      "subtitle": "Chọn sở thích của bạn",
+      "budget": "Ngân sách mỗi ngày"
+    },
+    "step4": {
+      "heading": "Đồng hành & khung giờ",
+      "subtitle": "Gần xong rồi!",
+      "company": "Đồng hành",
+      "companyOptions": {
+        "solo": "Một mình, yên tĩnh",
+        "meet_new": "Mở lòng gặp người mới",
+        "group": "Đi cùng nhóm"
+      },
+      "bestTime": "Khung giờ ưa thích",
+      "time": {
+        "morning": "sáng",
+        "afternoon": "trưa",
+        "evening": "chiều tối",
+        "late_night": "đêm muộn"
+      }
+    },
+    "step5": {
+      "eyebrow": "Một chút nữa thôi",
+      "heading": "Locomate xin phép được gọi bạn là gì?",
+      "subtitle": "Một danh xưng để chúng tôi xưng hô với bạn xuyên suốt hành trình. Có thể bỏ qua — bạn đổi sau ở mục Settings.",
+      "placeholder": "Ví dụ: Kẻ lữ hành"
+    },
+    "intents": {
+      "Relax & Recharge": "Thư giãn & nạp năng lượng",
+      "Explore Culture": "Khám phá văn hoá",
+      "Meet New People": "Gặp người mới",
+      "Food & Drink": "Ăn uống",
+      "Adventure": "Phiêu lưu"
+    },
+    "interests": {
+      "Street Food": "Quà vặt phố",
+      "Hidden Cafes": "Cà phê ẩn",
+      "Temples": "Đền chùa",
+      "Markets": "Chợ",
+      "Photography": "Nhiếp ảnh",
+      "Rooftops": "Sân thượng",
+      "Art": "Nghệ thuật",
+      "Nightlife": "Đời sống đêm"
+    },
+    "nav": {
+      "back": "Quay lại",
+      "continue": "Tiếp tục",
+      "submitting": "Đang chuẩn bị…",
+      "finishWithName": "Bắt đầu hành trình, {name}",
+      "finish": "Bắt đầu hành trình"
+    }
+  },
+  "onboarding": {
+    "chat": {
+      "tonePicker": {
+        "eyebrow": "Một câu trước khi bắt đầu",
+        "title": "Locomate nên nói với bạn theo giọng nào?",
+        "subtitle": "Tông giọng có thể đổi bất kỳ lúc nào ở mục Settings.",
+        "footerPrompt": "Thích cách cũ?",
+        "footerLink": "Quay lại quick quiz"
+      },
+      "toneSub": {
+        "thuThi": "Ấm áp, chậm rãi",
+        "homHinh": "Vui, có duyên",
+        "trucDien": "Một ý, một câu"
+      },
+      "progress": {
+        "eyebrow": "Câu {current} / {total}",
+        "title": "Trò chuyện với Locomate."
+      },
+      "done": {
+        "eyebrow": "Locomate đã hiểu",
+        "ctaSubmit": "Vào Locomate",
+        "ctaSubmitting": "Đang vào…",
+        "ctaPreferences": "Đặt sở thích chi tiết"
+      },
+      "personality": {
+        "heritage": "Bạn đọc thành phố qua kiến trúc, đình đài, các bức tường rêu. Locomate sẽ ưu tiên Thanh Tao Xứ Bắc cho bạn.",
+        "food": "Vị giác là cửa ngõ — Locomate sẽ ưu tiên Hương Men Nồng Say và các quán ngách cho hành trình của bạn.",
+        "craft": "Bạn muốn chạm tay vào nghề, không chỉ nhìn. Locomate sẽ ưu tiên Hồn Đất Nghệ Nhân cho bạn.",
+        "quiet": "Bạn cần khoảng lặng. Locomate sẽ ghép cho bạn những cung đường ít người, guide chậm rãi.",
+        "social": "Cánh cửa luôn mở. Locomate sẽ ghép cho bạn nhóm nhỏ, guide năng động, hành trình có người mới.",
+        "balanced": "Bạn cân bằng — Locomate sẽ giữ một hành trình đa biên độ, mỗi ngày một sắc."
+      },
+      "saveError": "Không lưu được kết quả"
+    }
+  },
+  "landing": {
+    "eyebrow": "Hà Nội, theo gu của bạn",
+    "headlinePart1": "Khám phá tour.",
+    "headlinePart2": "Đặt hoạt động.",
+    "headlinePart3": "Xếp ngày của bạn.",
+    "body": "Tour Hà Nội tuyển chọn với người dẫn thật, ghép thêm workshop, lớp học và vé lẻ. Chọn cái bạn thích, bỏ qua cái không cần.",
+    "features": {
+      "fixedTours": "Tour cố định",
+      "activitiesTickets": "Hoạt động & Vé",
+      "hanoiMerch": "Merch Hà Nội"
+    },
+    "actions": {
+      "getStarted": "Bắt đầu ngay",
+      "haveAccount": "Tôi đã có tài khoản"
+    },
+    "nav": {
+      "explore": "Khám phá",
+      "tours": "Tour",
+      "activities": "Hoạt động",
+      "profile": "Hồ sơ"
+    }
+  },
+  "hostSetup": {
+    "step1": {
+      "heading": "Trở thành Host địa phương",
+      "subtitle": "Chia sẻ tình yêu Hà Nội với lữ khách",
+      "addPhoto": "Thêm ảnh",
+      "bioLabel": "Giới thiệu về bạn",
+      "bioPlaceholder": "Kể cho lữ khách biết vì sao bạn là một host tuyệt vời..."
+    },
+    "step2": {
+      "heading": "Chuyên môn của bạn",
+      "subtitle": "Giúp chúng tôi kết nối bạn với lữ khách phù hợp",
+      "languagesLabel": "Ngôn ngữ",
+      "specialtiesLabel": "Chuyên môn"
+    },
+    "step3": {
+      "heading": "Lịch nhận tour",
+      "subtitle": "Bạn rảnh khi nào?"
+    },
+    "step4": {
+      "heading": "Xác minh danh tính",
+      "subtitle": "Bắt buộc để đảm bảo tin cậy và an toàn cho lữ khách",
+      "uploadTitle": "Tải lên giấy tờ tuỳ thân",
+      "uploadSubtitle": "CCCD hoặc Hộ chiếu (mặt trước)",
+      "standardsTitle": "Tiêu chuẩn Host",
+      "standards": {
+        "punctual": "Đúng giờ và chuyên nghiệp",
+        "safety": "Đảm bảo an toàn cho lữ khách mọi lúc",
+        "reviewed": "Chất lượng được đánh giá sau mỗi tour",
+        "training": "Đào tạo và hỗ trợ liên tục"
+      }
+    },
+    "languages": {
+      "vietnamese": "Tiếng Việt",
+      "english": "Tiếng Anh",
+      "french": "Tiếng Pháp",
+      "japanese": "Tiếng Nhật",
+      "korean": "Tiếng Hàn",
+      "chinese": "Tiếng Trung",
+      "spanish": "Tiếng Tây Ban Nha"
+    },
+    "specialties": {
+      "streetFood": "Quà vặt phố",
+      "history": "Lịch sử",
+      "photography": "Nhiếp ảnh",
+      "hiddenCafes": "Cà phê ẩn",
+      "art": "Nghệ thuật",
+      "nightlife": "Đời sống đêm",
+      "nature": "Thiên nhiên",
+      "walkingTours": "Tour đi bộ"
+    },
+    "days": {
+      "mon": "T2",
+      "tue": "T3",
+      "wed": "T4",
+      "thu": "T5",
+      "fri": "T6",
+      "sat": "T7",
+      "sun": "CN"
+    },
+    "actions": {
+      "back": "Quay lại",
+      "continue": "Tiếp tục",
+      "submit": "Gửi để duyệt",
+      "submitting": "Đang gửi..."
+    }
+  },
+  "security": {
+    "heading": "Bảo mật",
+    "sections": {
+      "password": "Mật khẩu",
+      "twoFA": "Xác thực hai lớp",
+      "verification": "Xác minh",
+      "dangerZone": "Khu vực nguy hiểm"
+    },
+    "password": {
+      "label": "Mật khẩu",
+      "lastChangedNever": "Lần đổi gần nhất: Chưa",
+      "changeBtn": "Đổi",
+      "toastComingSoon": "Đổi mật khẩu sắp ra mắt"
+    },
+    "twoFA": {
+      "label": "Bật 2FA",
+      "subtitle": "Bảo vệ tài khoản bằng một lớp xác thực bổ sung",
+      "toastEnabled": "Đã bật 2FA",
+      "toastDisabled": "Đã tắt 2FA"
+    },
+    "verification": {
+      "email": "Email",
+      "emailFallback": "--",
+      "verified": "Đã xác minh",
+      "unverified": "Chưa xác minh",
+      "passwordLabel": "Đăng nhập bằng mật khẩu",
+      "passwordSet": "Đã đặt mật khẩu",
+      "passwordNotSet": "Chưa đặt (chỉ dùng Google)",
+      "enabled": "Đang bật",
+      "off": "Tắt",
+      "googleLabel": "Đăng nhập bằng Google",
+      "googleLinked": "Đã liên kết với tài khoản",
+      "googleNotLinked": "Chưa liên kết",
+      "googleBadgeLinked": "Đã liên kết",
+      "hostIdentity": "Danh tính host",
+      "hostApproved": "Đã xác minh CCCD",
+      "hostRejected": "Xác minh bị từ chối",
+      "hostPending": "Đang chờ xét duyệt",
+      "hostBadgeVerified": "Đã xác minh",
+      "hostBadgeRejected": "Bị từ chối",
+      "hostBadgePending": "Chờ xử lý",
+      "hostDashboard": "Mở bảng điều khiển host →"
+    },
+    "dangerZone": {
+      "deleteTitle": "Xoá tài khoản",
+      "deleteBody": "Xoá vĩnh viễn hồ sơ, địa điểm đã lưu, tour, tin nhắn và liên kết Google. Hành động này không thể hoàn tác.",
+      "deleteBtn": "Xoá"
+    },
+    "deleteDialog": {
+      "title": "Xoá tài khoản của bạn?",
+      "description": "Hành động này xoá vĩnh viễn hồ sơ, địa điểm đã lưu, lịch sử tour, tin nhắn, liên hệ khẩn cấp và các phương thức đăng nhập đã liên kết. Không thể khôi phục.",
+      "reviewsNotice": "Các đánh giá và tin nhắn bạn đã viết vẫn hiển thị với người dùng khác, nhưng sẽ không còn kèm tên bạn.",
+      "confirmEmailLabel": "Nhập email của bạn để xác nhận",
+      "confirmEmailPlaceholder": "ban@example.com",
+      "passwordLabel": "Mật khẩu hiện tại",
+      "keepCta": "Giữ tài khoản",
+      "deleteCta": "Xoá tài khoản của tôi",
+      "deletingCta": "Đang xoá..."
+    },
+    "toast": {
+      "accountDeleted": "Đã xoá tài khoản. Tiếc lắm khi phải tạm biệt bạn."
+    }
+  },
+  "tour": {
+    "review": {
+      "heading": "Tour vừa rồi thế nào?",
+      "subtitle": "Đánh giá của bạn giúp chúng tôi cải thiện và giúp lữ khách khác chọn dễ hơn",
+      "tapToRate": "Chạm để đánh giá",
+      "ratingFeedback": {
+        "low": "Lần sau chúng tôi sẽ làm tốt hơn",
+        "mid": "Mừng quá khi nghe bạn nói thế!",
+        "high": "Tuyệt vời! Bạn đã rất thích!"
+      },
+      "commentTitle": "Kể thêm cho chúng tôi nghe (không bắt buộc)",
+      "commentPlaceholder": "Bạn thích nhất điều gì? Có góp ý nào không?",
+      "submitCta": "Gửi đánh giá",
+      "submittingCta": "Đang gửi...",
+      "skipCta": "Bỏ qua",
+      "toastThankYou": "Cảm ơn bạn đã đánh giá!",
+      "done": {
+        "title": "Cảm ơn bạn đã đánh giá!",
+        "body": "Phản hồi của bạn giúp chúng tôi tạo ra những trải nghiệm tốt hơn cho lữ khách solo ở Hà Nội.",
+        "exploreMoreCta": "Khám phá thêm",
+        "profileCta": "Hồ sơ của tôi"
+      }
+    },
+    "preview": {
+      "notFound": "Không tìm thấy tour",
+      "badge": "Xem trước cá nhân hoá",
+      "hoursDuration": "{hours} giờ",
+      "stopsCount": "{count} điểm dừng",
+      "previewTitle": "Xem trước buổi sáng",
+      "moreStopsHidden": "Còn {count} điểm dừng ẩn. Mở khoá toàn bộ lịch trình!",
+      "whyFits": "Vì sao hợp với bạn",
+      "costLabel": "Chi phí ước tính",
+      "costRange": "{min}k - {max}k {currency}",
+      "addHostTitle": "Thêm Host địa phương",
+      "addHostBody": "Một người Hà Nội đã xác minh sẽ dẫn bạn qua từng điểm.",
+      "browseHostsCta": "Xem Host +{price}",
+      "unlockCta": "Mở khoá lịch trình — {price}",
+      "priceUnavailable": "Chưa có giá — vui lòng thử lại",
+      "esimTitle": "📶 Đừng quên eSIM của bạn!",
+      "esimBody": "Nhận data Việt Nam ngay từ $5.90",
+      "packageType": {
+        "solo_mate": "Đi solo",
+        "social_tour": "Tour xã hội",
+        "fixed_tour": "Tour cố định"
+      }
+    }
+  },
+  "payments": {
+    "heading": "Lịch sử thanh toán",
+    "totalSpent": "Đã chi",
+    "transactions": "Giao dịch",
+    "untitledTour": "Tour chưa đặt tên",
+    "emptyDate": "--",
+    "empty": {
+      "title": "Chưa có thanh toán nào",
+      "body": "Lịch sử giao dịch của bạn sẽ hiện ở đây",
+      "cta": "Lên kế hoạch một tour"
+    }
+  },
+  "orders": {
+    "detail": {
+      "notFound": "Không tìm thấy đơn hàng.",
+      "confirmedTitle": "Đã xác nhận đặt chỗ",
+      "confirmedSubtitle": "Đơn hàng #{shortId} · Đã thanh toán {date}",
+      "heading": "Đơn hàng",
+      "whatYouBooked": "Bạn đã đặt",
+      "subtotal": "Tạm tính",
+      "bundleDiscount": "Ưu đãi combo",
+      "total": "Tổng",
+      "actions": {
+        "backHome": "Về trang chủ",
+        "browseMore": "Xem thêm"
+      },
+      "kind": {
+        "activity": "Hoạt động",
+        "esim": "eSIM",
+        "merch": "Đồ lưu niệm",
+        "tour": "Tour"
+      }
+    }
+  }
+}

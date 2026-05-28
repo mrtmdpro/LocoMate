@@ -5,11 +5,44 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  /* Typography scale.
+   * Tailwind v4 reads these custom properties to generate text-* utilities.
+   * Minimums align with WCAG 2.1 + BBC/GOV.UK/Apple guidance -- no text
+   * below 12px anywhere in the app, body copy sits at 16px minimum with a
+   * WCAG 1.4.12-compliant 1.625 line-height.
+   *
+   * Pair the token values with responsive bumps in .text-body* utilities
+   * below so desktop (>=lg) reads at 17px like iOS defaults.
+   */
+  --text-xs: 0.75rem;                  /* 12 */
+  --text-xs--line-height: 1rem;        /* 16 */
+  --text-sm: 0.875rem;                 /* 14 */
+  --text-sm--line-height: 1.375rem;    /* 22 */
+  --text-base: 1rem;                   /* 16 */
+  --text-base--line-height: 1.625rem;  /* 26 -- 1.625x ratio */
+  --text-lg: 1.125rem;                 /* 18 */
+  --text-lg--line-height: 1.75rem;
+  --text-xl: 1.25rem;                  /* 20 */
+  --text-xl--line-height: 1.75rem;
+  --text-2xl: 1.5rem;                  /* 24 */
+  --text-2xl--line-height: 2rem;
+  --text-3xl: 1.875rem;                /* 30 */
+  --text-3xl--line-height: 2.25rem;
+  --text-4xl: 2.25rem;                 /* 36 */
+  --text-4xl--line-height: 2.5rem;
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
   --font-heading: var(--font-sora), var(--font-inter), ui-sans-serif, sans-serif;
+  --font-serif: var(--font-cormorant), "Cormorant Garamond", "Hoefler Text", "Cambria", Georgia, serif;
+  --color-brick: var(--brick);
+  --color-mustard: var(--mustard);
+  --color-sage: var(--sage);
+  --color-earth: var(--earth);
+  --color-parchment: var(--parchment);
+  --color-paper: var(--paper);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -49,72 +82,126 @@
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  /* Locomate brand palette.
+   *
+   * Pulled directly from /Bộ Nhận Diện/Moodboard.jpg. Cream wash, terracotta
+   * primary, deep forest secondary, brick for heritage moments and price.
+   * The supporting brand colours (brick / mustard / sage / earth) live as
+   * their own tokens because they map to specific tour-card surfaces and
+   * shouldn't be reachable through the generic primary/secondary slots.
+   *
+   * Hex equivalents (for find/replace + tour-card components):
+   *   cream      #F4ECDC   parchment  #FAF6EC   paper      #FFFBF1
+   *   terracotta #D94A26   brick      #7A1F18   mustard    #E9B83C
+   *   sage       #A8C589   forest     #23402B   earth      #5A3A24
+   *   ink        #1A1410
+   */
+  --background: oklch(0.93 0.026 80);            /* cream */
+  --foreground: oklch(0.18 0.012 50);            /* ink */
+  --card: oklch(0.96 0.018 88);                  /* parchment */
+  --card-foreground: oklch(0.18 0.012 50);
+  --popover: oklch(0.97 0.012 88);
+  --popover-foreground: oklch(0.18 0.012 50);
+  --primary: oklch(0.59 0.165 38);               /* terracotta #D94A26 */
+  --primary-foreground: oklch(0.96 0.018 88);
+  --secondary: oklch(0.32 0.05 145);             /* forest #23402B */
+  --secondary-foreground: oklch(0.96 0.018 88);
+  --muted: oklch(0.91 0.022 80);
+  /* On cream background, text-muted-foreground (used for secondary copy)
+   * stays at ~62% ink so it clears WCAG AA on the new bg. */
+  --muted-foreground: oklch(0.40 0.020 50);
+  --accent: oklch(0.79 0.13 80);                 /* mustard, used as highlight */
+  --accent-foreground: oklch(0.18 0.012 50);
+  --destructive: oklch(0.55 0.21 28);
+  --border: oklch(0.18 0.012 50 / 14%);
+  --input: oklch(0.18 0.012 50 / 22%);
+  --ring: oklch(0.59 0.165 38 / 60%);
+
+  /* Brand-only tokens. Reach these via Tailwind v4 generated utilities
+   * (bg-brick, text-mustard, etc.) or direct CSS var() in components. */
+  --brick: oklch(0.34 0.115 27);                 /* #7A1F18 */
+  --mustard: oklch(0.79 0.13 80);                /* #E9B83C */
+  --sage: oklch(0.79 0.07 130);                  /* #A8C589 */
+  --earth: oklch(0.36 0.06 50);                  /* #5A3A24 */
+  --parchment: oklch(0.96 0.018 88);             /* #FAF6EC */
+  --paper: oklch(0.98 0.012 88);                 /* #FFFBF1 */
+
+  --chart-1: oklch(0.59 0.165 38);               /* terracotta */
+  --chart-2: oklch(0.32 0.05 145);               /* forest */
+  --chart-3: oklch(0.79 0.13 80);                /* mustard */
+  --chart-4: oklch(0.79 0.07 130);               /* sage */
+  --chart-5: oklch(0.34 0.115 27);               /* brick */
+
+  --radius: 0.5rem;                              /* 8px card */
+
+  --sidebar: oklch(0.96 0.018 88);               /* parchment */
+  --sidebar-foreground: oklch(0.18 0.012 50);
+  --sidebar-primary: oklch(0.59 0.165 38);
+  --sidebar-primary-foreground: oklch(0.96 0.018 88);
+  --sidebar-accent: oklch(0.91 0.022 80);
+  --sidebar-accent-foreground: oklch(0.18 0.012 50);
+  --sidebar-border: oklch(0.18 0.012 50 / 14%);
+  --sidebar-ring: oklch(0.59 0.165 38 / 60%);
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  /* "Đêm Sâu Phố Cổ" — deep-forest night. Parchment text on lacquered
+   * forest, terracotta lanterns kept at higher luminance for contrast,
+   * brick muted to a warm brown so prices still read warmly without
+   * burning. Cards sit one shade lighter than the page surface so the
+   * existing 12% hairline still defines edges.
+   *
+   * Designed to keep WCAG AA contrast for body copy (parchment at 94%
+   * vs forest at 20% clears 13:1) and AA for muted-foreground
+   * (~72% parchment ≈ 7:1 on forest). Verified against the typography
+   * guard's expectations. */
+  --background: oklch(0.20 0.025 145);            /* deep forest */
+  --foreground: oklch(0.94 0.015 88);             /* parchment */
+  /* Card sits a meaningful step above the page surface so the parchment
+   * ring at 12% alpha actually reads. Was 0.24 — too close to background;
+   * cards looked like they bled into the page in dark mode. 0.30 keeps
+   * the lacquered-forest hue without going olive. */
+  --card: oklch(0.30 0.022 145);                  /* lifted forest */
+  --card-foreground: oklch(0.94 0.015 88);
+  --popover: oklch(0.26 0.020 145);
+  --popover-foreground: oklch(0.94 0.015 88);
+  --primary: oklch(0.65 0.16 38);                 /* terracotta, bumped for contrast */
+  --primary-foreground: oklch(0.18 0.012 50);     /* ink — terracotta is light enough now */
+  --secondary: oklch(0.36 0.05 145);              /* lighter forest variant */
+  --secondary-foreground: oklch(0.94 0.015 88);
+  --muted: oklch(0.28 0.022 145);
+  --muted-foreground: oklch(0.72 0.020 88);
+  --accent: oklch(0.78 0.13 80);                  /* mustard, slightly cooler */
+  --accent-foreground: oklch(0.18 0.012 50);
+  --destructive: oklch(0.65 0.20 28);
+  --border: oklch(0.94 0.015 88 / 14%);
+  --input: oklch(0.94 0.015 88 / 18%);
+  --ring: oklch(0.65 0.16 38 / 60%);
+
+  /* Brand-only tokens dimmed for dark surfaces. Brick becomes a warm brown
+   * (heritage feel persists, contrast safe). Mustard / sage stay close to
+   * their light values because they're already mid-luminance. */
+  --brick: oklch(0.62 0.10 30);                   /* warm brown */
+  --mustard: oklch(0.78 0.13 80);
+  --sage: oklch(0.74 0.06 130);
+  --earth: oklch(0.58 0.06 50);
+  --parchment: oklch(0.94 0.015 88);
+  --paper: oklch(0.26 0.020 145);                 /* slightly lifted forest */
+
+  --chart-1: oklch(0.65 0.16 38);
+  --chart-2: oklch(0.78 0.13 80);
+  --chart-3: oklch(0.74 0.06 130);
+  --chart-4: oklch(0.58 0.06 50);
+  --chart-5: oklch(0.62 0.10 30);
+
+  --sidebar: oklch(0.18 0.022 145);
+  --sidebar-foreground: oklch(0.94 0.015 88);
+  --sidebar-primary: oklch(0.65 0.16 38);
+  --sidebar-primary-foreground: oklch(0.18 0.012 50);
+  --sidebar-accent: oklch(0.28 0.022 145);
+  --sidebar-accent-foreground: oklch(0.94 0.015 88);
+  --sidebar-border: oklch(0.94 0.015 88 / 14%);
+  --sidebar-ring: oklch(0.65 0.16 38 / 60%);
 }
 
 @layer base {
@@ -127,4 +214,118 @@
   html {
     @apply font-sans;
   }
+}
+
+/* Canonical type scale. 1.333 (Perfect Fourth) from 16px base:
+ *
+ *    12 / 14 / 16 / 21 / 28 / 38 / 50  px
+ *
+ * Mapped to semantic roles so JSX reads intent rather than size:
+ *
+ *   .text-display   -> 38 / 50  px   hero h1 on landing / marketing
+ *   .text-h1        -> 28 / 38  px   page h1, primary section heading
+ *   .text-h2        -> 21 / 28  px   secondary section heading
+ *   .text-h3        -> 18 / 21  px   card title, list-row title
+ *   .text-body      -> 16 / 17  px   paragraph copy
+ *   .text-body-sm   -> 14 / 15  px   secondary copy, captions adjacent to body
+ *   .text-caption   -> 12       px   timestamps, meta, badges
+ *   .text-eyebrow   -> 12       px   uppercase mono kicker (unchanged)
+ *
+ * Brand voice (italic Cormorant) is a *modifier*, not a separate scale.
+ * Add `.font-voice` on top of any role to get the wordmark feel:
+ *
+ *     <h1 className="text-display font-voice">Đi cho đúng, gặp cho trúng.</h1>
+ *
+ * Nothing below 12px gets added. See docs/TYPOGRAPHY.md.
+ */
+@layer components {
+  .text-display {
+    font-size: 2.375rem;          /* 38 */
+    line-height: 2.75rem;         /* 44 */
+    letter-spacing: -0.015em;
+    font-weight: 700;
+  }
+  @media (min-width: 1024px) {
+    .text-display { font-size: 3.125rem; line-height: 3.5rem; } /* 50 / 56 */
+  }
+
+  .text-h1 {
+    font-size: 1.75rem;           /* 28 */
+    line-height: 2.125rem;        /* 34 */
+    letter-spacing: -0.012em;
+    font-weight: 700;
+  }
+  @media (min-width: 1024px) {
+    .text-h1 { font-size: 2.375rem; line-height: 2.75rem; } /* 38 / 44 */
+  }
+
+  .text-h2 {
+    font-size: 1.3125rem;         /* 21 */
+    line-height: 1.75rem;         /* 28 */
+    letter-spacing: -0.008em;
+    font-weight: 600;
+  }
+  @media (min-width: 1024px) {
+    .text-h2 { font-size: 1.75rem; line-height: 2.125rem; } /* 28 / 34 */
+  }
+
+  .text-h3 {
+    font-size: 1.125rem;          /* 18 */
+    line-height: 1.5rem;          /* 24 */
+    font-weight: 600;
+  }
+  @media (min-width: 1024px) {
+    .text-h3 { font-size: 1.3125rem; line-height: 1.75rem; } /* 21 / 28 */
+  }
+
+  .text-body {
+    font-size: 1rem;              /* 16 */
+    line-height: 1.625rem;        /* 26 -- WCAG 1.4.12 */
+  }
+  @media (min-width: 1024px) {
+    .text-body { font-size: 1.0625rem; line-height: 1.75rem; } /* 17 / 28 */
+  }
+
+  .text-body-sm {
+    font-size: 0.875rem;          /* 14 */
+    line-height: 1.375rem;        /* 22 */
+  }
+  @media (min-width: 1024px) {
+    .text-body-sm { font-size: 0.9375rem; line-height: 1.5rem; } /* 15 / 24 */
+  }
+
+  .text-caption {
+    font-size: 0.75rem;           /* 12 */
+    line-height: 1rem;            /* 16 */
+    letter-spacing: 0.01em;
+  }
+
+  /* Eyebrow / kicker. Mono uppercase widely-tracked label that appears
+   * above hero italics, on tour cards, and inside section headers. Sits
+   * at 12px to clear the typography-guard floor. */
+  .text-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;           /* 12 */
+    line-height: 1rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+    font-weight: 500;
+  }
+
+  /* Brand voice modifier. Italic Cormorant for hero quotes, slogans,
+   * card titles, prices, anywhere the brand wants to sound like the
+   * wordmark. Compose with any heading role class:
+   *
+   *     <h1 className="text-display font-voice">...</h1>
+   *     <h2 className="text-h2 font-voice">...</h2>
+   *
+   * Don't use on UI controls (buttons, form labels). */
+  .font-voice {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+
 }

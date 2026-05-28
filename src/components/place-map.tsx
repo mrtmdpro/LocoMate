@@ -1,24 +1,24 @@
 "use client";
 
 import { useEffect } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import L from "leaflet";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { Badge } from "@/components/ui/badge";
 
 const CATEGORY_COLORS: Record<string, string> = {
-  cafe: "#ff8c30",
-  restaurant: "#ff8c30",
-  cultural: "#3f6f60",
-  nature: "#90D26D",
+  cafe: "#d94a26",
+  restaurant: "#d94a26",
+  cultural: "#23402b",
+  nature: "#A8C589",
   nightlife: "#7c3aed",
   workshop: "#f59e0b",
   art: "#ec4899",
 };
 
 function makeDivIcon(category: string) {
-  const color = CATEGORY_COLORS[category] || "#3f6f60";
+  const color = CATEGORY_COLORS[category] || "#23402b";
   return L.divIcon({
     className: "",
     iconSize: [24, 24],
@@ -83,29 +83,29 @@ export default function PlaceMap({ places }: { places: PlaceForMap[] }) {
                 )}
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
-                    <p className="font-semibold text-sm text-[#3f6f60] line-clamp-1 !m-0">{place.name}</p>
+                    <p className="font-semibold text-sm text-secondary line-clamp-1 !m-0">{place.name}</p>
                     <div className="flex items-center gap-1 mt-0.5">
                       <Badge
-                        className="text-[9px] px-1.5 py-0 border-0 text-white"
-                        style={{ backgroundColor: CATEGORY_COLORS[place.category] || "#3f6f60" }}
+                        className="text-xs px-1.5 py-0 border-0 text-white"
+                        style={{ backgroundColor: CATEGORY_COLORS[place.category] || "#23402b" }}
                       >
                         {place.category}
                       </Badge>
-                      <span className="text-[10px] text-gray-500">
+                      <span className="text-xs text-muted-foreground">
                         {place.priceRange}
                       </span>
                     </div>
                   </div>
                   <div className="flex items-center gap-0.5 shrink-0">
                     <span className="text-yellow-500 text-xs">★</span>
-                    <span className="text-xs font-bold text-[#3f6f60]">
+                    <span className="text-xs font-bold text-secondary">
                       {Number(place.avgRating || 0).toFixed(1)}
                     </span>
                   </div>
                 </div>
                 <Link
                   href={`/explore/${place.slug || place.id}`}
-                  className="block text-center text-xs font-semibold text-white bg-[#ff8c30] hover:bg-[#e67a20] rounded-lg py-1.5 mt-0.5 no-underline"
+                  className="block text-center text-xs font-semibold text-white bg-primary hover:bg-primary/85 rounded-lg py-1.5 mt-0.5 no-underline"
                 >
                   View Place
                 </Link>

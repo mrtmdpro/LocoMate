@@ -1,0 +1,96 @@
+
+> app@0.1.0 build C:\Dev\locomate\app
+> next build
+
+Γû▓ Next.js 16.2.2 (Turbopack)
+- Environments: .env.local, .env
+
+ΓÜá The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+  Creating an optimized production build ...
+Γ£ô Compiled successfully in 5.2s
+  Running TypeScript ...
+  Finished TypeScript in 12.4s ...
+  Collecting page data using 15 workers ...
+  Generating static pages using 15 workers (0/83) ...
+  Generating static pages using 15 workers (20/83) 
+  Generating static pages using 15 workers (41/83) 
+  Generating static pages using 15 workers (62/83) 
+Γ£ô Generating static pages using 15 workers (83/83) in 343ms
+  Finalizing page optimization ...
+
+Route (app)
+Γöî ╞Æ /_not-found
+Γö£ ╞Æ /[locale]
+Γö£ ╞Æ /[locale]/activities
+Γö£ ╞Æ /[locale]/activities/[slug]
+Γö£ ╞Æ /[locale]/admin/flagged
+Γö£ ╞Æ /[locale]/admin/products
+Γö£ ╞Æ /[locale]/auth/complete
+Γö£ ╞Æ /[locale]/cart
+Γö£ ╞Æ /[locale]/chat
+Γö£ ╞Æ /[locale]/chat/[matchId]
+Γö£ ╞Æ /[locale]/design-system
+Γö£ ╞Æ /[locale]/esim
+Γö£ ╞Æ /[locale]/experiences
+Γö£ ╞Æ /[locale]/experiences/[slug]
+Γö£ ╞Æ /[locale]/explore
+Γö£ ╞Æ /[locale]/explore/[id]
+Γö£ ╞Æ /[locale]/fixed-tours/[id]
+Γö£ ╞Æ /[locale]/home
+Γö£ ╞Æ /[locale]/host
+Γö£ ╞Æ /[locale]/host-setup
+Γö£ ╞Æ /[locale]/host/bookings
+Γö£ ╞Æ /[locale]/host/earnings
+Γö£ ╞Æ /[locale]/host/experiences
+Γö£ ╞Æ /[locale]/host/experiences/[id]/edit
+Γö£ ╞Æ /[locale]/host/experiences/[id]/preview
+Γö£ ╞Æ /[locale]/host/experiences/new
+Γö£ ╞Æ /[locale]/host/routes
+Γö£ ╞Æ /[locale]/hosts
+Γö£ ╞Æ /[locale]/hosts/[slug]
+Γö£ ╞Æ /[locale]/letters
+Γö£ ╞Æ /[locale]/login
+Γö£ ╞Æ /[locale]/onboarding
+Γö£ ╞Æ /[locale]/onboarding/chat
+Γö£ ╞Æ /[locale]/orders/[id]
+Γö£ ╞Æ /[locale]/orders/[id]/checkout
+Γö£ ╞Æ /[locale]/payments
+Γö£ ╞Æ /[locale]/plan
+Γö£ ╞Æ /[locale]/plan/build
+Γö£ ╞Æ /[locale]/plan/templates/[id]
+Γö£ ╞Æ /[locale]/profile
+Γö£ ╞Æ /[locale]/profile/preferences
+Γö£ ╞Æ /[locale]/register
+Γö£ ╞Æ /[locale]/saved
+Γö£ ╞Æ /[locale]/security
+Γö£ ╞Æ /[locale]/settings
+Γö£ ╞Æ /[locale]/shop
+Γö£ ╞Æ /[locale]/shop/[slug]
+Γö£ ╞Æ /[locale]/store
+Γö£ ╞Æ /[locale]/tour/[id]
+Γö£ ╞Æ /[locale]/tour/[id]/active
+Γö£ ╞Æ /[locale]/tour/[id]/checkout
+Γö£ ╞Æ /[locale]/tour/[id]/hosts
+Γö£ ╞Æ /[locale]/tour/[id]/preview
+Γö£ ╞Æ /[locale]/tour/[id]/review
+Γö£ ╞Æ /[locale]/tour/[id]/wrap-up
+Γö£ ╞Æ /[locale]/tours
+Γö£ ╞Æ /[locale]/welcome
+Γö£ ╞Æ /api/auth/google
+Γö£ ╞Æ /api/auth/google/callback
+Γö£ ╞Æ /api/auth/prefill
+Γö£ ╞Æ /api/auth/session
+Γö£ ╞Æ /api/chat/quiz
+Γö£ ╞Æ /api/chat/stream/[matchId]
+Γö£ ╞Æ /api/chat/upload
+Γö£ ╞Æ /api/cron/purge-messages
+Γö£ ╞Æ /api/cron/reap-orders
+Γö£ ╞Æ /api/cron/send-thank-you
+Γö£ ╞Æ /api/cron/topup-slots
+Γöö ╞Æ /api/trpc/[trpc]
+
+
+╞Æ Proxy (Middleware)
+
+╞Æ  (Dynamic)  server-rendered on demand
+

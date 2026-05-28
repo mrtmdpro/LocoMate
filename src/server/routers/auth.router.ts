@@ -9,8 +9,13 @@ import { registerSchema, loginSchema } from "@/lib/validations/auth";
 
 export const authRouter = router({
   register: publicProcedure.input(registerSchema).mutation(async ({ ctx, input }) => {
+    // Lowercase email so that Google OAuth's lowercased email always collides
+    // with the password-registered email in the conditional-linking check.
+    // Otherwise `Victim@gmail.com` (password) and `victim@gmail.com` (OAuth)
+    // coexist and the squatting mitigation can be bypassed via case-folding.
+    const email = input.email.toLowerCase();
     const existing = await ctx.db.query.users.findFirst({
-      where: eq(users.email, input.email),
+      where: eq(users.email, email),
     });
     if (existing) {
       throw new TRPCError({ code: "CONFLICT", message: "Email already registered" });
@@ -20,14 +25,19 @@ export const authRouter = router({
     const [user] = await ctx.db
       .insert(users)
       .values({
-        email: input.email,
+        email,
         passwordHash,
         displayName: input.displayName,
         role: input.role,
       })
       .returning();
 
-    await ctx.db.insert(userProfiles).values({ userId: user.id });
+    // Hosts don't go through the traveler intent/interests onboarding --
+    // their "onboarding" is the host-setup wizard + ID verification. Mark
+    // the user_profiles row complete up front so login routes them straight
+    // to /home instead of the traveler-only /onboarding page.
+    const onboardingCompleted = user.role === "host" || user.role === "admin";
+    await ctx.db.insert(userProfiles).values({ userId: user.id, onboardingCompleted });
 
     const accessToken = signToken({ userId: user.id, role: user.role });
     const refreshToken = signRefreshToken({ userId: user.id, role: user.role });
@@ -40,8 +50,9 @@ export const authRouter = router({
   }),
 
   login: publicProcedure.input(loginSchema).mutation(async ({ ctx, input }) => {
+    const email = input.email.toLowerCase();
     const user = await ctx.db.query.users.findFirst({
-      where: eq(users.email, input.email),
+      where: eq(users.email, email),
     });
     if (!user || !user.passwordHash || !compareSync(input.password, user.passwordHash)) {
       throw new TRPCError({ code: "UNAUTHORIZED", message: "Invalid credentials" });

@@ -92,9 +92,13 @@ export const matchRouter = router({
     const enriched = await Promise.all(
       userMatches.map(async (m) => {
         const otherId = m.userAId === ctx.user.id ? m.userBId : m.userAId;
-        const otherUser = await ctx.db.query.users.findFirst({
-          where: eq(users.id, otherId),
-        });
+        // Post chat-overhaul, userAId / userBId are nullable (see
+        // matches FK rewrite in user.deleteAccount / schema). When the
+        // counterparty deleted their account, otherId is null and we
+        // return no user -- the inbox UI renders a "deleted user" row.
+        const otherUser = otherId
+          ? await ctx.db.query.users.findFirst({ where: eq(users.id, otherId) })
+          : null;
         return { ...m, otherUser };
       })
     );

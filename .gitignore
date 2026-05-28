@@ -30,6 +30,13 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
+# session-level runtime artifacts (build logs, deploy logs,
+# audit screenshots, playwright reports) — produced ad-hoc by the
+# coding agent during a working session, never meant to be tracked
+*.log
+.audit-screenshots/
+playwright-report/
+
 # env files
 .env
 .env.local

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { eq, and, ilike, sql, desc } from "drizzle-orm";
+import { eq, and, ilike, ne, sql, desc, asc } from "drizzle-orm";
 import { router, publicProcedure, protectedProcedure } from "../trpc";
 import { places, savedPlaces } from "../db/schema";
 
@@ -148,5 +148,93 @@ export const placeRouter = router({
         .limit(input.limit);
 
       return results;
+    }),
+
+  /**
+   * Phase A.5 — Proximity Smart Suggestion (a.k.a. "vòng tròn vệ tinh").
+   *
+   * Given a seed place, return up to `limit` nearby hidden-gem candidates
+   * within `radiusKm`. "Hidden gem" is sorted by `visitCount ASC` so the
+   * lesser-known places surface first — exactly the value-add the doc
+   * promises ("ngõ ngách không có trên Google Maps").
+   *
+   * Implementation: Haversine on the existing `(latitude, longitude)` btree
+   * index. PostGIS isn't required because the result set is tiny and the
+   * places table is < 1k rows in the Hanoi pilot.
+   *
+   * Returns the seed place's coordinates alongside the matches so the
+   * client can render the satellite ring without a second round-trip.
+   */
+  getNearby: publicProcedure
+    .input(z.object({
+      placeId: z.string().uuid(),
+      radiusKm: z.number().min(0.1).max(10).default(1.5),
+      limit: z.number().min(1).max(10).default(5),
+    }))
+    .query(async ({ ctx, input }) => {
+      const seed = await ctx.db.query.places.findFirst({
+        where: eq(places.id, input.placeId),
+      });
+      if (!seed) return { seed: null, nearby: [] as Array<typeof places.$inferSelect & { distanceKm: number }> };
+
+      const distanceExpr = sql<number>`(
+        6371 * acos(
+          least(1, greatest(-1,
+            cos(radians(${seed.latitude})) * cos(radians(${places.latitude})) *
+            cos(radians(${places.longitude}) - radians(${seed.longitude})) +
+            sin(radians(${seed.latitude})) * sin(radians(${places.latitude}))
+          ))
+        )
+      )`;
+
+      const rows = await ctx.db
+        .select({
+          // Spread every column so the client can render any place field
+          // (photos, slug, category) without a second fetch.
+          id: places.id,
+          name: places.name,
+          nameVi: places.nameVi,
+          nameEn: places.nameEn,
+          slug: places.slug,
+          description: places.description,
+          descriptionVi: places.descriptionVi,
+          descriptionEn: places.descriptionEn,
+          category: places.category,
+          latitude: places.latitude,
+          longitude: places.longitude,
+          address: places.address,
+          photos: places.photos,
+          openingHours: places.openingHours,
+          priceRange: places.priceRange,
+          experienceTags: places.experienceTags,
+          emotionalTags: places.emotionalTags,
+          source: places.source,
+          isVerified: places.isVerified,
+          isActive: places.isActive,
+          contributedBy: places.contributedBy,
+          avgRating: places.avgRating,
+          totalReviews: places.totalReviews,
+          visitCount: places.visitCount,
+          createdAt: places.createdAt,
+          updatedAt: places.updatedAt,
+          distanceKm: distanceExpr,
+        })
+        .from(places)
+        .where(
+          and(
+            eq(places.isActive, true),
+            ne(places.id, input.placeId),
+            sql`${distanceExpr} <= ${input.radiusKm}`,
+          ),
+        )
+        // Hidden-gem-first ordering: lower visitCount wins, tie-break by
+        // distance (closer wins) so the result feels physically coherent.
+        .orderBy(asc(places.visitCount), distanceExpr)
+        .limit(input.limit);
+
+      return {
+        seed: { id: seed.id, name: seed.name, latitude: seed.latitude, longitude: seed.longitude },
+        nearby: rows,
+      };
     }),
 });

@@ -1,9 +1,22 @@
 # LOCOMATE - Technical Requirements Document (TRD)
 
-**Version:** 1.0
-**Date:** April 7, 2026
-**Scope:** Local Development (Hanoi Pilot MVP)
-**Platform:** Progressive Web App (PWA)
+**Version:** 2.0
+**Date:** May 26, 2026
+**Scope:** Hanoi Pilot (Fixed Tour Matrix + Customized Tours + Activities + Merch + eSIM)
+**Platform:** Progressive Web App (PWA), bilingual VI/EN
+
+This TRD pairs with [PRD v2.0](PRD.md) and reflects the May 2026 meeting
+output. The Fixed Tour Matrix spec from
+[docs/sửa .md](../../docs/s%E1%BB%ADa%20.md) is authoritative for the curated
+catalog schema, taxonomy, and matching engine.
+
+## Related docs
+
+- [PRD.md](PRD.md) -- product requirements (the "what").
+- [BOOKING.md](BOOKING.md) -- booking lifecycle, state machines, anti-collision rules, refund semantics, concurrency invariants.
+- [CHAT.md](CHAT.md) -- chat architecture (SSE + polling), retention, attachments, moderation, rate limits, real-time event shapes.
+- [HOST_MARKETPLACE_PLAN.md](HOST_MARKETPLACE_PLAN.md) -- the two-track supply model that the Fixed Tour Matrix extends.
+- [TYPOGRAPHY.md](TYPOGRAPHY.md) -- type scale, contrast pairs, tap targets, accessibility guard.
 
 ---
 
@@ -79,28 +92,29 @@
 | State Management | **Zustand** | Lightweight, minimal boilerplate |
 | Data Fetching | **TanStack Query v5** | Caching, background refetch, optimistic updates |
 | API Client | **tRPC** | End-to-end type safety with backend |
-| Maps | **Mapbox GL JS** or **Google Maps JS API** | Interactive maps, directions, geolocation |
+| Maps | **Leaflet 1.9 + react-leaflet 5.0** (OSM tiles) | Interactive maps, no API key |
 | Forms | **React Hook Form + Zod** | Validation, performance |
-| Animations | **Framer Motion** | Swipe gestures for LocoMatch |
-| PWA | **next-pwa** / Service Worker | Offline support, push notifications |
-| Real-time | **Socket.io client** | Chat, location sharing |
+| Animations | **Framer Motion** | Page transitions, hover states |
+| PWA | `manifest.json` + Service Worker (Phase 2) | Offline splash, Add to Home Screen, push |
+| Real-time | Native SSE for chat, polling for tour status | Vercel-friendly; see [CHAT.md](CHAT.md) |
 
 ### 2.2 Backend
 
 | Layer | Technology | Rationale |
 |-------|-----------|-----------|
 | Runtime | **Node.js 22 LTS** | JavaScript ecosystem, async I/O |
-| Framework | **Next.js API Routes** + **tRPC** | Unified deployment, type-safe API |
+| Framework | **Next.js 15 App Router** + **tRPC** | Unified deployment, type-safe API |
 | Language | **TypeScript 5.x** | Shared types with frontend |
 | ORM | **Drizzle ORM** | Type-safe SQL, lightweight, PostgreSQL native |
-| Database | **PostgreSQL 16** | JSONB for flexible schemas, PostGIS for geospatial |
-| Cache | **Redis 7** (Upstash for serverless) | Session management, rate limiting, feed caching |
-| File Storage | **Supabase Storage** or **AWS S3** | User photos, place images, identity documents |
-| Real-time | **Socket.io** | WebSocket for chat and location sharing |
-| Job Queue | **BullMQ** (Redis-backed) | Tour generation, email sending, image processing |
-| AI/ML | **OpenAI API (GPT-4o)** | Tour narrative generation, personality inference |
-| Email | **Resend** | Transactional emails (confirmations, receipts) |
-| Push Notifications | **Web Push API** + **Firebase Cloud Messaging** | Match notifications, tour reminders |
+| Database | **Neon PostgreSQL 16** | Managed Postgres, JSONB for flexible schemas |
+| Cache | **Upstash Redis 7** (serverless) | SSE pub/sub for chat, rate limiting, location TTL |
+| File Storage | **Vercel Blob** | Wrap-up renders, tour photos, identity docs |
+| Real-time | Native SSE + tRPC polling | See [CHAT.md](CHAT.md) |
+| Job Queue | Vercel Cron + fire-and-forget API routes | Daily message purge, abandoned-cart reaper, Wrap-up generator |
+| AI/ML | **Local cosine matcher** + rule-based explainers | No external LLM; matcher in `app/src/server/lib/cosine.ts` |
+| Email | **Resend** | Receipts, Thư Tri ân, host confirmations |
+| Push Notifications | Phase 2 — Web Push + FCM | Tour reminders, Wrap-up ready, reroute accepted |
+| Payment | **Stripe** (live + test) + **VNPay/MoMo** (Phase 2) | Cards + VND QR |
 
 ### 2.3 Infrastructure
 
@@ -137,44 +151,59 @@
 users ──────────┐
   │              │
   ├── user_profiles (1:1)
-  │     │
-  │     ├── explicit_data (JSONB)
-  │     ├── derived_data (JSONB)
-  │     └── implicit_data (JSONB)
+  │     ├── explicit_data (JSONB) -- onboarding chat answers
+  │     ├── derived_data (JSONB)  -- personalityVector + legacy 18-D
+  │     └── implicit_data (JSONB) -- theme, share events, etc.
   │
-  ├── host_profiles (1:1, optional)
+  ├── host_profiles (1:1, optional)         -- guides ("Bạn Lối")
   │     ├── host_availability (1:N)
-  │     └── specialties
+  │     └── host_payouts (1:N)
   │
-  ├── matches (M:N self-join)
-  │     ├── messages (1:N)
-  │     └── swipe_actions
+  ├── matches → messages → message_reactions / message_reports / blocks
+  │     (1:1 chat threads between travelers and hosts; the deprecated
+  │      LocoMatch swipe UI is gone but the schema is preserved so that
+  │      chat threads survive)
   │
   ├── tours (1:N)
   │     ├── tour_stops (1:N)
   │     ├── reviews (1:1)
   │     └── payments (1:1)
   │
+  ├── orders (1:N)                          -- multi-line cart orders
+  │     └── order_items (1:N)
+  │
+  ├── cart_items (1:N)                      -- persistent cart
   ├── saved_places (M:N with places)
-  ├── emergency_contacts (1:N)
-  └── reports (1:N)
+  └── emergency_contacts (1:N)
 
-places ─────────┐
-  ├── slug (unique, human-readable URL)
-  ├── experience_tags (JSONB, 8 dimensions)
-  ├── emotional_tags (JSONB, 6 dimensions)
-  ├── saved_places (M:N with users)
+places ─────────┐ -- 996 real OSM-sourced Hanoi places
+  ├── slug, experience_tags (8-D), emotional_tags (6-D)
   └── tour_stops (1:N)
 
-experiences ────────┐
-  ├── slug (unique, human-readable URL)
-  ├── highlights, included, schedule (JSONB)
-  ├── category (culinary, cultural, adventure, nightlife)
-  └── priceAmount (VND)
+experiences ────────┐ -- host marketplace + curated 6
+  ├── authorId, kind (curated|host_custom), status, slug
+  └── tours.experienceId (1:N)
 
-Total: 16 tables (users, user_profiles, host_profiles, host_availability,
-  places, saved_places, experiences, matches, swipe_actions, messages, tours,
-  tour_stops, payments, reviews, emergency_contacts, reports)
+fixed_tours ────────┐ -- 15-tour curated catalog (NEW, May 2026)
+  ├── tour_id, chapter (MORNING|AFTERNOON|EVENING)
+  ├── title_vi / title_en / story_script_vi / story_script_en
+  ├── base_price_vnd, max_participants, duration_minutes
+  ├── vector (JSONB 4-float array)
+  ├── fixed_tour_steps (1:N) -- ordered itinerary with lat/long
+  ├── fixed_tour_tags  (1:N) -- MATERIAL / PERSONA / KEYWORD
+  └── tours.fixed_tour_id (1:N)
+
+activities ─────────┐ -- à-la-carte workshops + food crawls
+  └── activity_slots (1:N) -- time slots with capacity
+
+products ───────────┐ -- merch CMS
+  └── product_variants (1:N) -- size/color/stock
+
+host_payouts ────── -- weekly cashflow ledger
+
+Total: 25+ tables. The canonical Drizzle schema lives at
+`app/src/server/db/schema.ts`; this overview lists only what's relevant to
+the booking / matching / catalog domains.
 ```
 
 ### 3.2 Core Tables
@@ -315,7 +344,227 @@ CREATE INDEX idx_places_category ON places(category);
 CREATE INDEX idx_places_active ON places(is_active, is_verified);
 ```
 
-#### `matches`
+#### `fixed_tours` / `fixed_tour_steps` / `fixed_tour_tags` (NEW — May 2026)
+
+The 15-tour curated catalog from
+[docs/sửa .md](../../docs/s%E1%BB%ADa%20.md). The authoritative TypeScript
+definition is in [`app/src/server/db/schema.ts`](../src/server/db/schema.ts);
+the SQL below mirrors the Drizzle schema and matches the idempotent migration
+at [`app/scripts/create-fixed-tour-tables.ts`](../scripts/create-fixed-tour-tables.ts).
+
+Two design notes:
+
+1. **`tour_id` is a varchar like `LOCO_FT_M1`, not a UUID.** Human-readable
+   IDs keep logs and URLs (`/fixed-tours/LOCO_FT_M1`) legible, and the catalog
+   is tiny enough that collision risk is zero.
+2. **`vector` is a `jsonb` 4-float array, not a `vector(4)` column.** With 15
+   rows we don't need pgvector — the cosine matcher runs in-process from
+   `app/src/server/lib/cosine.ts`. The Pinecone / pgvector route stays on the
+   shelf for Phase 3 (multi-city, > 1,000 tours).
+
+```sql
+CREATE TABLE fixed_tours (
+  tour_id          VARCHAR(30) PRIMARY KEY,
+  title_vi         VARCHAR(255) NOT NULL,
+  title_en         VARCHAR(255) NOT NULL,
+  chapter          VARCHAR(20)  NOT NULL
+                     CHECK (chapter IN ('MORNING_SHIFT','AFTERNOON_SHIFT','EVENING_SHIFT')),
+  story_script_vi  TEXT NOT NULL,
+  story_script_en  TEXT NOT NULL,
+  duration_minutes INT NOT NULL DEFAULT 240,
+  max_participants INT NOT NULL DEFAULT 6,
+  base_price_vnd   INT NOT NULL,
+  vector           JSONB NOT NULL, -- [Art_Aesthetic, Deep_History_Heritage, Culinary_Enthusiast, Slow_Living]
+  is_active        BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at       TIMESTAMPTZ DEFAULT NOW(),
+  updated_at       TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX idx_fixed_tours_chapter ON fixed_tours(chapter);
+CREATE INDEX idx_fixed_tours_active  ON fixed_tours(is_active);
+
+CREATE TABLE fixed_tour_steps (
+  id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  tour_id             VARCHAR(30) REFERENCES fixed_tours(tour_id) ON DELETE CASCADE,
+  step_order          INT  NOT NULL,
+  target_time_offset  INT  NOT NULL, -- minutes from start_time
+  location_name_vi    VARCHAR(255) NOT NULL,
+  location_name_en    VARCHAR(255) NOT NULL,
+  latitude            DOUBLE PRECISION,
+  longitude           DOUBLE PRECISION,
+  action_log_vi       TEXT NOT NULL,
+  action_log_en       TEXT NOT NULL
+);
+CREATE UNIQUE INDEX idx_fixed_tour_steps_unique ON fixed_tour_steps(tour_id, step_order);
+CREATE INDEX        idx_fixed_tour_steps_tour   ON fixed_tour_steps(tour_id);
+
+CREATE TABLE fixed_tour_tags (
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  tour_id     VARCHAR(30) REFERENCES fixed_tours(tour_id) ON DELETE CASCADE,
+  tag_class   VARCHAR(20) NOT NULL CHECK (tag_class IN ('MATERIAL','PERSONA','KEYWORD')),
+  tag_key     VARCHAR(50) NOT NULL,
+  created_at  TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX idx_fixed_tour_tags_lookup ON fixed_tour_tags(tag_class, tag_key);
+CREATE INDEX idx_fixed_tour_tags_tour   ON fixed_tour_tags(tour_id);
+```
+
+Three tag classes and their vocabulary:
+
+| Class | Vocabulary | Purpose |
+|---|---|---|
+| `MATERIAL` | `#ThanhTao`, `#HonDat`, `#HuongMen` | The 3 heritage / craft / food themes that drive the listing-page filter chips. |
+| `PERSONA` | `Art_Aesthetic`, `Deep_History_Heritage`, `Culinary_Enthusiast`, `Slow_Living` | The 4 personality axes. Redundant with `fixed_tours.vector` but kept as discrete rows for SQL-level filtering before cosine ranking. |
+| `KEYWORD` | Free-form (`Sunrise`, `Phở_Culture`, `Bún_Chả`, `Indochine_Architecture`, …) | SEO bait + future full-text search. |
+
+Linkage to bookings: `tours.fixed_tour_id VARCHAR(30) REFERENCES fixed_tours(tour_id) ON DELETE SET NULL`.
+At most one of `tours.experience_id` / `tours.fixed_tour_id` is set per row;
+algorithmic tours from `/plan/build` leave both null. The CHECK constraint
+lives in
+[`app/scripts/create-fixed-tour-tables.ts`](../scripts/create-fixed-tour-tables.ts).
+
+#### Crossover Matching tables (NEW — May 2026, capacity rescue)
+
+Backs the Fixed Tour Capacity Rescue & Crossover Matching feature
+(PRD §5.11). Source spec:
+[docs/fixed-tour-feature.md](../../docs/fixed-tour-feature.md).
+
+Five new tables. `tour_crossover_requests` is the join table between two
+under-capacity bookings; `tour_proposal_edits` enforces the
+3-edit-max + sequential-approval invariants for the Smart Proposal Hub;
+`escrow_adjustments` is the audit log for in-chat Δ-payments;
+`priority_matching_vouchers` is the wallet entry awarded after a Report;
+`crossover_discovery_pushes` is the dedupe ledger so we don't blast the
+same traveler twice per T−36h cycle.
+
+```sql
+-- A pair-candidate join row. Both sides start as 'pending' from one
+-- direction; flips to 'matched' when reciprocated. After lock-in
+-- becomes 'locked'; on a Report or T-24h auto-cancel becomes
+-- 'terminated' (with a reason).
+CREATE TABLE tour_crossover_requests (
+  id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  initiator_tour_id   UUID NOT NULL REFERENCES tours(id) ON DELETE CASCADE,
+  target_tour_id      UUID NOT NULL REFERENCES tours(id) ON DELETE CASCADE,
+  status              VARCHAR(20) NOT NULL DEFAULT 'pending'
+                        CHECK (status IN (
+                          'pending',     -- one-way request
+                          'matched',     -- reciprocated; chat window open
+                          'locked',      -- merged route locked + Δ settled
+                          'expired',     -- anti-overlap kicked in
+                          'terminated'   -- report / T-24h cancel
+                        )),
+  match_score         DECIMAL(5,4),     -- cosine score at the time of pairing
+  chat_thread_id      UUID REFERENCES matches(id) ON DELETE SET NULL,
+  merged_route_id     UUID,             -- new tours row built by FR-CROSS-05
+  lock_deadline_at    TIMESTAMPTZ NOT NULL,  -- = T-28h
+  terminated_reason   VARCHAR(40),
+  created_at          TIMESTAMPTZ DEFAULT NOW(),
+  updated_at          TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE (initiator_tour_id, target_tour_id)
+);
+CREATE INDEX idx_xover_status     ON tour_crossover_requests(status, lock_deadline_at);
+CREATE INDEX idx_xover_initiator  ON tour_crossover_requests(initiator_tour_id);
+CREATE INDEX idx_xover_target     ON tour_crossover_requests(target_tour_id);
+
+-- Smart Proposal Hub edits. Up to 3 per crossover_request, sequential.
+-- The "only one pending at a time" invariant is enforced by the
+-- application + a partial unique index (below).
+CREATE TABLE tour_proposal_edits (
+  id                    UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  crossover_request_id  UUID NOT NULL REFERENCES tour_crossover_requests(id)
+                          ON DELETE CASCADE,
+  edit_order            INT NOT NULL CHECK (edit_order BETWEEN 1 AND 3),
+  proposer_user_id      UUID NOT NULL REFERENCES users(id) ON DELETE SET NULL,
+  operation             VARCHAR(10) NOT NULL
+                          CHECK (operation IN ('add', 'remove')),
+  -- Target of the op. Exactly one of these is non-null. Application
+  -- enforces; we don't add a CHECK because PG doesn't do XOR cleanly.
+  target_place_id       UUID REFERENCES places(id) ON DELETE SET NULL,
+  target_activity_id    UUID REFERENCES activities(id) ON DELETE SET NULL,
+  status                VARCHAR(20) NOT NULL DEFAULT 'pending_approval'
+                          CHECK (status IN (
+                            'pending_approval',
+                            'approved',
+                            'rejected'
+                          )),
+  decided_at            TIMESTAMPTZ,
+  created_at            TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE (crossover_request_id, edit_order)
+);
+-- Only one pending edit per pair at a time.
+CREATE UNIQUE INDEX idx_proposal_one_pending
+  ON tour_proposal_edits (crossover_request_id)
+  WHERE status = 'pending_approval';
+
+-- Audit log for the Δ-payment in FR-CROSS-06. One row per side of
+-- the pair (so two rows per locked crossover_request).
+CREATE TABLE escrow_adjustments (
+  id                    UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  crossover_request_id  UUID NOT NULL REFERENCES tour_crossover_requests(id)
+                          ON DELETE CASCADE,
+  tour_id               UUID NOT NULL REFERENCES tours(id) ON DELETE CASCADE,
+  user_id               UUID NOT NULL REFERENCES users(id) ON DELETE SET NULL,
+  cost_old_vnd          INT NOT NULL,
+  cost_new_vnd          INT NOT NULL,
+  delta_vnd             INT NOT NULL,    -- positive = charge, negative = refund
+  payment_id            UUID REFERENCES payments(id) ON DELETE SET NULL,
+  status                VARCHAR(20) NOT NULL DEFAULT 'pending'
+                          CHECK (status IN (
+                            'pending',
+                            'no_change',   -- Δ = 0
+                            'succeeded',
+                            'failed',
+                            'reverted'     -- rollback after a failed Δ-charge
+                          )),
+  created_at            TIMESTAMPTZ DEFAULT NOW(),
+  settled_at            TIMESTAMPTZ
+);
+CREATE INDEX idx_escrow_request ON escrow_adjustments(crossover_request_id);
+CREATE INDEX idx_escrow_user    ON escrow_adjustments(user_id, status);
+
+-- Wallet credit awarded after a successful Report. Bumps the holder's
+-- match score floor in the next N crossover sessions.
+CREATE TABLE priority_matching_vouchers (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id         UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  reason          VARCHAR(40) NOT NULL,   -- e.g. 'partner_report'
+  uses_remaining  INT NOT NULL DEFAULT 3,
+  score_boost     DECIMAL(4,3) NOT NULL DEFAULT 0.100,
+  expires_at      TIMESTAMPTZ NOT NULL,   -- e.g. NOW() + interval '90 days'
+  created_at      TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX idx_voucher_user_active
+  ON priority_matching_vouchers(user_id, expires_at)
+  WHERE uses_remaining > 0;
+
+-- Dedupe ledger for the T-36h push notification + discovery surface.
+-- One row per (recipient_user_id, crossover_target_tour_id) so we never
+-- spam the same traveler twice for the same departure.
+CREATE TABLE crossover_discovery_pushes (
+  id                    UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  recipient_user_id     UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  target_tour_id        UUID NOT NULL REFERENCES tours(id) ON DELETE CASCADE,
+  pushed_at             TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE (recipient_user_id, target_tour_id)
+);
+```
+
+Linkages added to existing tables:
+
+- `tours.original_fixed_tour_id VARCHAR(30) REFERENCES fixed_tours(tour_id) ON DELETE SET NULL`
+  — audit pointer for the Fixed → Custom migration path (FR-CROSS-02).
+- `tours.crossover_pair_id UUID REFERENCES tour_crossover_requests(id) ON DELETE SET NULL`
+  — both legs of a locked pair point at the same row so reads stay cheap.
+- `tours.status` gains two new values: `customized_pending` (post-migration
+  from a Fixed Tour) and `system_cancelled` (T−24h auto-cancel).
+- `user_profiles.implicit_data` gains the keys `consentMatching` (boolean,
+  set by FR-CROSS-02 implicit consent) and `crossoverAbandonCount` (int,
+  bumped by FR-CROSS-04 abandonment).
+
+The migration is idempotent and lives at
+`app/scripts/create-crossover-matching-tables.ts` (to be authored).
+
+#### `matches` (chat thread anchor, not swipe matches)
 ```sql
 CREATE TABLE matches (
   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -333,35 +582,18 @@ CREATE INDEX idx_matches_users ON matches(user_a_id, user_b_id);
 CREATE INDEX idx_matches_status ON matches(status);
 ```
 
-#### `swipe_actions`
-```sql
-CREATE TABLE swipe_actions (
-  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  swiper_id   UUID REFERENCES users(id) ON DELETE CASCADE,
-  target_id   UUID REFERENCES users(id) ON DELETE CASCADE,
-  action      VARCHAR(10) NOT NULL CHECK (action IN ('like', 'skip')),
-  created_at  TIMESTAMPTZ DEFAULT NOW(),
-  UNIQUE(swiper_id, target_id)
-);
+> `swipe_actions` is preserved as a vestigial table — the swipe UI is gone
+> but a hard schema drop is out of scope for the May 2026 doc refresh.
+> Definition in [`app/src/server/db/schema.ts`](../src/server/db/schema.ts).
 
-CREATE INDEX idx_swipes_swiper ON swipe_actions(swiper_id);
-```
+#### `messages` and related tables
 
-#### `messages`
-```sql
-CREATE TABLE messages (
-  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  match_id    UUID REFERENCES matches(id) ON DELETE CASCADE,
-  sender_id   UUID REFERENCES users(id) ON DELETE SET NULL,
-  content     TEXT NOT NULL,
-  message_type VARCHAR(20) DEFAULT 'text'
-    CHECK (message_type IN ('text', 'image', 'system')),
-  is_read     BOOLEAN DEFAULT FALSE,
-  created_at  TIMESTAMPTZ DEFAULT NOW()
-);
-
-CREATE INDEX idx_messages_match ON messages(match_id, created_at DESC);
-```
+The chat domain has grown beyond v1.0's text-only table. The full set —
+`messages`, `message_reactions`, `message_reports`, `blocks` — is documented
+in [CHAT.md](CHAT.md) (transport, retention, attachments, moderation, the
+SSE + polling architecture). The schema lives in
+[`app/src/server/db/schema.ts`](../src/server/db/schema.ts); listing the SQL
+twice would drift.
 
 #### `tours`
 ```sql
@@ -396,9 +628,17 @@ CREATE TABLE tours (
   -- }
 
   package_type    VARCHAR(20) NOT NULL
-    CHECK (package_type IN ('loco_route', 'solo_mate', 'social_tour')),
+    CHECK (package_type IN ('loco_route', 'solo_mate', 'social_tour',
+                            'fixed_tour', 'host_experience')),
   price_amount    INT NOT NULL DEFAULT 0,
   price_currency  VARCHAR(3) DEFAULT 'VND',
+
+  -- Links a booking back to its source. At most one of these is non-null:
+  --   experience_id   → host marketplace or curated experience
+  --   fixed_tour_id   → curated Fixed Tour Matrix (NEW, May 2026)
+  -- Algorithmic tours (legacy /plan engine) leave both null.
+  experience_id   UUID REFERENCES experiences(id) ON DELETE SET NULL,
+  fixed_tour_id   VARCHAR(30) REFERENCES fixed_tours(tour_id) ON DELETE SET NULL,
 
   started_at      TIMESTAMPTZ,
   completed_at    TIMESTAMPTZ,
@@ -406,7 +646,9 @@ CREATE TABLE tours (
   updated_at      TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX idx_tours_user ON tours(user_id, status);
+CREATE INDEX idx_tours_user        ON tours(user_id, status);
+CREATE INDEX idx_tours_experience  ON tours(experience_id);
+CREATE INDEX idx_tours_fixed_tour  ON tours(fixed_tour_id);
 CREATE INDEX idx_tours_host ON tours(host_id);
 CREATE INDEX idx_tours_status ON tours(status);
 ```
@@ -507,27 +749,45 @@ CREATE TABLE reports (
 ### 4.1 API Architecture
 tRPC routers organized by domain module. All endpoints require authentication unless marked `[public]`.
 
-### 4.2 Router Structure (10 routers, 50 endpoints)
+### 4.2 Router Structure (15 routers, 90+ procedures)
+
+The full surface, as merged in
+[`app/src/server/routers/_app.ts`](../src/server/routers/_app.ts):
 
 ```
 src/server/routers/
-├── _app.ts                 # Root router merging all sub-routers
-├── auth.router.ts          # register, login, refreshToken
-├── user.router.ts          # getProfile, updateProfile, submitOnboarding, updatePreferences,
-│                           # getEmergencyContacts, setEmergencyContact, updateEmergencyContact,
-│                           # deleteEmergencyContact
-├── place.router.ts         # getFeed, getById, getBySlug, getByIds, search, nearby,
-│                           # savePlace, unsavePlace, isSaved, getSavedPlaces
-├── match.router.ts         # getCandidates, swipe, getMatches, unmatch (swipe UI removed,
-│                           #   router kept for backward-compatible chat conversations)
-├── chat.router.ts          # getConversations, getMessages, sendMessage, markRead
-├── tour.router.ts          # create, getPreview, getFullTour, startTour, markStopVisited,
-│                           # completeTour, getHistory
-├── payment.router.ts       # createIntent, confirm
-├── host.router.ts          # getProfile, updateProfile, setAvailability, getBookings,
-│                           # getAvailableHosts
-├── review.router.ts        # submitTourReview, getTourReview
-├── experience.router.ts    # list, getBySlug, getById (Premium Experiences, added Apr 2026)
+├── _app.ts                       # Root router
+├── auth.router.ts                # register, login, oauth, refreshToken, deleteAccount
+├── user.router.ts                # getProfile, updateProfile, submitOnboarding,
+│                                 # recomputePersonality, recordSignal,
+│                                 # getEmergencyContacts (+ set/update/delete)
+├── place.router.ts               # getFeed, getById, getBySlug, getByIds, search,
+│                                 # nearby, savePlace, unsavePlace, isSaved, getSavedPlaces
+├── match.router.ts               # vestigial — chat thread anchors only (swipe UI dropped)
+├── chat.router.ts                # getConversations, getMessages, sendMessage, markRead,
+│                                 # editMessage, deleteMessage, addReaction, reportMessage,
+│                                 # block/unblock — see CHAT.md
+├── tour.router.ts                # create, getPreview, getFullTour, assignHost, startTour,
+│                                 # markStopVisited, completeTour, getHistory,
+│                                 # reportIncident (NEW — dynamic re-routing trigger)
+├── fixedTour.router.ts           # NEW (May 2026) — list, getById, book, rank, previewRank
+├── experience.router.ts          # list, getBySlug, getById, book (host marketplace + curated)
+├── host-experience.router.ts     # host-authored experience CRUD (listMine, create, update,
+│                                 # publish, archive, getById)
+├── activity.router.ts            # à-la-carte browse + host CMS (list, getBySlug, getSlots,
+│                                 # listMine, create, update, publish, archive,
+│                                 # addSlot, removeSlot)
+├── cart.router.ts                # persistent multi-line cart (get, add, updateQuantity,
+│                                 # remove, clear, getCount)
+├── order.router.ts               # createFromCart, confirmPayment, getHistory, get
+├── merch.router.ts               # list, getBySlug, getVariantsByIds + admin CRUD
+├── payment.router.ts             # createIntent, confirm, getHistory, refund (admin)
+├── host.router.ts                # getDashboard, setAvailable, getBalance, getRevenueByDay,
+│                                 # getRevenueByExperience, getPaymentsTimeline,
+│                                 # getCommissionSummary, getPayoutHistory,
+│                                 # getStopHeatmap, getStopDetail,
+│                                 # getEarningsSummary, getUpcomingBookings, getPastBookings
+└── review.router.ts              # submitTourReview, getTourReview
 ```
 
 ### 4.3 Key Endpoints
@@ -559,34 +819,95 @@ src/server/routers/
 | `place.nearby` | query | authed | Geospatial query within radius |
 | `place.contribute` | mutation | authed | Submit new place (moderation queue) |
 
-#### Match
-| Procedure | Type | Auth | Description |
-|-----------|------|------|-------------|
-| `match.getCandidates` | query | authed | Get swipe candidates (paginated) |
-| `match.swipe` | mutation | authed | Record like/skip action |
-| `match.getMatches` | query | authed | List current matches |
-| `match.unmatch` | mutation | authed | Remove match |
-| `match.block` | mutation | authed | Block user |
+#### Fixed Tour Matrix (NEW — May 2026)
 
-#### Chat
+Implements [docs/sửa .md §4](../../docs/s%E1%BB%ADa%20.md). The router is
+[`app/src/server/routers/fixedTour.router.ts`](../src/server/routers/fixedTour.router.ts).
+
 | Procedure | Type | Auth | Description |
-|-----------|------|------|-------------|
+|---|---|---|---|
+| `fixedTour.list` | query | public | List active tours filtered by `chapter` and/or `materials[]`. When the caller is signed in AND has `derivedData.personalityVector`, results are cosine-ranked with a `matchPercent`; otherwise canonical `tour_id` order. |
+| `fixedTour.getById` | query | public | Single tour with ordered `fixed_tour_steps`, grouped tags (MATERIAL / PERSONA / KEYWORD), and `matchPercent` when the caller has a vector. |
+| `fixedTour.book` | mutation | authed | `{ tourId, date, startTime, groupSize }` → writes a `tours` row with `packageType='fixed_tour'`, `fixedTourId` set, price = `basePriceVnd * groupSize`, status `preview`. Materializes `tour_stops` from `fixed_tour_steps`. Returns the new tour UUID for the existing `/tour/[id]/checkout`. |
+| `fixedTour.rank` | query | public | Rank-only result: `[{ tourId, matchPercent }]`. Accepts an optional `userVector` so the chat onboarding can preview the ranking before saving. |
+| `fixedTour.previewRank` | query | public | Same as `rank` but with `topN` and an explicit `userVector` required — used inline in the chat quiz. |
+
+The 4-D vector axis order is fixed and documented in
+[`app/src/lib/quiz-questions.ts`](../src/lib/quiz-questions.ts):
+`[Art_Aesthetic, Deep_History_Heritage, Culinary_Enthusiast, Slow_Living]`.
+
+#### Crossover Matching (NEW — May 2026, capacity rescue)
+
+Implements PRD §5.11. Lives in a new router
+`app/src/server/routers/crossover.router.ts` (to be authored). Schema in
+§3 above.
+
+| Procedure | Type | Auth | Description |
+|---|---|---|---|
+| `crossover.getEligibleTours` | query | authed | Lists the caller's own `fixed_tour` bookings currently under capacity, with their pre-departure timestamp markers (T−48h, T−36h, T−28h, T−24h). |
+| `crossover.migrateToCustom` | mutation | authed | One-click Fixed → Custom migration (FR-CROSS-02). Preserves `priceAmount`, sets `tours.status = 'customized_pending'`, writes `tours.original_fixed_tour_id`. |
+| `crossover.getDiscoveryFeed` | query | authed | T−36h anonymous discovery surface. Returns ranked `[{ requestCandidateId, personalityVector, route, ageGroup, nationality, matchScore }]`. **PII-stripped DTO** — the server never returns `displayName`, `avatarUrl`, `email`, `phone`. |
+| `crossover.sendRequest` | mutation | authed | `{ targetTourId }` — fires a `tour_crossover_requests` row with `status='pending'`. Anti-Overlap check runs server-side; conflicting slots throw `PRECONDITION_FAILED`. |
+| `crossover.acceptRequest` | mutation | authed | Reciprocate a pending request. On reciprocation, flips `status='matched'`, opens a chat thread, expires conflicting requests on the same calendar slot. |
+| `crossover.declineRequest` | mutation | authed | One-sided decline; the requester sees a soft "not this time" toast (no reason exposed). |
+| `crossover.proposeEdit` | mutation | authed | Smart Proposal Hub — `{ requestId, operation: 'add'\|'remove', targetPlaceId?, targetActivityId? }`. Server enforces ≤ 3 edits per request and the "one pending at a time" invariant via the partial unique index. |
+| `crossover.decideEdit` | mutation | authed | The other party `{ editId, decision: 'approved'\|'rejected' }`. Approving an `add` / `remove` mutates the merged route draft in-place. |
+| `crossover.coCreateRoute` | mutation | authed | FR-CROSS-05 fallback for Fixed + Fixed conflicts — combines the two 4-D vectors (weighted average) and runs the Customized Tour engine to produce a brand-new merged route. |
+| `crossover.lockRoute` | mutation | authed | **[Chốt hành trình chung]** — both parties must call this within the 8-hour window. On the second call, the server computes Δ per side, opens an `escrow_adjustments` row per leg, and either flips to `no_change` (Δ = 0), opens a Stripe Payment Element (Δ > 0), or auto-refunds (Δ < 0). |
+| `crossover.confirmEscrowPayment` | mutation | authed | Front-end calls this after Stripe Payment Element returns `succeeded`. Idempotent. On success the linked tour's `status` flips to `paid` and the SSE `tour:routeUpdated` event fires to the assigned guide. |
+| `crossover.reportPartner` | mutation | authed | FR-CROSS-08. Pair-scoped ban + chat termination + cache-wipe + Priority Matching Voucher issuance, all in one transaction. |
+| `crossover.redeemVoucher` | query | authed | Reads + decrements `uses_remaining`. Used internally by `crossover.getDiscoveryFeed` to apply the `score_boost`. |
+
+#### Crossover scheduled jobs (Vercel cron)
+
+| Cron path | Cadence | Action |
+|---|---|---|
+| `/api/cron/crossover-t48` | every 15 min | For every `fixed_tour` booking departing in 47.5–48.5h with `currentCapacity < 2`: emit the in-app warning, surface the migration CTA, and flag `Tour.lowFillNotifiedAt`. |
+| `/api/cron/crossover-t36` | every 15 min | For every under-capacity booking past T−36h: build the discovery candidate set, send pushes (deduped via `crossover_discovery_pushes`), open the `/match/crossover` surface for participants. |
+| `/api/cron/crossover-t28` | every 15 min | Close the 8-hour chat window. Unlocked pairs flip back to `expired`; their underlying bookings re-enter the under-capacity pool. |
+| `/api/cron/crossover-t24` | every 15 min | Auto-cancel any `fixed_tour` booking still under capacity OR with `tour_crossover_requests.status != 'locked'`. Refund 100%, push to traveler + guide, free `host_availability`. |
+
+All four endpoints require `Authorization: Bearer $CRON_SECRET` (same
+pattern as the existing reaper) and emit Sentry breadcrumbs on every
+transition so a stuck booking shows up in observability instead of
+silently rotting.
+
+#### SSE / real-time event types (Crossover-specific additions)
+
+Multiplexed on the existing chat SSE channel (`/api/chat/stream/[matchId]`):
+
+| Event | Direction | Payload |
+|---|---|---|
+| `crossover:proposalPending` | → both parties | `{ editId, proposerUserId, operation, targetName }` |
+| `crossover:proposalDecided` | → both parties | `{ editId, decision, by }` |
+| `crossover:escrowReady` | → both parties | `{ deltaVnd, requiresAction: boolean }` — Δ > 0 forces the Payment Element on the requesting side |
+| `crossover:locked` | → both parties + guide | `{ mergedTourId, finalPriceVnd }` |
+| `tour:routeUpdated` | → guide only | New stop list (FR-CROSS-07). Fires after `escrow_adjustments.status='succeeded'` or `Δ = 0`. |
+| `crossover:terminated` | → reporter / non-reported partner | `{ reason }` — `'partner_report'` triggers the apology banner + voucher grant on the reporter's side. |
+
+#### Chat — see [CHAT.md](CHAT.md) for the full procedure list
+
+| Procedure | Type | Auth | Description |
+|---|---|---|---|
 | `chat.getConversations` | query | authed | List active conversations |
 | `chat.getMessages` | query | authed | Paginated messages for a match |
 | `chat.sendMessage` | mutation | authed | Send text/image message |
 | `chat.markRead` | mutation | authed | Mark messages as read |
+| `chat.editMessage`, `chat.deleteMessage`, `chat.addReaction`, `chat.reportMessage`, `chat.block`, `chat.unblock` | mutations | authed | See CHAT.md |
 
-#### Tour
+#### Tour (algorithmic flow + active-tour lifecycle)
+
 | Procedure | Type | Auth | Description |
-|-----------|------|------|-------------|
-| `tour.create` | mutation | authed | Submit tour request, trigger generation |
-| `tour.getPreview` | query | authed | Get free preview of generated tour |
-| `tour.getFullTour` | query | authed | Get full tour (requires payment) |
-| `tour.updateStop` | mutation | authed | Swap/reorder stops |
-| `tour.startTour` | mutation | authed | Begin active tour mode |
+|---|---|---|---|
+| `tour.create` | mutation | authed | Submit tour request → generation (legacy algorithmic engine) |
+| `tour.getPreview` | query | authed | Free preview of generated tour |
+| `tour.getFullTour` | query | authed | Full tour (requires payment) |
+| `tour.assignHost` | mutation | authed | Attach a guide post-creation; recomputes price + packageType |
+| `tour.startTour` | mutation | authed | Begin active tour mode (status: paid → active) |
 | `tour.markStopVisited` | mutation | authed | Mark a stop as visited |
-| `tour.completeTour` | mutation | authed | End tour |
-| `tour.getHistory` | query | authed | List past tours |
+| `tour.completeTour` | mutation | authed | End tour (status: active → completed); kicks off Wrap-up job |
+| `tour.reportIncident` | mutation | host | **NEW** — Guide-only. Triggers Dynamic Re-routing AI; returns 3 candidate substitute stops. |
+| `tour.getHistory` | query | authed | List past tours (paid + completed + cancelled) |
 
 #### Payment
 | Procedure | Type | Auth | Description |
@@ -596,20 +917,68 @@ src/server/routers/
 | `payment.webhook` | mutation | public | Gateway webhook handler (Stripe/VNPay) |
 | `payment.requestRefund` | mutation | authed | Request refund |
 
-#### Host
+#### Host (operator console — `app/src/server/routers/host.router.ts`)
+
 | Procedure | Type | Auth | Description |
-|-----------|------|------|-------------|
-| `host.getProfile` | query | authed | Get host profile |
-| `host.updateProfile` | mutation | host | Update bio, specialties |
-| `host.setAvailability` | mutation | host | Set weekly time slots |
-| `host.getBookings` | query | host | List assigned tours |
-| `host.submitVerification` | mutation | host | Upload identity documents |
+|---|---|---|---|
+| `host.getDashboard` | query | host | Today's bookings + revenue (VN-local-day bounds) |
+| `host.setAvailable` | mutation | host | Toggle `isAvailable` |
+| `host.getBalance` | query | host | Available / Pending / In-review / refunded / lifetime payouts / next-payout forecast |
+| `host.getRevenueByDay` | query | host | Contiguous VN-local-day series for a chart |
+| `host.getRevenueByExperience` | query | host | Per-listing perf (ORDER BY gross DESC) |
+| `host.getPaymentsTimeline` | query | host | Gross / commission / net per transaction |
+| `host.getCommissionSummary` | query | host | Lifetime split, transparent rate |
+| `host.getPayoutHistory` | query | host | Newest-first payouts |
+| `host.getStopHeatmap` | query | host | Aggregate stop visit counts (for the Routes map) |
+| `host.getStopDetail` | query | host | Drill-down per place |
+| `host.getEarningsSummary`, `host.getUpcomingBookings`, `host.getPastBookings` | query | host | Earnings 7d/30d/lifetime, upcoming-week, paged history |
+| `host.scanMerchantQR` | mutation | host | **NEW** — verify HMAC + apply sỉ pricing to the active tour |
+| `host.recordMealItem` | mutation | host | **NEW** — append a `meal_log` row during a food tour |
+| `host.markHandoverComplete` | mutation | host | **NEW** — record the merch handover at end-of-tour |
+
+#### Activities / Cart / Orders / Merch — see [BOOKING.md](BOOKING.md) for the lifecycle
+
+| Router | Notable procedures |
+|---|---|
+| `activity.*`  | `list`, `getBySlug`, `getSlots`, `listMine`, `create`/`update`/`publish`/`archive`, `addSlot`/`removeSlot`, `getManyByIds` |
+| `cart.*`      | `get`, `add` (discriminated union), `updateQuantity` (capacity re-check), `remove`, `clear`, `getCount` |
+| `order.*`     | `createFromCart` (server-side price re-validation + `ESIM_BUNDLE_10` auto-apply + `detectConflicts`), `confirmPayment` (transactional slot+stock decrement), `getHistory`, `get` |
+| `merch.*`     | `list`, `getBySlug`, `getVariantsByIds`, admin: `createProduct`, `updateProduct`, `archiveProduct`, `addVariant`, `updateVariant`, `removeVariant` |
 
 ---
 
 ## 5. Core Algorithms
 
-### 5.1 Tour Generation Algorithm
+### 5.1 Fixed Tour Matching (cosine over 4-D vectors) — NEW
+
+The headline matcher. Implements [docs/sửa .md §5](../../docs/s%E1%BB%ADa%20.md)
+in TypeScript at [`app/src/server/lib/cosine.ts`](../src/server/lib/cosine.ts).
+
+```
+FUNCTION rankByCosine(userVec[4], tours[]):
+  FOR each tour:
+    dot   = Σ userVec[i] * tour.vector[i]
+    normU = sqrt(Σ userVec[i]²)
+    normT = sqrt(Σ tour.vector[i]²)
+    cosine = dot / (normU * normT)   -- guarded against /0
+    matchPercent = round(cosine * 100, 2)
+  RETURN SORT tours BY matchPercent DESC
+```
+
+Vector axis order is canonical and shared end-to-end:
+`[Art_Aesthetic, Deep_History_Heritage, Culinary_Enthusiast, Slow_Living]`.
+
+Derivation from the chat-quiz answers (`craft / heritage / food / quiet`, plus
+a `social` axis softly redistributed 50/50 into `Art_Aesthetic` +
+`Slow_Living`) is documented in
+[`app/src/lib/quiz-questions.ts`](../src/lib/quiz-questions.ts).
+
+Performance: the catalog is 15 rows; the full ranking runs in **< 5 ms** in
+local Node.js. We deliberately did not reach for Pinecone / pgvector — the
+in-process matcher stays correct for catalogs up to ~1,000 rows. Phase 3
+cut-over criteria + the embedding path are described in §17 below.
+
+### 5.2 Customized Tour Generation (legacy, preserved as low-end tier)
 
 ```
 FUNCTION generateTour(userProfile, requestParams):
@@ -649,10 +1018,9 @@ FUNCTION generateTour(userProfile, requestParams):
   7. timeline = allocateTime(optimizedRoute, CONTEXT.energy_score)
      // Higher energy = more stops, shorter dwell; Lower = fewer stops, longer dwell
 
-  8. narrative = callOpenAI(
-       prompt: "Generate a personalized tour description",
-       context: { places: selectedPlaces, userProfile: CONTEXT }
-     )
+  8. narrative = ruleBasedExplainer(CONTEXT, selectedPlaces)
+     // components/ai-explainer.tsx — emits 2–3 fit reasons from
+     // userProfile.derivedData + explicitData. No LLM call.
 
   9. RETURN TourObject {
        stops: optimizedRoute,
@@ -663,42 +1031,201 @@ FUNCTION generateTour(userProfile, requestParams):
      }
 ```
 
-### 5.2 Match Scoring Algorithm
+The engine lives at
+[`app/src/server/services/_legacy/tour-engine.ts`](../src/server/services/_legacy/tour-engine.ts).
+The `_legacy/` move reflects its repositioning as the budget alternative to
+the Fixed Tour Matrix.
+
+### 5.3 Merchant QR Verification (NEW)
+
+The `host.scanMerchantQR` mutation accepts a payload of
+`{ merchantId, signedNonce, tourId }`. The server:
+
+1. Recomputes `HMAC-SHA256(secret, merchantId || nonce)` and compares it to
+   `signedNonce`. Reject on mismatch.
+2. Loads the merchant's contracted sỉ price list (`merchant_pricelists`
+   table — see schema notes in §16).
+3. Stamps the active tour's `tour_data.merchantContext` with the merchant
+   + applicable price list, so subsequent `host.recordMealItem` calls
+   know which price to record.
+
+The HMAC secret rotates via `MERCHANT_QR_SIGNING_KEY` env var. Verified
+merchants are issued a printed QR encoding only `merchantId` + `nonce`; no
+PII is on the printout.
+
+### 5.4 Real-time Meal Balancing (NEW)
 
 ```
-FUNCTION calculateMatchScore(userA, userB):
-  interestOverlap = |intersect(A.interests, B.interests)| /
-                    |union(A.interests, B.interests)|
+FUNCTION reconcileMealSpend(tourId):
+  tour      = SELECT * FROM tours WHERE id = tourId
+  mealLog   = tour.tourData.mealLog ?? []
+  estimate  = tour.priceAmount.foodBudgetEstimate
+  actual    = SUM(item.priceVnd FOR item IN mealLog)
+  delta     = actual - estimate
 
-  intentSimilarity = cosineSimilarity(A.intent_vector, B.intent_vector)
-
-  travelTimingOverlap = overlapDays(A.travel_dates, B.travel_dates) /
-                        max(A.trip_length, B.trip_length)
-
-  languageCompat = IF shareCommonLanguage(A, B) THEN 1.0 ELSE 0.3
-
-  socialAlign = 1.0 - |A.social_preference - B.social_preference|
-
-  score = 0.25 * interestOverlap
-        + 0.25 * intentSimilarity
-        + 0.20 * travelTimingOverlap
-        + 0.15 * languageCompat
-        + 0.15 * socialAlign
-
-  RETURN score  // threshold: >= 0.40 to show in feed
+  IF |delta| <= estimate * 0.05:
+    -- within tolerance, no reconciliation
+    RETURN { adjustment: 0 }
+  ELIF delta < 0:
+    -- refund excess to original payment method
+    payment.refund(tourId, amount=|delta|, reason='meal_underspend')
+  ELSE:
+    -- charge the additional spend using the saved Stripe / VNPay method
+    payment.createIntent(tourId, amount=delta, reason='meal_overspend')
 ```
 
-### 5.3 Derived Profile Computation
+Fires from `tour.completeTour` for any tour whose
+`tourData.foodBudgetEstimate` is non-null. The recorded items are persisted
+to `tours.tour_data.mealLog`; the reconciliation result lands on
+`payments.refund_amount` or a new `payments` row, both visible on
+`/profile/payment-history` with a "Meal reconciliation" badge.
+
+### 5.5 Dynamic Re-routing AI (NEW)
+
+`tour.reportIncident({ kind, currentStopId })` is a host-only mutation that:
+
+1. Loads the original stop's MATERIAL + KEYWORD tags.
+2. Queries `places` within a 1.5 km haversine radius that share ≥ 1 MATERIAL
+   tag, are `is_verified=true`, currently open (using `opening_hours` JSONB),
+   and not already on the tour.
+3. Ranks by `(tag_overlap_count, distance_asc)`.
+4. Returns the top 3. The Guide accepts one; the server mutates
+   `tour_stops` + `tour_data.stops` in a single transaction so the traveler's
+   view stays consistent.
+
+Pure rules. No LLM. Returns in < 2 s p95.
+
+### 5.6 Wrap-up Generator (NEW)
+
+`POST /api/tour/[id]/wrap-up` (Node.js, runs as a fire-and-forget job
+triggered by `tour.completeTour`). The job:
+
+1. Loads the tour, its `tour_stops`, the linked Fixed Tour metadata, and
+   the user's `personalityVector`.
+2. Picks a hero photo from the field upload pool (Guide uploads via
+   `/api/host/upload-tour-photo`).
+3. Renders a templated component server-side
+   (`components/wrap-up/wrap-up-page.tsx`) into HTML; persists the rendered
+   doc to a static `/tour-wraps/[id].html` slot on Vercel Blob so the share
+   URL stays cacheable.
+4. Generates an OG image via `@vercel/og` for IG/TikTok share previews.
+
+No LLM in the loop. Phase 3 could swap the templated copy for a GPT
+narrative; the contract stays the same.
+
+### 5.7 Crossover Matching Engine (NEW — capacity rescue)
+
+Implements PRD §5.11. Three sub-algorithms:
+
+**a) Candidate ranking (T−36h discovery).**
+
+```
+FUNCTION rankCrossoverCandidates(viewerTourId, allEligibleTours):
+  viewer        = load(viewerTourId)
+  viewerVector  = viewer.user.personalityVector
+  candidates    = filter(allEligibleTours, t => t.id != viewerTourId
+                       AND t.userId != viewer.userId
+                       AND sameDepartureWindow(t, viewer, tolerance=4h))
+
+  FOR each c IN candidates:
+    raw      = cosine(viewerVector, c.user.personalityVector)
+    boost    = activeVoucherBoost(c.userId)   -- 0.0 or 0.1
+    c.score  = clamp(raw + boost, 0, 1)
+    c.matchPercent = round(c.score * 100, 2)
+
+  RETURN SORT candidates BY matchPercent DESC LIMIT 20
+```
+
+Reuses the in-process `lib/cosine.rankByCosine`. The Priority Matching
+Voucher boost is a flat additive +0.1 on the raw cosine score (capped at
+1.0); `uses_remaining` is decremented inside
+`crossover.getDiscoveryFeed`, not at boost-application time, so a
+voucher only "burns" when the holder actually views a feed.
+
+**b) Anti-Overlap enforcement.**
+
+`crossover.sendRequest` and `crossover.acceptRequest` both run this in a
+single transaction before flipping state:
+
+```
+FUNCTION enforceAntiOverlap(userId, targetSlot):
+  conflicting = SELECT * FROM tour_crossover_requests x
+                  JOIN tours t ON t.id IN (x.initiator_tour_id, x.target_tour_id)
+                  WHERE (x.initiator_user_id = userId OR x.target_user_id = userId)
+                    AND x.status IN ('pending', 'matched')
+                    AND overlaps(t.start_at, targetSlot, tolerance=4h)
+
+  IF any conflicting.status = 'matched':
+    THROW PRECONDITION_FAILED('You already have an accepted crossover for this slot')
+
+  -- Otherwise auto-expire all the pending ones on the same calendar slot:
+  UPDATE tour_crossover_requests
+     SET status = 'expired'
+   WHERE id IN (conflicting.ids WHERE status = 'pending')
+```
+
+**c) Merged-route resolution.**
+
+```
+FUNCTION resolveMergedRoute(crossoverRequestId):
+  req     = load(crossoverRequestId)
+  a, b    = req.initiator_tour, req.target_tour
+
+  CASE pair_kind(a, b):
+    WHEN ('fixed', 'fixed') AND user_picked_coCreate:
+      mergedVector = weighted_avg(a.user.vector, b.user.vector)
+      route        = customizedTourEngine(mergedVector,
+                                          duration  = max(a.duration, b.duration),
+                                          materials = union(a.material_tags,
+                                                            b.material_tags))
+    WHEN ('fixed', 'fixed'):
+      route = pickOne(a.fixed_tour, b.fixed_tour)   -- user choice from chat
+    WHEN ('fixed', 'custom') OR ('custom', 'custom'):
+      route = pickOne(a.route, b.route)             -- user choice from chat
+
+  -- Apply up to 3 approved edits.
+  FOR each edit IN approvedEdits(crossoverRequestId) ORDER BY edit_order:
+    IF edit.operation = 'add':    route.stops.push(loadStop(edit.target_*))
+    IF edit.operation = 'remove': route.stops = remove(route.stops, edit.target_*)
+
+  newPrice = pricePerPerson(route) * 2   -- group of 2 minimum
+  RETURN { route, newPrice }
+```
+
+**d) Escrow Δ settlement.**
+
+Runs inside `crossover.lockRoute` as the second-half of a 2-phase commit
+(the first half is the user-side Stripe Payment Element confirmation):
+
+```
+FOR each leg IN [initiator, target]:
+  oldPrice = leg.tour.priceAmount
+  newPrice = mergedRoute.newPrice / 2
+  delta    = newPrice - oldPrice
+
+  INSERT INTO escrow_adjustments(
+    crossover_request_id, tour_id, user_id,
+    cost_old_vnd, cost_new_vnd, delta_vnd, status
+  ) VALUES (req.id, leg.tour.id, leg.userId,
+            oldPrice, newPrice, delta,
+            CASE WHEN delta = 0 THEN 'no_change' ELSE 'pending' END);
+
+IF any leg has delta > 0:
+  emit SSE crossover:escrowReady to the requiring side(s)
+  WAIT (chat re-opens with 30-min grace)
+  ON timeout OR decline: revert -> set status='reverted', release lock
+ELSE:
+  emit SSE crossover:locked + tour:routeUpdated
+  flip tours.status = 'paid' for both legs
+  bump experiences.totalBookings if linked
+```
+
+### 5.8 Derived Profile Computation
 
 ```
 FUNCTION computeDerivedProfile(explicitData):
-  prompt = buildPrompt(
-    "Given these onboarding answers, compute personality, behavior,
-     and emotional vectors as JSON with float values 0.0-1.0",
-    explicitData
-  )
-
-  result = callOpenAI(prompt, model="gpt-4o-mini", response_format="json")
+  result = ruleBasedCompute(explicitData)
+  -- Deterministic mapping: see app/src/server/services/profile-engine.ts
 
   VALIDATE result against DerivedProfileSchema
 
@@ -716,29 +1243,28 @@ FUNCTION computeDerivedProfile(explicitData):
 ### 6.1 WebSocket Architecture
 
 ```
-Client <--WebSocket--> Socket.io Server
-                          |
-                     Redis Pub/Sub (adapter)
-                          |
-                    Event Handlers:
-                    ├── chat:message     (new message)
-                    ├── chat:typing      (typing indicator)
-                    ├── match:new        (new match notification)
-                    ├── tour:update      (tour status change)
-                    └── location:share   (GPS coordinates)
+Browser ──5s tRPC polling──▶ chat.* procedures ──▶ PostgreSQL
+        ──SSE────────────▶ /api/chat/stream/[matchId] ──▶ Upstash Redis ring buffer
+
+No custom WebSocket server — Vercel serverless can't hold persistent
+connections cheaply, and marketplace chat doesn't need Slack-grade
+concurrency. Polling is the truth-floor; SSE is enhancement. Full transport
++ retention + moderation contract: [CHAT.md](CHAT.md).
 ```
 
-### 6.2 Chat Protocol
-- Messages sent via WebSocket, persisted to PostgreSQL
-- Delivery confirmation via `message:delivered` event
-- Read receipts via `message:read` event
-- Reconnection with message gap-fill from DB
+### 6.2 Chat Protocol — see [CHAT.md](CHAT.md)
 
-### 6.3 Location Sharing (During Active Tour)
-- Client sends GPS coordinates every 30 seconds
-- Stored in Redis with 48h TTL (not persisted to main DB)
-- Shared only with user's designated emergency contact
-- User can toggle on/off at any time
+### 6.3 Tour Status Polling (Active Tour mode)
+
+Travelers on `/tour/[id]/active` poll `tour.getActive` every 10s. Any
+Dynamic Re-routing acceptance (§5.5) shows up on the next tick. Server-sent
+push for instant updates is Phase 2 (depends on FCM).
+
+### 6.4 Location Sharing (During Active Tour)
+- Client sends GPS coordinates every 30 seconds.
+- Stored in Redis with 48h TTL (not persisted to main DB).
+- Shared only with user's designated emergency contact.
+- User can toggle on/off at any time.
 
 ---
 
@@ -759,10 +1285,10 @@ Refresh Token in httpOnly cookie
 ### 7.2 Role-Based Access Control
 
 | Role | Permissions |
-|------|------------|
-| `traveler` | Browse places, swipe/match, create tours, make payments, review |
-| `host` | All traveler permissions + manage host profile, view assigned tours, set availability |
-| `admin` | All permissions + verify hosts, moderate content, manage reports, view analytics |
+|---|---|
+| `traveler` | Browse places + experiences + Fixed Tours, book, chat with assigned guides, pay, review, redeem loyalty (Phase 2). |
+| `host` (Guide) | All traveler permissions + manage host profile, set availability, view assigned tours, scan merchant QRs, record meal items, trigger Dynamic Re-routing, mark handover. |
+| `admin` | All permissions + verify hosts, moderate content/messages, manage payouts (Phase 2), issue refunds, view platform analytics. |
 
 ### 7.3 Auth Middleware
 ```typescript
@@ -927,38 +1453,42 @@ locomate/
 ### 10.2 Environment Variables
 
 ```env
-# Database
+# Database (Neon in prod, local Docker Postgres in dev)
 DATABASE_URL=postgresql://locomate:locomate@localhost:5432/locomate
 
-# Redis
-REDIS_URL=redis://localhost:6379
+# Redis (Upstash REST in prod; optional in dev — SSE degrades gracefully)
+UPSTASH_REDIS_REST_URL=
+UPSTASH_REDIS_REST_TOKEN=
 
-# Auth
-JWT_SECRET=<random-256-bit-key>
+# Auth (HS256, 32-char min — fail-fast on startup if missing)
+JWT_SECRET=<random-32-char-or-longer>
 JWT_EXPIRES_IN=15m
 REFRESH_TOKEN_EXPIRES_IN=7d
 
-# OpenAI
-OPENAI_API_KEY=sk-...
+# Google OAuth (Arctic + jose)
+GOOGLE_OAUTH_CLIENT_ID=
+GOOGLE_OAUTH_CLIENT_SECRET=
 
-# Maps
-NEXT_PUBLIC_GOOGLE_MAPS_KEY=AIza...
-
-# Payment - Stripe
+# Payment — Stripe (test mode by default; flip to live keys for launch)
 STRIPE_SECRET_KEY=sk_test_...
 STRIPE_WEBHOOK_SECRET=whsec_...
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
 
-# Payment - VNPay
-VNPAY_TMN_CODE=...
-VNPAY_HASH_SECRET=...
+# Payment — VNPay (Phase 2)
+VNPAY_TMN_CODE=
+VNPAY_HASH_SECRET=
 
-# Storage
-SUPABASE_URL=https://xxx.supabase.co
-SUPABASE_SERVICE_KEY=eyJ...
+# Merchant QR signing key (HMAC-SHA256 for the QR-scan flow — Phase 2)
+MERCHANT_QR_SIGNING_KEY=<random-32-char-or-longer>
 
-# Email
+# Vercel Blob (wrap-up renders, tour photos, identity docs)
+BLOB_READ_WRITE_TOKEN=vercel_blob_rw_...
+
+# Email (Resend; falls back to console transport when unset)
 RESEND_API_KEY=re_...
+
+# Cron secret (required in prod for /api/cron/*; 503s without)
+CRON_SECRET=<random-32-char-or-longer>
 
 # App
 NEXT_PUBLIC_APP_URL=http://localhost:3000
@@ -1048,17 +1578,21 @@ Post-deploy: Run smoke tests
 ### 11.3 Infrastructure Costs (Monthly Estimate - MVP)
 
 | Service | Tier | Monthly Cost |
-|---------|------|-------------|
-| Vercel | Pro | $20 |
-| Supabase (PostgreSQL + Storage) | Pro | $25 |
-| Upstash (Redis) | Pay-as-you-go | $5 |
-| Google Maps APIs | Pay-as-you-go | ~$30 |
-| OpenAI API | Pay-as-you-go | ~$30 |
-| Stripe | Transaction fees | ~$15 |
-| Resend | Free tier | $0 |
+|---|---|---|
+| Vercel | Hobby → Pro at Phase 2 | $0 → $20 |
+| Neon (PostgreSQL) | Free → Launch at Phase 2 | $0 → $19 |
+| Vercel Blob (Wrap-up + photos) | Pay-as-you-go | ~$3 |
+| Upstash (Redis) | Pay-as-you-go | ~$5 |
+| Maps (Leaflet + OSM) | Self-hosted tiles via OSM | $0 |
+| Stripe | Transaction fees only | ~$15 |
+| VNPay / MoMo | Transaction fees only | ~$10 |
+| Resend (Thư Tri ân + receipts) | Free tier (3k emails) | $0 |
 | Domain + SSL | Annual | ~$2/mo |
 | Sentry | Free tier | $0 |
-| **Total** | | **~$127/mo (~3.2M VND)** |
+| **Total Phase 1** | | **~$35/mo (≈ 875k VND)** |
+| **Total Phase 2** | | **~$75/mo (≈ 1.9M VND)** |
+
+No OpenAI / AI gateway line — both matching and explainers are local.
 
 ---
 
@@ -1089,24 +1623,32 @@ Post-deploy: Run smoke tests
 
 ## 13. Testing Strategy
 
-### 13.1 Test Pyramid
+### 13.1 Test Pyramid (as shipped, Apr 7, 2026)
 
-| Level | Tool | Coverage Target | Focus |
-|-------|------|----------------|-------|
-| Unit | Vitest | >= 80% | Services, algorithms, utilities |
-| Integration | Vitest + test DB | Key flows | API routes, DB queries |
-| E2E | Playwright | Critical paths | Registration, onboarding, tour purchase |
-| Performance | k6 | API endpoints | Response time under load |
+| Level | Tool | Coverage | Focus | Status |
+|-------|------|----------|-------|--------|
+| Unit | Vitest | 100% on `src/lib/pricing.ts`; 80%+ on other feature-new files | Pure fns: pricing helpers, time helpers | Active |
+| Integration | Vitest + `@electric-sql/pglite` (in-process Postgres) | 80%+ on feature routers | tRPC procedures against a real schema (schema migration + data mutations + authz gates) | Active |
+| Component | Vitest + `@testing-library/react` + `happy-dom` | Key UI primitives | Host wizard step gating, pricing breakdown, publish button state | Active |
+| E2E | Playwright | Critical paths | host creates + publishes -> traveler books + pays -> host dashboard shows booking | Specs written, CI job gated behind preview URL deploy (FOLLOW-13) |
+| Performance | k6 | API endpoints | Response time under load | Future |
+
+**Coverage enforcement**: per-file thresholds in `vitest.config.ts` so the 80% bar applies only to code the marketplace feature authored; pre-marketplace routers (`auth`, `chat`, `match`, `place`, `user`, `review`) are not retro-covered in this pass.
+
+**Database testing**: `src/test/setup.ts` boots one PGlite instance per test file, runs the drizzle migrations + the marketplace ALTERs, and truncates all tables between tests via `afterEach`. `fileParallelism: false` serializes test files on Windows where PGlite WASM workers cannot safely share state.
+
+**CI**: `.github/workflows/ci.yml` runs lint + typecheck + vitest (with coverage upload) on every PR. The Playwright job is scaffolded but guarded by `if: false` pending FOLLOW-13.
 
 ### 13.2 Critical Test Scenarios
 
-1. **User registers, completes onboarding, receives derived profile**
-2. **User browses place feed, filters work correctly**
-3. **Two users swipe right, match is created, chat opens**
-4. **User creates tour, sees preview, pays, receives full tour**
-5. **Payment succeeds/fails appropriately**
-6. **Host cancels: user receives auto-refund**
-7. **Tour generation handles edge case: no matching places**
+1. **Host wizard**: 5-step progression blocks on content rules (title, description, photos, highlights, schedule, price bounds, duration, category -- 8 negative tests total)
+2. **Publish gating**: unverified host cannot publish regardless of content validity
+3. **Slug uniqueness**: collision across hosts produces `-N` suffixed slug; the 23505 catch-retry path is covered (via router integration tests and a FOLLOW-12 gap for the actual-race simulation)
+4. **Booking price integrity**: dialog-shown total = persisted `tours.priceAmount` = checkout charge = per-person * groupSize (regression guard for the Review Gate #2 BLOCKER)
+5. **Payment transactional rollback**: forcing an overflow error mid-transaction leaves `payment.status = 'pending'` and `tours.status = 'preview'`
+6. **Deleted-host-with-experiences**: user deletion archives all authored experiences AND nulls `tours.hostId` before the cascade, so previously paid bookings survive with a null host
+7. **Authorization boundaries**: every protected procedure rejects `callerAs(null)` (UNAUTHORIZED); every host procedure rejects travelers (FORBIDDEN)
+8. **Experience.book orphan guard**: a `kind='host_custom'` listing with `authorId=NULL` cannot be booked, even if its status is `published`
 
 ---
 
@@ -1125,34 +1667,93 @@ Post-deploy: Run smoke tests
 
 ## 15. Migration & Seeding
 
-### 15.1 Initial Data Requirements
+### 15.1 Initial Data Requirements (as shipped)
 
 | Data | Volume | Source |
-|------|--------|--------|
-| Hanoi places | 200+ records | Manual curation + Google Places API enrichment |
-| Experience/emotional tags per place | 14 dimensions per place | Manual scoring + AI-assisted batch tagging |
-| Tour module templates | 30 modules | Content team / AI-generated |
-| Test host profiles | 15 profiles | Recruited university students |
+|---|---|---|
+| Hanoi places | **996 records** | OpenStreetMap Overpass API + Pexels/Wikimedia photos |
+| Experience/emotional tags per place | 14 dimensions per place | Local `scripts/lib/tag-scorer.ts` |
+| **Fixed Tours** | **15 tours, 3 chapters** | Seeded from docs/sửa .md by `app/src/server/db/seed-fixed-tours.ts` |
+| Curated host experiences | 9 (3 per seed host) | Manual content + seed |
+| Host activities (à-la-carte) | 12 with 71 time-slots | Seed |
+| Merch products | 6 with 13 variants | Seed |
+| Test host profiles | 3 verified guides | Recruited fixtures |
+| eSIM bundles | 4 (GoHub Vietnam plans) | Seed |
 
-### 15.2 Seed Script Structure
+### 15.2 Seed Script Structure (actual)
 ```
-seeds/
-├── 01-places.ts          # 200+ verified Hanoi places
-├── 02-experience-tags.ts # Tag scoring for all places
-├── 03-tour-modules.ts    # 30 initial tour templates
-└── 04-test-users.ts      # Dev/staging test accounts
+app/src/server/db/
+├── seed.ts                       # users + places + curated experiences
+├── seed-fixed-tours.ts           # 15-tour catalog (NEW — May 2026)
+├── seed-host-experiences.ts      # 9 host-authored experiences
+├── seed-activities.ts            # 12 activities + 71 slots
+├── seed-merch.ts                 # 6 products + 13 variants
+└── seed-host-tours.ts            # ~30 demo bookings for host dashboards
 ```
+
+### 15.3 Idempotent Migrations
+Schema changes ship as standalone Node.js scripts under
+[`app/scripts/`](../scripts/) with `IF NOT EXISTS` guards so they apply
+cleanly to both Neon production and PGlite tests:
+
+- `create-host-marketplace.ts`
+- `create-fixed-tour-tables.ts`         (the May 2026 Fixed Tour Matrix schema)
+- `create-product-pivot-tables.ts`      (activities / cart / orders / merch)
+- `create-host-payouts-table.ts`
+- `create-booking-integrity.ts`         (CHECK constraints documented in BOOKING.md)
+- `create-crossover-matching-tables.ts` (planned — Crossover Matching: §3 above; pairs/edits/escrow/vouchers/discovery-pushes; adds `tours.original_fixed_tour_id` + `tours.crossover_pair_id` + the two new `tours.status` values)
 
 ---
 
-## 16. Future Technical Considerations (Post-MVP)
+## 16. Merchant QR + Sỉ Pricing (NEW — schema sketch)
+
+The Phase 2 Merchant QR Verification (PRD §FR-FIELD-01) needs two new tables.
+They are not yet in `schema.ts`; sketched here so the implementer can pick
+them up.
+
+```sql
+CREATE TABLE merchants (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name            VARCHAR(200) NOT NULL,
+  slug            VARCHAR(200) UNIQUE NOT NULL,
+  place_id        UUID REFERENCES places(id) ON DELETE SET NULL,
+  contact_email   VARCHAR(255),
+  contact_phone   VARCHAR(20),
+  contract_status VARCHAR(20) NOT NULL DEFAULT 'pending'
+                    CHECK (contract_status IN ('pending','active','suspended','terminated')),
+  signing_nonce   VARCHAR(64) NOT NULL,  -- bumps on rotation
+  signed_at       TIMESTAMPTZ,
+  created_at      TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE merchant_pricelists (
+  id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  merchant_id  UUID REFERENCES merchants(id) ON DELETE CASCADE,
+  item_name_vi VARCHAR(200) NOT NULL,
+  item_name_en VARCHAR(200) NOT NULL,
+  retail_vnd   INT NOT NULL,
+  si_vnd       INT NOT NULL,   -- the B2B sỉ price Locomate has negotiated
+  category     VARCHAR(50),    -- 'main', 'dessert', 'drink', 'workshop_seat', etc.
+  is_active    BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at   TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX idx_merchant_pricelists_merchant ON merchant_pricelists(merchant_id);
+```
+
+The Guide-side scan flow is described in §5.3. Phase 2 acceptance criteria
+live in PRD §FR-FIELD-01.
+
+---
+
+## 17. Future Technical Considerations
 
 | Feature | Technical Approach | Phase |
-|---------|-------------------|-------|
-| Advanced AI matching | Fine-tuned embeddings model for user-place similarity | Phase 2 |
-| Social Tour group formation | Graph-based clustering algorithm | Phase 2 |
-| Real-time social map | WebSocket + Redis geospatial for live traveler positions | Phase 2 |
-| Multi-city expansion | Multi-tenant DB schema, city-scoped queries | Phase 3 |
-| Native mobile apps | React Native (shared business logic) or Capacitor | Phase 3 |
-| Recommendation engine | Collaborative filtering on review/behavior data | Phase 3 |
-| Content moderation AI | Image/text moderation via OpenAI Moderation API | Phase 2 |
+|---|---|---|
+| pgvector / Pinecone for Fixed Tours | Cut over when catalog > 1,000 tours OR cross-city personalization is needed. Vector column on `fixed_tours` keeps the schema migration trivial. | Phase 3 |
+| Tour-module library (100+ stops) | Catalog-driven; seeded via the existing `seed-fixed-tours.ts` pattern. | Phase 3 |
+| Real-time push (Wrap-up + Re-routing) | Firebase Cloud Messaging once a PWA service worker is wired. | Phase 2 |
+| Stripe Connect payouts | Replace the manual weekly export with real money movement. | Phase 2 |
+| Photo upload | Vercel Blob direct upload for guides' tour photos + host wizard. | Phase 2 |
+| Multi-city expansion (Hội An, HCMC) | Add a `city` column to `fixed_tours`, `places`, `host_profiles`; city-scoped queries everywhere. | Phase 3 |
+| Native mobile (Capacitor wrapper) | Reuses the PWA shell; iOS/Android wrappers only. | Phase 3 |
+| LLM-generated Wrap-up narrative | The current Wrap-up generator (§5.6) is templated. Swap-in is a single function. | Phase 3 |

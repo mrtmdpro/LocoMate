@@ -1,0 +1,20 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/reap-orders",
+      "schedule": "0 3 * * *"
+    },
+    {
+      "path": "/api/cron/purge-messages",
+      "schedule": "0 4 * * *"
+    },
+    {
+      "path": "/api/cron/send-thank-you",
+      "schedule": "0 14 * * *"
+    },
+    {
+      "path": "/api/cron/topup-slots",
+      "schedule": "0 2 * * *"
+    }
+  ]
+}

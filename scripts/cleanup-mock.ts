@@ -80,7 +80,7 @@ async function run() {
     console.log(`  Deleted ${deleted} mock places.`);
   }
 
-  let deleted = mockIds.length;
+  const deleted = mockIds.length;
 
   // Final count
   const finalBySource = await db
