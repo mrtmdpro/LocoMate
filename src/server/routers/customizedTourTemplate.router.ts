@@ -2,8 +2,9 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { eq, and, asc, type SQL } from "drizzle-orm";
 import { router, publicProcedure } from "../trpc";
-import { customizedTourTemplates, userProfiles } from "../db/schema";
+import { customizedTourTemplates } from "../db/schema";
 import { rankByCosine } from "../lib/cosine";
+import { getUserVector } from "../lib/user-vector";
 
 /* ──────────────────────────────────────────────────────────────────────
  *  Customized Tour Template router.
@@ -18,34 +19,6 @@ import { rankByCosine } from "../lib/cosine";
 const themeSchema = z
   .enum(["heritage", "food", "craft", "quiet", "social", "balanced"])
   .optional();
-
-/**
- * Reads the user's 4-D personality vector from `user_profiles.derivedData`
- * if present. Returns null when the user has not completed the quiz yet
- * — the consumer should fall back to a default order in that case.
- *
- * Duplicated from `fixedTour.router.ts` rather than imported to keep the
- * router self-contained; if a third router ever needs it, lift it out
- * into `app/src/server/lib/user-vector.ts`.
- */
-async function getUserVector(
-  ctx: { db: typeof import("../db").db; user: { id: string } | null },
-): Promise<number[] | null> {
-  if (!ctx.user) return null;
-  const profile = await ctx.db.query.userProfiles.findFirst({
-    where: eq(userProfiles.userId, ctx.user.id),
-  });
-  const derived = (profile?.derivedData ?? {}) as Record<string, unknown>;
-  const vec = derived.personalityVector;
-  if (
-    Array.isArray(vec) &&
-    vec.length === 4 &&
-    vec.every((v) => typeof v === "number")
-  ) {
-    return vec as number[];
-  }
-  return null;
-}
 
 export const customizedTourTemplateRouter = router({
   /**

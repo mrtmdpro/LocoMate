@@ -39,6 +39,8 @@ import {
   payments,
 } from "../db/schema";
 import type * as schema from "../db/schema";
+import { readExplicitData, readDerivedData } from "../lib/profile-shape";
+import { readRequestParams } from "../lib/tour-request-shape";
 
 /**
  * Driver-agnostic Drizzle Postgres database type.
@@ -136,9 +138,9 @@ async function findUnderCapacityFixedTours(
 
   for (const r of rows) {
     if (!r.fixedTourId) continue;
-    const params = (r.requestParams ?? {}) as Record<string, unknown>;
-    const date = typeof params.date === "string" ? params.date : null;
-    const startTime = typeof params.startTime === "string" ? params.startTime : null;
+    const params = readRequestParams(r.requestParams);
+    const date = params.date ?? null;
+    const startTime = params.startTime ?? null;
     if (!date || !startTime) continue;
 
     const departureAt = parseVietnamDepartureToUtc(date, startTime);
@@ -248,7 +250,7 @@ export async function runT48hSweep(
         const profile = await db.query.userProfiles.findFirst({
           where: eq(userProfiles.userId, t.userId),
         });
-        const explicit = (profile?.explicitData ?? {}) as Record<string, unknown>;
+        const explicit = readExplicitData(profile?.explicitData);
         if (explicit.consentMatching === true) continue;
         const nextExplicit = { ...explicit, consentMatching: true };
         if (profile) {
@@ -320,11 +322,10 @@ export async function runT36hSweep(
 
     const eligibleUserIds = candidates
       .filter((c) => {
-        const explicit = (c.explicitData ?? {}) as Record<string, unknown>;
-        const derived = (c.derivedData ?? {}) as Record<string, unknown>;
+        const explicit = readExplicitData(c.explicitData);
+        const derived = readDerivedData(c.derivedData);
         if (explicit.consentMatching !== true) return false;
-        const vec = derived.personalityVector;
-        return Array.isArray(vec) && vec.length === 4;
+        return derived.personalityVector !== undefined;
       })
       .map((c) => c.userId);
 

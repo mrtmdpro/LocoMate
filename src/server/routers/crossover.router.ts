@@ -44,6 +44,8 @@ import {
 import { rankByCosine } from "../lib/cosine";
 import { expireOverlappingPending, type TimeWindow } from "../lib/crossover-overlap";
 import { tourTimeWindow } from "@/lib/tour-time";
+import { readExplicitData, readDerivedData } from "../lib/profile-shape";
+import { readRequestParams } from "../lib/tour-request-shape";
 import {
   AgeBracketSchema,
   ChapterSchema,
@@ -93,7 +95,7 @@ async function timeWindowForTour(
 ): Promise<TimeWindow | null> {
   const tour = await db.query.tours.findFirst({ where: eq(tours.id, tourId) });
   if (!tour) return null;
-  const win = tourTimeWindow(tour.requestParams as Record<string, unknown> | null);
+  const win = tourTimeWindow(readRequestParams(tour.requestParams));
   if (!win) return null;
   return { startsAt: win.startsAt, endsAt: win.endsAt };
 }
@@ -135,7 +137,7 @@ function chapterShortEn(c: string): string {
  *  (when available). Falls back to "25_34" when unknown so we never
  *  leak the absence of data as a separate bucket. */
 function ageBracketFromProfile(profile: { explicitData?: unknown } | null | undefined): z.infer<typeof AgeBracketSchema> {
-  const explicit = (profile?.explicitData ?? {}) as Record<string, unknown>;
+  const explicit = readExplicitData(profile?.explicitData);
   const yob = typeof explicit.birthYear === "number" ? explicit.birthYear : undefined;
   if (!yob) return "25_34";
   const age = new Date().getFullYear() - yob;
@@ -150,11 +152,7 @@ function ageBracketFromProfile(profile: { explicitData?: unknown } | null | unde
 function readVector(
   profile: { derivedData?: unknown } | null | undefined,
 ): [number, number, number, number] | null {
-  const derived = (profile?.derivedData ?? {}) as Record<string, unknown>;
-  const v = derived.personalityVector;
-  if (!Array.isArray(v) || v.length !== 4) return null;
-  if (!v.every((x) => typeof x === "number")) return null;
-  return v as [number, number, number, number];
+  return readDerivedData(profile?.derivedData).personalityVector ?? null;
 }
 
 /* ────────────────────────────────────────────────────────────────────
@@ -348,7 +346,7 @@ export const crossoverRouter = router({
 
           // Build country code from profile.nationality if set; else
           // fall back to "VN". Limit to 2 chars to match the Zod schema.
-          const explicit = (peerProfile?.explicitData ?? {}) as Record<string, unknown>;
+          const explicit = readExplicitData(peerProfile?.explicitData);
           const nationality =
             typeof explicit.nationality === "string" && explicit.nationality.length === 2
               ? explicit.nationality.toUpperCase()

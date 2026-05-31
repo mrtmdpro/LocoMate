@@ -7,6 +7,8 @@ import { matchLabelToPlace } from "@/lib/place-match";
 import { vietnamDayBoundsUtc } from "@/lib/time";
 import { tourTimeWindow } from "@/lib/tour-time";
 import { overlapsAny } from "@/lib/cart-conflicts";
+import { readRequestParams, RequestParamsSchema } from "../lib/tour-request-shape";
+import { TourDataSchema } from "../lib/tour-data-shape";
 
 // Shared set of experience columns surfaced to the client. Explicit list so
 // schema additions (e.g. internal review notes) never accidentally leak via
@@ -299,7 +301,7 @@ export const experienceRouter = router({
             ),
           );
         const userWindows = userPaidTours
-          .map((t) => tourTimeWindow(t.requestParams as Record<string, unknown> | null))
+          .map((t) => tourTimeWindow(readRequestParams(t.requestParams)))
           .filter((w): w is NonNullable<typeof w> => !!w);
         if (overlapsAny(proposedWindow, userWindows)) {
           throw new TRPCError({
@@ -329,7 +331,7 @@ export const experienceRouter = router({
             ),
           );
         const hostWindows = hostBookedTours
-          .map((t) => tourTimeWindow(t.requestParams as Record<string, unknown> | null))
+          .map((t) => tourTimeWindow(readRequestParams(t.requestParams)))
           .filter((w): w is NonNullable<typeof w> => !!w);
         if (overlapsAny(proposedWindow, hostWindows)) {
           throw new TRPCError({
@@ -411,7 +413,7 @@ export const experienceRouter = router({
             packageType: "host_experience",
             priceAmount: totalPrice,
             priceCurrency: "VND",
-            requestParams: {
+            requestParams: RequestParamsSchema.parse({
               date: input.date,
               startTime: input.startTime,
               groupSize: input.groupSize,
@@ -419,8 +421,8 @@ export const experienceRouter = router({
               interests: [experience.category],
               durationHours: Math.ceil(experience.durationMinutes / 60),
               budgetLevel: "medium",
-            },
-            tourData: {
+            }),
+            tourData: TourDataSchema.parse({
               title: experience.title,
               description: experience.description ?? "",
               stops: scheduleStops,
@@ -429,7 +431,7 @@ export const experienceRouter = router({
               experienceId: experience.id,
               pricePerPerson: experience.priceAmount,
               groupSize: input.groupSize,
-            },
+            }),
           })
           .returning({ id: tours.id });
 

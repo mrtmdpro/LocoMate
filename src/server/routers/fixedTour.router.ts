@@ -10,9 +10,11 @@ import {
   activitySlots,
   tours,
   tourStops,
-  userProfiles,
 } from "../db/schema";
 import { rankByCosine } from "../lib/cosine";
+import { getUserVector } from "../lib/user-vector";
+import { RequestParamsSchema } from "../lib/tour-request-shape";
+import { TourDataSchema } from "../lib/tour-data-shape";
 
 /* ──────────────────────────────────────────────────────────────────────
  *  Zod enums — must stay in lockstep with the DB CHECK constraints in
@@ -30,26 +32,6 @@ const userVectorSchema = z
   .array(z.number().min(0).max(1))
   .length(4)
   .optional();
-
-/**
- * Reads the user's 4-D personality vector from `user_profiles.derivedData`
- * if present. Returns null when the user has not completed the quiz yet
- * — the consumer should fall back to a default order in that case.
- */
-async function getUserVector(
-  ctx: { db: typeof import("../db").db; user: { id: string } | null },
-): Promise<number[] | null> {
-  if (!ctx.user) return null;
-  const profile = await ctx.db.query.userProfiles.findFirst({
-    where: eq(userProfiles.userId, ctx.user.id),
-  });
-  const derived = (profile?.derivedData ?? {}) as Record<string, unknown>;
-  const vec = derived.personalityVector;
-  if (Array.isArray(vec) && vec.length === 4 && vec.every((v) => typeof v === "number")) {
-    return vec as number[];
-  }
-  return null;
-}
 
 /**
  * Loads tags for a set of tour IDs and groups them per tour. One query,
@@ -337,7 +319,7 @@ export const fixedTourRouter = router({
             packageType: "fixed_tour",
             priceAmount: totalPrice,
             priceCurrency: "VND",
-            requestParams: {
+            requestParams: RequestParamsSchema.parse({
               date: input.date,
               startTime: input.startTime,
               groupSize: input.groupSize,
@@ -345,8 +327,8 @@ export const fixedTourRouter = router({
               chapter: tour.chapter,
               durationHours: Math.ceil(tour.durationMinutes / 60),
               budgetLevel: "medium",
-            },
-            tourData: {
+            }),
+            tourData: TourDataSchema.parse({
               title: tour.titleVi,
               titleEn: tour.titleEn,
               description: tour.storyScriptVi,
@@ -358,7 +340,7 @@ export const fixedTourRouter = router({
               chapter: tour.chapter,
               pricePerPerson: tour.basePriceVnd,
               groupSize: input.groupSize,
-            },
+            }),
           })
           .returning({ id: tours.id });
 

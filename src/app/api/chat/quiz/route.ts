@@ -4,6 +4,7 @@ import { userProfiles } from "@/server/db/schema";
 import { eq } from "drizzle-orm";
 import { llmStream } from "@/server/services/llm";
 import type { AiTone } from "@/server/services/llm-types";
+import { readExplicitData } from "@/server/lib/profile-shape";
 
 /**
  * Phase A.8 — Streaming endpoint for the personality-quiz chatbot.
@@ -53,9 +54,9 @@ export async function POST(request: Request) {
         const profile = await db.query.userProfiles.findFirst({
           where: eq(userProfiles.userId, payload.userId),
         });
-        const explicit = (profile?.explicitData ?? {}) as Record<string, unknown>;
-        if (!nickname) nickname = (explicit.nickname as string | undefined)?.trim() || undefined;
-        if (!tone) tone = (explicit.aiTone as AiTone | undefined) ?? undefined;
+        const explicit = readExplicitData(profile?.explicitData);
+        if (!nickname) nickname = explicit.nickname?.trim() || undefined;
+        if (!tone) tone = explicit.aiTone ?? undefined;
       }
     }
   } catch {

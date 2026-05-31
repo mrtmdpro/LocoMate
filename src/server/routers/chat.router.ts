@@ -26,6 +26,7 @@ import {
   hostProfiles,
 } from "../db/schema";
 import { tourTimeWindow } from "@/lib/tour-time";
+import { readRequestParams } from "../lib/tour-request-shape";
 import { purgeStaleMessages } from "@/server/services/purge-messages";
 import {
   applyContactInfoMask,
@@ -824,7 +825,7 @@ export const chatRouter = router({
       const now = Date.now();
       const classified = rows
         .map((r) => {
-          const win = tourTimeWindow(r.requestParams as Record<string, unknown> | null);
+          const win = tourTimeWindow(readRequestParams(r.requestParams));
           if (!win) return null;
           const startMs = win.startsAt.getTime();
           const endMs = win.endsAt.getTime();

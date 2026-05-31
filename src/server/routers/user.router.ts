@@ -20,6 +20,12 @@ import {
 import { desc } from "drizzle-orm";
 import { onboardingSchema } from "@/lib/validations/auth";
 import { computeDerivedProfile } from "../services/profile-engine";
+import {
+  mergeExplicitData,
+  mergeDerivedData,
+  type ExplicitData,
+  type DerivedData,
+} from "../lib/profile-shape";
 
 export const userRouter = router({
   getProfile: protectedProcedure.query(async ({ ctx }) => {
@@ -231,11 +237,12 @@ export const userRouter = router({
       const existing = await ctx.db.query.userProfiles.findFirst({
         where: eq(userProfiles.userId, ctx.user.id),
       });
-      const explicit = (existing?.explicitData ?? {}) as Record<string, unknown>;
       await ctx.db
         .update(userProfiles)
         .set({
-          explicitData: { ...explicit, themePref: input.theme },
+          explicitData: mergeExplicitData(existing?.explicitData, {
+            themePref: input.theme,
+          }),
           updatedAt: new Date(),
         })
         .where(eq(userProfiles.userId, ctx.user.id));
@@ -255,16 +262,16 @@ export const userRouter = router({
       const existing = await ctx.db.query.userProfiles.findFirst({
         where: eq(userProfiles.userId, ctx.user.id),
       });
-      const explicit = (existing?.explicitData ?? {}) as Record<string, unknown>;
-      const next = { ...explicit };
-      if (input.nickname.length === 0) {
-        delete next.nickname;
-      } else {
-        next.nickname = input.nickname;
-      }
+      // Empty string clears the nickname: an undefined patch value drops
+      // the key on serialization, matching the prior `delete` behaviour.
       await ctx.db
         .update(userProfiles)
-        .set({ explicitData: next, updatedAt: new Date() })
+        .set({
+          explicitData: mergeExplicitData(existing?.explicitData, {
+            nickname: input.nickname.length === 0 ? undefined : input.nickname,
+          }),
+          updatedAt: new Date(),
+        })
         .where(eq(userProfiles.userId, ctx.user.id));
       return { success: true, nickname: input.nickname || null };
     }),
@@ -287,11 +294,12 @@ export const userRouter = router({
       const existing = await ctx.db.query.userProfiles.findFirst({
         where: eq(userProfiles.userId, ctx.user.id),
       });
-      const explicit = (existing?.explicitData ?? {}) as Record<string, unknown>;
       await ctx.db
         .update(userProfiles)
         .set({
-          explicitData: { ...explicit, locale: input.locale },
+          explicitData: mergeExplicitData(existing?.explicitData, {
+            locale: input.locale,
+          }),
           updatedAt: new Date(),
         })
         .where(eq(userProfiles.userId, ctx.user.id));
@@ -331,14 +339,15 @@ export const userRouter = router({
       const existing = await ctx.db.query.userProfiles.findFirst({
         where: eq(userProfiles.userId, ctx.user.id),
       });
-      const explicit = (existing?.explicitData ?? {}) as Record<string, unknown>;
       // De-duplicate while preserving caller order so the host UI can
       // surface the user's primary language first.
       const dedup = Array.from(new Set(input.languages));
       await ctx.db
         .update(userProfiles)
         .set({
-          explicitData: { ...explicit, languages: dedup },
+          explicitData: mergeExplicitData(existing?.explicitData, {
+            languages: dedup,
+          }),
           updatedAt: new Date(),
         })
         .where(eq(userProfiles.userId, ctx.user.id));
@@ -387,25 +396,23 @@ export const userRouter = router({
       const existing = await ctx.db.query.userProfiles.findFirst({
         where: eq(userProfiles.userId, ctx.user.id),
       });
-      const explicit = (existing?.explicitData ?? {}) as Record<string, unknown>;
-      const derived = (existing?.derivedData ?? {}) as Record<string, unknown>;
-      const nextExplicit: Record<string, unknown> = { ...explicit };
-      const nextDerived: Record<string, unknown> = { ...derived };
-      if (input.tone !== undefined) nextExplicit.aiTone = input.tone;
+      const explicitPatch: Partial<ExplicitData> = {};
+      const derivedPatch: Partial<DerivedData> = {};
+      if (input.tone !== undefined) explicitPatch.aiTone = input.tone;
       if (input.tourPreferences !== undefined) {
-        nextExplicit.tourPreferences = input.tourPreferences;
+        explicitPatch.tourPreferences = input.tourPreferences;
       }
       if (input.personalityLabel !== undefined) {
-        nextDerived.personalityLabel = input.personalityLabel;
+        derivedPatch.personalityLabel = input.personalityLabel;
       }
       if (input.personalityVector !== undefined) {
-        nextDerived.personalityVector = input.personalityVector;
+        derivedPatch.personalityVector = input.personalityVector;
       }
       await ctx.db
         .update(userProfiles)
         .set({
-          explicitData: nextExplicit,
-          derivedData: nextDerived,
+          explicitData: mergeExplicitData(existing?.explicitData, explicitPatch),
+          derivedData: mergeDerivedData(existing?.derivedData, derivedPatch),
           derivedUpdatedAt: new Date(),
           updatedAt: new Date(),
         })
@@ -418,11 +425,13 @@ export const userRouter = router({
     .mutation(async ({ ctx, input }) => {
       const derived = computeDerivedProfile(input);
 
+      // Onboarding replaces (not merges) the profile blobs, so validate
+      // against an empty base to keep the prior overwrite semantics.
       await ctx.db
         .update(userProfiles)
         .set({
-          explicitData: input,
-          derivedData: derived,
+          explicitData: mergeExplicitData({}, input),
+          derivedData: mergeDerivedData({}, { ...derived }),
           onboardingCompleted: true,
           derivedUpdatedAt: new Date(),
           updatedAt: new Date(),
@@ -437,11 +446,13 @@ export const userRouter = router({
     .mutation(async ({ ctx, input }) => {
       const derived = computeDerivedProfile(input);
 
+      // updatePreferences replaces the profile blobs (same as onboarding);
+      // validate against an empty base to preserve overwrite semantics.
       await ctx.db
         .update(userProfiles)
         .set({
-          explicitData: input,
-          derivedData: derived,
+          explicitData: mergeExplicitData({}, input),
+          derivedData: mergeDerivedData({}, { ...derived }),
           derivedUpdatedAt: new Date(),
           updatedAt: new Date(),
         })

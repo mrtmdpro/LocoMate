@@ -15,6 +15,7 @@ import {
 } from "../db/schema";
 import { detectConflicts } from "@/lib/cart-conflicts";
 import { tourTimeWindow } from "@/lib/tour-time";
+import { readRequestParams } from "../lib/tour-request-shape";
 import { reapStaleOrders } from "@/server/services/reap-orders";
 
 /**
@@ -233,7 +234,7 @@ export const orderRouter = router({
         }
       }
       for (const t of existingTours) {
-        const win = tourTimeWindow(t.requestParams as Record<string, unknown> | null);
+        const win = tourTimeWindow(readRequestParams(t.requestParams));
         if (!win) continue;
         conflictPool.push({
           id: `tour-${t.id}`,

@@ -7,6 +7,9 @@ import { generateTour } from "../services/_legacy/tour-engine";
 import { computeTourPrice } from "@/lib/pricing";
 import { llmGenerate, type AiTone } from "../services/llm";
 import { lookupFixedTourCategory } from "../lib/fixed-tour-category";
+import { readDerivedData } from "../lib/profile-shape";
+import { readTourData, TourDataSchema } from "../lib/tour-data-shape";
+import { RequestParamsSchema } from "../lib/tour-request-shape";
 
 export const tourRouter = router({
   create: protectedProcedure
@@ -26,7 +29,7 @@ export const tourRouter = router({
 
       const tourResult = await generateTour(
         { userId: ctx.user.id, ...input },
-        (profile?.derivedData as Record<string, unknown>) || {}
+        readDerivedData(profile?.derivedData)
       );
 
       const [tour] = await ctx.db
@@ -34,8 +37,8 @@ export const tourRouter = router({
         .values({
           userId: ctx.user.id,
           status: "preview",
-          requestParams: input,
-          tourData: tourResult,
+          requestParams: RequestParamsSchema.parse(input),
+          tourData: TourDataSchema.parse(tourResult),
           packageType: tourResult.packageType,
           priceAmount: tourResult.priceAmount,
         })
@@ -65,8 +68,8 @@ export const tourRouter = router({
         throw new TRPCError({ code: "NOT_FOUND" });
       }
 
-      const data = tour.tourData as Record<string, unknown>;
-      const allStops = (data.stops as unknown[]) || [];
+      const data = readTourData(tour.tourData);
+      const allStops = data.stops ?? [];
       const previewStops = allStops.slice(0, 3);
       const lockedCount = allStops.length - previewStops.length;
 
@@ -499,7 +502,7 @@ export const tourRouter = router({
       const stats = await deriveWrapUpStats(
         ctx.db,
         tour,
-        profile?.derivedData as Record<string, unknown> | null | undefined,
+        readDerivedData(profile?.derivedData),
       );
 
       return {

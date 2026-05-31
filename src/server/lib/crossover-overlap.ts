@@ -16,6 +16,7 @@ import { and, eq, inArray, ne, sql } from "drizzle-orm";
 import { tourCrossoverRequests, tours } from "../db/schema";
 import { overlapsAny } from "@/lib/cart-conflicts";
 import { tourTimeWindow } from "@/lib/tour-time";
+import { readRequestParams } from "./tour-request-shape";
 import type { db as PrimaryDb } from "../db";
 
 type AnyDb = typeof PrimaryDb;
@@ -74,7 +75,7 @@ export async function findOverlappingRequests(
 
   const out: string[] = [];
   for (const row of candidates) {
-    const win = tourTimeWindow(row.requestParams as Record<string, unknown> | null);
+    const win = tourTimeWindow(readRequestParams(row.requestParams));
     if (!win) continue;
     if (
       overlapsAny(
