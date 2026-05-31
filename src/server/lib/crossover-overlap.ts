@@ -13,13 +13,20 @@
  */
 
 import { and, eq, inArray, ne, sql } from "drizzle-orm";
+import type { PgDatabase, PgQueryResultHKT } from "drizzle-orm/pg-core";
 import { tourCrossoverRequests, tours } from "../db/schema";
+import type * as schema from "../db/schema";
 import { overlapsAny } from "@/lib/cart-conflicts";
 import { tourTimeWindow } from "@/lib/tour-time";
 import { readRequestParams } from "./tour-request-shape";
-import type { db as PrimaryDb } from "../db";
 
-type AnyDb = typeof PrimaryDb;
+/**
+ * Driver-agnostic Drizzle Postgres handle. Accepts the prod `postgres-js`
+ * database, the PGlite test database, AND a `PgTransaction` (which extends
+ * `PgDatabase`) — so callers can thread a `tx` through these helpers to run
+ * inside a single transaction. See the same alias in `crossover-cron.ts`.
+ */
+type AnyDb = PgDatabase<PgQueryResultHKT, typeof schema>;
 
 /**
  * Time-window shape used internally. Mirrors `cart-conflicts.ConflictInput`

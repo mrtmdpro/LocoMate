@@ -634,6 +634,96 @@ describe("crossover.lockItinerary + Δ-payment", () => {
   });
 });
 
+describe("Cluster B hardening — transactions + unique constraints", () => {
+  async function setupMatched(fixedTourId: string) {
+    await seedFixedTour(fixedTourId);
+    const date = vnDateOffset(2);
+    const a = await setupTraveler({ fixedTourId, date, startTime: "09:00" });
+    const b = await setupTraveler({ fixedTourId, date, startTime: "09:00" });
+    const callerA = await callerAs(a.user);
+    const callerB = await callerAs(b.user);
+    const { requestId } = await callerA.crossover.sendCrossoverRequest({
+      tourId: a.tour.id,
+      targetTourId: b.tour.id,
+    });
+    await callerB.crossover.respondToRequest({ requestId, decision: "approve" });
+    return { a, b, callerA, callerB, requestId };
+  }
+
+  it("rejects a duplicate pending request to the same target (partial unique index)", async () => {
+    await seedFixedTour("LOCO_TEST_DUP");
+    const date = vnDateOffset(2);
+    const a = await setupTraveler({ fixedTourId: "LOCO_TEST_DUP", date, startTime: "09:00" });
+    const b = await setupTraveler({ fixedTourId: "LOCO_TEST_DUP", date, startTime: "09:00" });
+    const callerA = await callerAs(a.user);
+
+    await callerA.crossover.sendCrossoverRequest({
+      tourId: a.tour.id,
+      targetTourId: b.tour.id,
+    });
+    // Second pending request for the same (requester, target tour) pair
+    // collides on uq_crossover_requests_pending.
+    await expect(
+      callerA.crossover.sendCrossoverRequest({
+        tourId: a.tour.id,
+        targetTourId: b.tour.id,
+      }),
+    ).rejects.toThrow();
+  });
+
+  it("rolls back lockItinerary when a mid-transaction write fails", async () => {
+    const { a, callerA, requestId } = await setupMatched("LOCO_TEST_RB");
+    const db = getTestDb();
+
+    // Occupy the unique crossover_pair_id value `a.tour.id` with an
+    // unrelated tour. lockItinerary's SECOND tour update (setting
+    // tourB.crossover_pair_id = a.tour.id) then collides on
+    // idx_tours_crossover_pair, forcing the whole transaction to roll
+    // back AFTER the escrow insert + first tour update have run.
+    const blocker = await createTour({ userId: a.user.id, status: "preview" });
+    await db
+      .update(tours)
+      .set({ crossoverPairId: a.tour.id })
+      .where(eq(tours.id, blocker.id));
+
+    await expect(callerA.crossover.lockItinerary({ requestId })).rejects.toThrow();
+
+    // Rollback proof: no escrow row persisted, tourA still unpaired.
+    const escrow = await db
+      .select()
+      .from(escrowAdjustments)
+      .where(eq(escrowAdjustments.crossoverRequestId, requestId));
+    expect(escrow).toHaveLength(0);
+    const tourA = await db.query.tours.findFirst({ where: eq(tours.id, a.tour.id) });
+    expect(tourA?.crossoverPairId).toBeNull();
+  });
+
+  it("enforces one escrow per request; lockItinerary returns alreadyLocked under the unique guard", async () => {
+    const { a, callerA, callerB, requestId } = await setupMatched("LOCO_TEST_UQ");
+    const first = await callerA.crossover.lockItinerary({ requestId });
+    expect(first.alreadyLocked).toBe(false);
+
+    const db = getTestDb();
+    // A second escrow row for the same request is rejected by
+    // uq_escrow_adjustments_request — the constraint behind the
+    // alreadyLocked idempotency guard.
+    await expect(
+      db.insert(escrowAdjustments).values({
+        tourId: a.tour.id,
+        crossoverRequestId: requestId,
+        costOld: 1,
+        costNew: 2,
+        status: "pending",
+      }),
+    ).rejects.toThrow();
+
+    // The router's own re-lock returns the same row as alreadyLocked.
+    const second = await callerB.crossover.lockItinerary({ requestId });
+    expect(second.alreadyLocked).toBe(true);
+    expect(second.escrowAdjustmentId).toBe(first.escrowAdjustmentId);
+  });
+});
+
 describe("crossover.reportPartner + voucher", () => {
   it("terminates the request, issues a voucher, and is idempotent", async () => {
     await seedFixedTour("LOCO_TEST_R1");

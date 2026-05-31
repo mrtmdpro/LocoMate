@@ -476,6 +476,8 @@ beforeAll(async () => {
     `CREATE INDEX IF NOT EXISTS idx_crossover_requests_tour ON tour_crossover_requests(tour_id, status)`,
     `CREATE INDEX IF NOT EXISTS idx_crossover_requests_requester ON tour_crossover_requests(requester_user_id, status)`,
     `CREATE INDEX IF NOT EXISTS idx_crossover_requests_target ON tour_crossover_requests(target_user_id, status)`,
+    // Cluster B: no duplicate pending request per (requester, target tour).
+    `CREATE UNIQUE INDEX IF NOT EXISTS uq_crossover_requests_pending ON tour_crossover_requests(requester_user_id, target_tour_id) WHERE status = 'pending'`,
     `CREATE TABLE IF NOT EXISTS tour_proposal_edits (
        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
        crossover_request_id UUID NOT NULL REFERENCES tour_crossover_requests(id) ON DELETE CASCADE,
@@ -503,6 +505,8 @@ beforeAll(async () => {
      )`,
     `CREATE INDEX IF NOT EXISTS idx_escrow_adjustments_tour ON escrow_adjustments(tour_id, status)`,
     `CREATE INDEX IF NOT EXISTS idx_escrow_adjustments_request ON escrow_adjustments(crossover_request_id)`,
+    // Cluster B: one escrow row per crossover request (lockItinerary guard).
+    `CREATE UNIQUE INDEX IF NOT EXISTS uq_escrow_adjustments_request ON escrow_adjustments(crossover_request_id)`,
     `CREATE TABLE IF NOT EXISTS priority_matching_vouchers (
        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,

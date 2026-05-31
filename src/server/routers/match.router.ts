@@ -1,8 +1,9 @@
 import { z } from "zod";
-import { TRPCError } from "@trpc/server";
-import { eq, and, ne, notInArray, sql } from "drizzle-orm";
+import { eq, and, notInArray, sql } from "drizzle-orm";
 import { router, protectedProcedure } from "../trpc";
 import { users, userProfiles, swipeActions, matches } from "../db/schema";
+import { readExplicitData, readDerivedData } from "../lib/profile-shape";
+import { MatchCandidateSchema } from "../lib/match-candidate-dto";
 
 export const matchRouter = router({
   getCandidates: protectedProcedure
@@ -26,24 +27,33 @@ export const matchRouter = router({
         conditions.push(notInArray(users.id, swipedIds));
       }
 
+      // Read the profile blobs server-side ONLY to derive the whitelisted
+      // projection — they never cross the wire. Identity columns
+      // (displayName/avatarUrl) are not selected at all. The strict
+      // `MatchCandidateSchema.parse` is defence-in-depth: any field that
+      // drifts outside the whitelist throws here, not on the client.
       const candidates = await ctx.db
         .select({
           id: users.id,
-          displayName: users.displayName,
-          avatarUrl: users.avatarUrl,
-          role: users.role,
-          profile: userProfiles.explicitData,
-          derived: userProfiles.derivedData,
+          explicitData: userProfiles.explicitData,
+          derivedData: userProfiles.derivedData,
         })
         .from(users)
         .innerJoin(userProfiles, eq(users.id, userProfiles.userId))
         .where(and(...conditions))
         .limit(input.limit);
 
-      return candidates.map((c) => ({
-        ...c,
-        compatibilityScore: Math.floor(40 + Math.random() * 55),
-      }));
+      return candidates.map((c) => {
+        const explicit = readExplicitData(c.explicitData);
+        const derived = readDerivedData(c.derivedData);
+        return MatchCandidateSchema.parse({
+          candidateUserId: c.id,
+          interests: explicit.interests ?? [],
+          personalityLabel: derived.personalityLabel ?? null,
+          personalityVector: derived.personalityVector ?? null,
+          compatibilityScore: Math.floor(40 + Math.random() * 55),
+        });
+      });
     }),
 
   swipe: protectedProcedure

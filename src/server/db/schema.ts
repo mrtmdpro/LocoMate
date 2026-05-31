@@ -631,6 +631,11 @@ export const tours = pgTable(
     index("idx_tours_experience").on(table.experienceId),
     index("idx_tours_fixed_tour").on(table.fixedTourId),
     index("idx_tours_original_fixed_tour").on(table.originalFixedTourId),
+    // 1:1 crossover pairing — only one tour may point at a given partner.
+    // Partial so the (common) null rows don't collide.
+    uniqueIndex("idx_tours_crossover_pair")
+      .on(table.crossoverPairId)
+      .where(sql`crossover_pair_id IS NOT NULL`),
   ]
 );
 
@@ -695,6 +700,11 @@ export const tourCrossoverRequests = pgTable(
     index("idx_crossover_requests_tour").on(table.tourId, table.status),
     index("idx_crossover_requests_requester").on(table.requesterUserId, table.status),
     index("idx_crossover_requests_target").on(table.targetUserId, table.status),
+    // At most one PENDING request per (requester, target tour). A second
+    // duplicate-pending insert collides here instead of racing.
+    uniqueIndex("uq_crossover_requests_pending")
+      .on(table.requesterUserId, table.targetTourId)
+      .where(sql`status = 'pending'`),
   ]
 );
 
@@ -757,6 +767,9 @@ export const escrowAdjustments = pgTable(
   (table) => [
     index("idx_escrow_adjustments_tour").on(table.tourId, table.status),
     index("idx_escrow_adjustments_request").on(table.crossoverRequestId),
+    // One escrow row per crossover request — the real guard behind
+    // lockItinerary's idempotency (replaces the racy SELECT-then-INSERT).
+    uniqueIndex("uq_escrow_adjustments_request").on(table.crossoverRequestId),
   ]
 );
 

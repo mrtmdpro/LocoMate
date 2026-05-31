@@ -15,6 +15,10 @@
     {
       "path": "/api/cron/topup-slots",
       "schedule": "0 2 * * *"
+    },
+    {
+      "path": "/api/cron/crossover-sweeps",
+      "schedule": "0 * * * *"
     }
   ]
 }

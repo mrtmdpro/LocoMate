@@ -28,6 +28,7 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { and, asc, desc, eq, inArray, ne, or, sql } from "drizzle-orm";
+import type { PgDatabase, PgQueryResultHKT } from "drizzle-orm/pg-core";
 import { router, protectedProcedure } from "../trpc";
 import {
   tours,
@@ -52,6 +53,13 @@ import {
   DiscoveryCandidateSchema,
   type DiscoveryCandidate,
 } from "../lib/crossover-dto";
+import type * as schema from "../db/schema";
+
+/**
+ * Driver-agnostic Drizzle handle that also accepts a `PgTransaction`, so the
+ * accept-path and lock-itinerary helpers can run inside `db.transaction()`.
+ */
+type AnyDb = PgDatabase<PgQueryResultHKT, typeof schema>;
 
 /* ────────────────────────────────────────────────────────────────────
  *  Helpers
@@ -90,7 +98,7 @@ async function countCapacityForFixedTour(
  *  checks. Returns null when the tour's params don't carry enough info
  *  (e.g. algorithmic tours with no date). */
 async function timeWindowForTour(
-  db: typeof import("../db").db,
+  db: AnyDb,
   tourId: string,
 ): Promise<TimeWindow | null> {
   const tour = await db.query.tours.findFirst({ where: eq(tours.id, tourId) });
@@ -98,6 +106,25 @@ async function timeWindowForTour(
   const win = tourTimeWindow(readRequestParams(tour.requestParams));
   if (!win) return null;
   return { startsAt: win.startsAt, endsAt: win.endsAt };
+}
+
+/**
+ * Detects a unique-constraint violation across raw Postgres errors and
+ * Drizzle's wrapped envelopes. SQLSTATE 23505 is the canonical code; we
+ * also keyword-match in case a driver changes the wrapper shape. Mirrors
+ * the same classifier in `services/crossover-cron.ts`.
+ */
+function isUniqueViolation(err: unknown): boolean {
+  let cur: unknown = err;
+  for (let depth = 0; depth < 5 && cur; depth++) {
+    const e = cur as { code?: unknown; message?: unknown; cause?: unknown };
+    if (e.code === "23505") return true;
+    if (typeof e.message === "string" && /duplicate key|unique constraint/i.test(e.message)) {
+      return true;
+    }
+    cur = e.cause;
+  }
+  return false;
 }
 
 /** Asserts the caller owns the tour. Used at the entry of every
@@ -314,33 +341,84 @@ export const crossoverRouter = router({
         return { candidates: [], voucherBurned: false, feedGeneratedAt: new Date().toISOString() };
       }
 
-      // Resolve each peer's vector + bracket + chapter summary in
-      // parallel. Skip peers without a vector.
-      const peerCandidates = await Promise.all(
-        otherTours.map(async (peer) => {
-          const peerProfile = await ctx.db.query.userProfiles.findFirst({
-            where: eq(userProfiles.userId, peer.userId),
+      // Batch every per-peer lookup into three `inArray` queries instead
+      // of the previous ~3-round-trips-per-peer loop:
+      //   1. all peer profiles by userId
+      //   2. all referenced fixed tours by tourId (for the chapter)
+      //   3. all referenced fixed-tour steps by tourId, reduced to the
+      //      first step per tour (lowest stepOrder).
+      const peerUserIds = [...new Set(otherTours.map((p) => p.userId))];
+      const fixedTourIds = [
+        ...new Set(
+          otherTours
+            .map((p) => p.fixedTourId)
+            .filter((id): id is string => id !== null),
+        ),
+      ];
+
+      const profileRows = peerUserIds.length
+        ? await ctx.db
+            .select({
+              userId: userProfiles.userId,
+              explicitData: userProfiles.explicitData,
+              derivedData: userProfiles.derivedData,
+            })
+            .from(userProfiles)
+            .where(inArray(userProfiles.userId, peerUserIds))
+        : [];
+      const profileById = new Map(profileRows.map((r) => [r.userId, r]));
+
+      const fixedTourRows = fixedTourIds.length
+        ? await ctx.db
+            .select({ tourId: fixedTours.tourId, chapter: fixedTours.chapter })
+            .from(fixedTours)
+            .where(inArray(fixedTours.tourId, fixedTourIds))
+        : [];
+      const chapterByFixedTourId = new Map(
+        fixedTourRows.map((r) => [r.tourId, r.chapter as z.infer<typeof ChapterSchema>]),
+      );
+
+      const stepRows = fixedTourIds.length
+        ? await ctx.db
+            .select({
+              tourId: fixedTourSteps.tourId,
+              stepOrder: fixedTourSteps.stepOrder,
+              locationNameVi: fixedTourSteps.locationNameVi,
+              locationNameEn: fixedTourSteps.locationNameEn,
+            })
+            .from(fixedTourSteps)
+            .where(inArray(fixedTourSteps.tourId, fixedTourIds))
+            .orderBy(asc(fixedTourSteps.tourId), asc(fixedTourSteps.stepOrder))
+        : [];
+      // First (lowest stepOrder) step per fixed tour. Rows arrive ordered
+      // by (tourId, stepOrder), so the first one seen per tour wins.
+      const firstStepByFixedTourId = new Map<
+        string,
+        { locationNameVi: string | null; locationNameEn: string | null }
+      >();
+      for (const s of stepRows) {
+        if (!firstStepByFixedTourId.has(s.tourId)) {
+          firstStepByFixedTourId.set(s.tourId, {
+            locationNameVi: s.locationNameVi,
+            locationNameEn: s.locationNameEn,
           });
+        }
+      }
+
+      const validPeers = otherTours
+        .map((peer) => {
+          const peerProfile = profileById.get(peer.userId) ?? null;
           const vector = readVector(peerProfile);
           if (!vector) return null;
 
-          // Resolve a chapter + bilingual first-stop label.
           let chapter: z.infer<typeof ChapterSchema> = "MORNING_SHIFT";
           let firstStopVi: string | null = null;
           let firstStopEn: string | null = null;
           if (peer.fixedTourId) {
-            const ft = await ctx.db.query.fixedTours.findFirst({
-              where: eq(fixedTours.tourId, peer.fixedTourId),
-            });
-            if (ft) chapter = ft.chapter as z.infer<typeof ChapterSchema>;
-            const firstStep = await ctx.db
-              .select()
-              .from(fixedTourSteps)
-              .where(eq(fixedTourSteps.tourId, peer.fixedTourId))
-              .orderBy(asc(fixedTourSteps.stepOrder))
-              .limit(1);
-            firstStopVi = firstStep[0]?.locationNameVi ?? null;
-            firstStopEn = firstStep[0]?.locationNameEn ?? null;
+            chapter = chapterByFixedTourId.get(peer.fixedTourId) ?? chapter;
+            const firstStep = firstStepByFixedTourId.get(peer.fixedTourId);
+            firstStopVi = firstStep?.locationNameVi ?? null;
+            firstStopEn = firstStep?.locationNameEn ?? null;
           }
           const summary = buildRouteSummary(chapter, firstStopVi, firstStopEn);
 
@@ -362,12 +440,8 @@ export const crossoverRouter = router({
             fixedTourId: peer.fixedTourId,
             ...summary,
           };
-        }),
-      );
-
-      const validPeers = peerCandidates.filter(
-        (p): p is NonNullable<typeof p> => p !== null,
-      );
+        })
+        .filter((p): p is NonNullable<typeof p> => p !== null);
 
       const ranked = rankByCosine(
         callerVector,
@@ -553,33 +627,38 @@ export const crossoverRouter = router({
         return { status: "expired" as const, expiredPeers: 0 };
       }
 
-      // Accept path: mark matched + expire overlapping pendings on
-      // BOTH sides of the now-matched pair.
-      const requesterWindow = await timeWindowForTour(ctx.db, req.tourId);
-      const targetWindow = await timeWindowForTour(ctx.db, req.targetTourId);
+      // Accept path: mark matched + expire overlapping pendings on BOTH
+      // sides of the now-matched pair. Wrapped in a transaction so the
+      // match-update and the two peer-expiry updates land atomically — a
+      // mid-op failure rolls the request back to `pending`.
+      const expiredPeers = await ctx.db.transaction(async (tx) => {
+        const requesterWindow = await timeWindowForTour(tx, req.tourId);
+        const targetWindow = await timeWindowForTour(tx, req.targetTourId);
 
-      await ctx.db
-        .update(tourCrossoverRequests)
-        .set({ status: "matched", matchedAt: new Date(), updatedAt: new Date() })
-        .where(eq(tourCrossoverRequests.id, req.id));
+        await tx
+          .update(tourCrossoverRequests)
+          .set({ status: "matched", matchedAt: new Date(), updatedAt: new Date() })
+          .where(eq(tourCrossoverRequests.id, req.id));
 
-      let expiredPeers = 0;
-      if (requesterWindow) {
-        expiredPeers += await expireOverlappingPending(
-          ctx.db,
-          req.requesterUserId,
-          requesterWindow,
-          req.id,
-        );
-      }
-      if (targetWindow) {
-        expiredPeers += await expireOverlappingPending(
-          ctx.db,
-          req.targetUserId,
-          targetWindow,
-          req.id,
-        );
-      }
+        let expired = 0;
+        if (requesterWindow) {
+          expired += await expireOverlappingPending(
+            tx,
+            req.requesterUserId,
+            requesterWindow,
+            req.id,
+          );
+        }
+        if (targetWindow) {
+          expired += await expireOverlappingPending(
+            tx,
+            req.targetUserId,
+            targetWindow,
+            req.id,
+          );
+        }
+        return expired;
+      });
 
       return { status: "matched" as const, expiredPeers };
     }),
@@ -798,7 +877,10 @@ export const crossoverRouter = router({
         });
       }
 
-      // Idempotency check.
+      // Idempotency fast-path: an escrow already exists for this request.
+      // The unique index on `escrow_adjustments.crossover_request_id`
+      // (B5) is the real guard below; this SELECT just avoids the
+      // transaction round-trip on the common already-locked re-call.
       const existing = await ctx.db
         .select()
         .from(escrowAdjustments)
@@ -824,32 +906,59 @@ export const crossoverRouter = router({
       // can find it via `getActiveRequest(tourId)`.
       const anchorTourId = ctx.user.id === tourA.userId ? tourA.id : tourB.id;
 
-      const [escrowRow] = await ctx.db
-        .insert(escrowAdjustments)
-        .values({
-          tourId: anchorTourId,
-          crossoverRequestId: req.id,
-          costOld,
-          costNew,
-          status: "pending",
-        })
-        .returning({ id: escrowAdjustments.id, delta: escrowAdjustments.delta });
+      try {
+        // Escrow insert + the two tour pairings land atomically; a
+        // mid-op failure leaves no half-paired state behind.
+        const escrowRow = await ctx.db.transaction(async (tx) => {
+          const [row] = await tx
+            .insert(escrowAdjustments)
+            .values({
+              tourId: anchorTourId,
+              crossoverRequestId: req.id,
+              costOld,
+              costNew,
+              status: "pending",
+            })
+            .returning({ id: escrowAdjustments.id, delta: escrowAdjustments.delta });
 
-      // Pair the two tours.
-      await ctx.db
-        .update(tours)
-        .set({ crossoverPairId: tourB.id, updatedAt: new Date() })
-        .where(eq(tours.id, tourA.id));
-      await ctx.db
-        .update(tours)
-        .set({ crossoverPairId: tourA.id, updatedAt: new Date() })
-        .where(eq(tours.id, tourB.id));
+          await tx
+            .update(tours)
+            .set({ crossoverPairId: tourB.id, updatedAt: new Date() })
+            .where(eq(tours.id, tourA.id));
+          await tx
+            .update(tours)
+            .set({ crossoverPairId: tourA.id, updatedAt: new Date() })
+            .where(eq(tours.id, tourB.id));
 
-      return {
-        escrowAdjustmentId: escrowRow.id,
-        delta: escrowRow.delta ?? 0,
-        alreadyLocked: false,
-      };
+          return row;
+        });
+
+        return {
+          escrowAdjustmentId: escrowRow.id,
+          delta: escrowRow.delta ?? 0,
+          alreadyLocked: false,
+        };
+      } catch (err) {
+        // A concurrent lock won the race: the unique index on
+        // `escrow_adjustments.crossover_request_id` rejected our insert
+        // and rolled the transaction back. Re-read the winning row and
+        // return it as the idempotent `alreadyLocked` result.
+        if (isUniqueViolation(err)) {
+          const winner = await ctx.db
+            .select()
+            .from(escrowAdjustments)
+            .where(eq(escrowAdjustments.crossoverRequestId, req.id))
+            .limit(1);
+          if (winner.length > 0) {
+            return {
+              escrowAdjustmentId: winner[0].id,
+              delta: winner[0].delta ?? 0,
+              alreadyLocked: true,
+            };
+          }
+        }
+        throw err;
+      }
     }),
 
   // ──────────────────── Luồng 4 (mocked) ────────────────────

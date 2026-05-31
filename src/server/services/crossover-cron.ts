@@ -39,7 +39,7 @@ import {
   payments,
 } from "../db/schema";
 import type * as schema from "../db/schema";
-import { readExplicitData, readDerivedData } from "../lib/profile-shape";
+import { readExplicitData } from "../lib/profile-shape";
 import { readRequestParams } from "../lib/tour-request-shape";
 
 /**
@@ -106,6 +106,25 @@ async function findUnderCapacityFixedTours(
     currentCapacity: number;
   }>
 > {
+  // Push a coarse date window into SQL so we scan only the few days that
+  // could possibly contain a departure in [minMs, maxMs]. The exact
+  // per-booking `msUntil` check still runs in JS below; this is just a
+  // superset pre-filter (±1 day of slack absorbs startTime + VN-offset
+  // edge cases). `request_params->>'date'` is YYYY-MM-DD so lexical
+  // comparison is chronological. Rows without a date compare as null and
+  // drop out — matching the `if (!date) continue` skip below.
+  const VN_OFFSET_MS = 7 * 60 * 60 * 1000;
+  const minDate = new Date(
+    now.getTime() + windowMs.minMs + VN_OFFSET_MS - 24 * 3600 * 1000,
+  )
+    .toISOString()
+    .slice(0, 10);
+  const maxDate = new Date(
+    now.getTime() + windowMs.maxMs + VN_OFFSET_MS + 24 * 3600 * 1000,
+  )
+    .toISOString()
+    .slice(0, 10);
+
   const rows = await db
     .select({
       id: tours.id,
@@ -121,6 +140,9 @@ async function findUnderCapacityFixedTours(
         sql`${tours.fixedTourId} IS NOT NULL`,
         // Don't sweep already-cancelled or migrated tours.
         inArray(tours.status, ["preview", "paid"]),
+        // Coarse departure-date window (superset of the JS time filter).
+        sql`${tours.requestParams}->>'date' >= ${minDate}`,
+        sql`${tours.requestParams}->>'date' <= ${maxDate}`,
       ),
     );
 
@@ -310,24 +332,22 @@ export async function runT36hSweep(
       return { pushed: 0, deduped: 0, errors };
     }
 
-    // Candidate recipients: any user with a personality vector saved
-    // AND `consentMatching = true` AND not the owner of the target tour.
+    // Candidate recipients: any user who has consented to matching AND
+    // has a saved personality vector. Both predicates are pushed into
+    // SQL — `explicit_data->>'consentMatching' = 'true'` and the jsonb
+    // key-existence test `derived_data ? 'personalityVector'` — so we no
+    // longer pull every profile row into memory to filter in JS.
     const candidates = await db
-      .select({
-        userId: userProfiles.userId,
-        explicitData: userProfiles.explicitData,
-        derivedData: userProfiles.derivedData,
-      })
-      .from(userProfiles);
+      .select({ userId: userProfiles.userId })
+      .from(userProfiles)
+      .where(
+        and(
+          sql`${userProfiles.explicitData}->>'consentMatching' = 'true'`,
+          sql`${userProfiles.derivedData} ? 'personalityVector'`,
+        ),
+      );
 
-    const eligibleUserIds = candidates
-      .filter((c) => {
-        const explicit = readExplicitData(c.explicitData);
-        const derived = readDerivedData(c.derivedData);
-        if (explicit.consentMatching !== true) return false;
-        return derived.personalityVector !== undefined;
-      })
-      .map((c) => c.userId);
+    const eligibleUserIds = candidates.map((c) => c.userId);
 
     for (const t of targets) {
       for (const recipientId of eligibleUserIds) {
@@ -455,16 +475,49 @@ export async function runT24hSweep(
       minMs: 23 * 3600 * 1000,
       maxMs: 25 * 3600 * 1000,
     });
+    if (targets.length === 0) {
+      return { cancelled: 0, refunded: 0, errors };
+    }
 
-    for (const t of targets) {
+    // Batch the tour + payment reads via `inArray` instead of a
+    // sequential `findFirst` per target.
+    const targetTourIds = targets.map((t) => t.tourId);
+    const tourRows = await db
+      .select()
+      .from(tours)
+      .where(inArray(tours.id, targetTourIds));
+    const tourById = new Map(tourRows.map((t) => [t.id, t]));
+
+    // Filter to the tours that are actually still strandable (not paired,
+    // not migrated, not already cancelled).
+    const cancelTargets = targets
+      .map((t) => tourById.get(t.tourId))
+      .filter(
+        (tour): tour is NonNullable<typeof tour> =>
+          tour !== undefined &&
+          !tour.crossoverPairId &&
+          !tour.originalFixedTourId &&
+          tour.status !== "system_cancelled",
+      );
+
+    const paymentRows = cancelTargets.length
+      ? await db
+          .select()
+          .from(payments)
+          .where(
+            inArray(
+              payments.tourId,
+              cancelTargets.map((t) => t.id),
+            ),
+          )
+      : [];
+    const paymentByTour = new Map<string, (typeof paymentRows)[number]>();
+    for (const p of paymentRows) {
+      if (p.tourId && !paymentByTour.has(p.tourId)) paymentByTour.set(p.tourId, p);
+    }
+
+    for (const tour of cancelTargets) {
       try {
-        const tour = await db.query.tours.findFirst({ where: eq(tours.id, t.tourId) });
-        if (!tour) continue;
-        // Skip already-rescued tours.
-        if (tour.crossoverPairId) continue;
-        if (tour.originalFixedTourId) continue;
-        if (tour.status === "system_cancelled") continue;
-
         await db
           .update(tours)
           .set({
@@ -479,9 +532,7 @@ export async function runT24hSweep(
         // 100% refund — bump the payment row's refund_amount up to the
         // original charge. Real Stripe refund happens in Phase C; this
         // mock just records the intent.
-        const payment = await db.query.payments.findFirst({
-          where: eq(payments.tourId, tour.id),
-        });
+        const payment = paymentByTour.get(tour.id);
         if (payment && (payment.refundAmount ?? 0) < payment.amount) {
           await db
             .update(payments)
@@ -494,7 +545,7 @@ export async function runT24hSweep(
           refunded++;
         }
       } catch (err) {
-        errors.push(`tour ${t.tourId}: ${(err as Error).message}`);
+        errors.push(`tour ${tour.id}: ${(err as Error).message}`);
       }
     }
   } catch (err) {
