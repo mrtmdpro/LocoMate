@@ -5,6 +5,13 @@ import { eq } from "drizzle-orm";
 import { llmStream } from "@/server/services/llm";
 import type { AiTone } from "@/server/services/llm-types";
 import { readExplicitData } from "@/server/lib/profile-shape";
+import { ACCESS_COOKIE, readCookie } from "@/server/lib/auth-cookies";
+import { rateLimit } from "@/server/services/chat-ratelimit";
+
+function clientIp(request: Request): string {
+  const xff = request.headers.get("x-forwarded-for");
+  return xff?.split(",")[0]?.trim() || request.headers.get("x-real-ip") || "anon";
+}
 
 /**
  * Phase A.8 — Streaming endpoint for the personality-quiz chatbot.
@@ -40,6 +47,14 @@ export async function POST(request: Request) {
   const promptText = (body.questionPrompt ?? "").toString().slice(0, 500);
   if (!promptText) return new Response("Missing questionPrompt", { status: 400 });
 
+  // The quiz drives an LLM call; cap per-IP so anonymous visitors can't run up
+  // the inference bill. Generous since a quiz is ~6 questions.
+  try {
+    await rateLimit({ key: `quiz:${clientIp(request)}`, limit: 40, windowSec: 60 });
+  } catch {
+    return new Response("Too many requests", { status: 429 });
+  }
+
   // If we have an authenticated user AND no explicit override, prefer the
   // stored tone + nickname so the question persona is consistent with the
   // user's settings.
@@ -47,7 +62,8 @@ export async function POST(request: Request) {
   let tone: AiTone | undefined = body.tone;
   try {
     const authHeader = request.headers.get("authorization") ?? "";
-    const token = authHeader.replace(/^Bearer\s+/i, "");
+    const bearer = authHeader.replace(/^Bearer\s+/i, "");
+    const token = bearer || readCookie(request.headers.get("cookie"), ACCESS_COOKIE) || "";
     if (token) {
       const payload = verifyToken(token);
       if (payload?.userId) {

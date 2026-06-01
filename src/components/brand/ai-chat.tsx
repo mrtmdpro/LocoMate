@@ -192,6 +192,9 @@ export async function streamQuizQuestion({
 }): Promise<string> {
   const res = await fetch("/api/chat/quiz", {
     method: "POST",
+    // Carry the httpOnly access cookie so the quiz can personalise for a
+    // signed-in user. `authToken` remains an optional legacy Bearer override.
+    credentials: "include",
     headers: {
       "Content-Type": "application/json",
       ...(authToken ? { authorization: `Bearer ${authToken}` } : {}),

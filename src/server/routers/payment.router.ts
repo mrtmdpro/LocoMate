@@ -13,6 +13,7 @@ import {
   productVariants,
   coupons,
 } from "../db/schema";
+import { rateLimit } from "../services/chat-ratelimit";
 import { TOUR_PRICING } from "@/lib/pricing";
 import { COUPON_CODE_REGEX } from "@/lib/coupon-format";
 
@@ -98,6 +99,11 @@ export const paymentRouter = router({
   confirm: protectedProcedure
     .input(z.object({ paymentId: z.string().uuid() }))
     .mutation(async ({ ctx, input }) => {
+      await rateLimit({
+        key: `payment:confirm:${ctx.user.id}`,
+        limit: 20,
+        windowSec: 60,
+      });
       const payment = await ctx.db.query.payments.findFirst({
         where: eq(payments.id, input.paymentId),
       });

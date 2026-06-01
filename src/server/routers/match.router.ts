@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { eq, and, notInArray, sql } from "drizzle-orm";
-import { router, protectedProcedure } from "../trpc";
+import { router, protectedProcedure, protectedOwnedProcedure } from "../trpc";
 import { users, userProfiles, swipeActions, matches } from "../db/schema";
 import { readExplicitData, readDerivedData } from "../lib/profile-shape";
 import { MatchCandidateSchema } from "../lib/match-candidate-dto";
@@ -116,9 +116,12 @@ export const matchRouter = router({
     return enriched;
   }),
 
-  unmatch: protectedProcedure
-    .input(z.object({ matchId: z.string().uuid() }))
-    .mutation(async ({ ctx, input }) => {
+  // Ownership-gated: the caller must be a participant in the match
+  // (userAId OR userBId). Closes the Critical #1 global IDOR where any
+  // authenticated user could unmatch any pair by guessing a matchId.
+  unmatch: protectedOwnedProcedure(matches, "matchId", {
+    ownerColumns: ["userAId", "userBId"],
+  }).mutation(async ({ ctx, input }) => {
       await ctx.db
         .update(matches)
         .set({ status: "unmatched" })

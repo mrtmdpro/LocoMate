@@ -1291,6 +1291,45 @@ export const accounts = pgTable(
 );
 
 /* ────────────────────────────────────────────────────────────────────────
+ *  SESSIONS (server-side refresh-token store — Cluster C auth lifecycle)
+ *
+ *  Refresh tokens move from stateless JWTs to opaque random strings stored
+ *  HASHED (sha256) in this table. Every refresh rotates: the presented row
+ *  is revoked and a replacement is issued in the same `familyId`. Presenting
+ *  an already-revoked token is treated as theft and revokes the whole family.
+ *
+ *  Access tokens stay short-lived JWTs (now carrying `typ:"access"`) and are
+ *  NOT stored here — only the long-lived refresh side is server-tracked.
+ *
+ *  DDL lives in scripts/create-sessions-table.ts (idempotent) and is mirrored
+ *  into src/test/setup.ts for the PGlite suite.
+ * ──────────────────────────────────────────────────────────────────── */
+export const sessions = pgTable(
+  "sessions",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    // sha256 hex digest of the opaque refresh token. The raw token is only
+    // ever held by the client cookie; the DB stores the hash so a DB leak
+    // can't be replayed as a session.
+    refreshTokenHash: varchar("refresh_token_hash", { length: 64 }).notNull(),
+    // Rotation lineage. All rotations of one login share a familyId so reuse
+    // of a revoked token can revoke every descendant in one statement.
+    familyId: uuid("family_id").notNull(),
+    userAgent: varchar("user_agent", { length: 400 }),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    revokedAt: timestamp("revoked_at", { withTimezone: true }),
+  },
+  (table) => [
+    index("idx_sessions_user").on(table.userId),
+    index("idx_sessions_refresh_hash").on(table.refreshTokenHash),
+  ]
+);
+
+/* ────────────────────────────────────────────────────────────────────────
  *  WRAP-UP COUPONS (issued on tour.completeTour, redeemed at payment.confirm)
  *
  *  One row per issued coupon. The wrap-up flavour is created in

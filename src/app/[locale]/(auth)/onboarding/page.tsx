@@ -47,7 +47,7 @@ const SCENARIOS = [
 export default function OnboardingPage() {
   const router = useRouter();
   const t = useTranslations("onboardingLegacy");
-  const { user, setAuth, accessToken, refreshToken } = useAuthStore();
+  const { user, setAuth } = useAuthStore();
   const [step, setStep] = useState(0);
 
   // Traveler onboarding isn't for hosts/admins. If a host lands here by a
@@ -88,8 +88,8 @@ export default function OnboardingPage() {
           // non-blocking; user can retry from /settings
         }
       }
-      if (user && accessToken && refreshToken) {
-        setAuth({ ...user, onboardingCompleted: true }, accessToken, refreshToken);
+      if (user) {
+        setAuth({ ...user, onboardingCompleted: true });
       }
       router.push("/home");
     },
@@ -101,8 +101,8 @@ export default function OnboardingPage() {
   // paths without needing a separate "change role" flow later.
   const becomeHostMutation = trpc.user.becomeHost.useMutation({
     onSuccess: () => {
-      if (user && accessToken && refreshToken) {
-        setAuth({ ...user, role: "host" }, accessToken, refreshToken);
+      if (user) {
+        setAuth({ ...user, role: "host" });
       }
       toast.success(t("host.toastSuccess"));
       router.push("/host-setup");

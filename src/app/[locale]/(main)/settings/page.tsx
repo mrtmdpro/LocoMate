@@ -281,7 +281,7 @@ export default function SettingsPage() {
 function SwitchToTravelerRow() {
   const t = useTranslations("settings.account.switchToTraveler");
   const router = useRouter();
-  const { user, accessToken, refreshToken, setAuth } = useAuthStore();
+  const { user, setAuth } = useAuthStore();
   const utils = trpc.useUtils();
   const [open, setOpen] = useState(false);
 
@@ -296,8 +296,8 @@ function SwitchToTravelerRow() {
 
   const becomeTraveler = trpc.user.becomeTraveler.useMutation({
     onSuccess: (res) => {
-      if (user && accessToken && refreshToken) {
-        setAuth({ ...user, role: res.role }, accessToken, refreshToken);
+      if (user) {
+        setAuth({ ...user, role: res.role });
       }
       utils.user.getProfile.invalidate();
       utils.host.invalidate();

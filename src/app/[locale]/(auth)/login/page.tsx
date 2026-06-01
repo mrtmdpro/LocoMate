@@ -93,7 +93,7 @@ function LoginPageInner() {
   const loginMutation = trpc.auth.login.useMutation({
     onSuccess: (data) => {
       setLoggingIn(true);
-      setAuth(data.user, data.accessToken, data.refreshToken);
+      setAuth(data.user);
       setTimeout(() => {
         // Hosts + admins never go through traveler onboarding, even if their
         // user_profiles row is missing or has onboardingCompleted=false.

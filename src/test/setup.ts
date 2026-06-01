@@ -541,6 +541,21 @@ beforeAll(async () => {
     `CREATE INDEX IF NOT EXISTS idx_activities_source_step ON activities(source_fixed_tour_step_id)`,
     `ALTER TABLE fixed_tour_steps ADD COLUMN IF NOT EXISTS activity_id UUID REFERENCES activities(id) ON DELETE SET NULL`,
     `CREATE INDEX IF NOT EXISTS idx_fixed_tour_steps_activity ON fixed_tour_steps(activity_id)`,
+
+    // Sessions table (see scripts/create-sessions-table.ts). Server-side
+    // refresh-token store for the Cluster C auth lifecycle. Mirror prod DDL.
+    `CREATE TABLE IF NOT EXISTS sessions (
+       id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+       user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+       refresh_token_hash VARCHAR(64) NOT NULL,
+       family_id UUID NOT NULL,
+       user_agent VARCHAR(400),
+       expires_at TIMESTAMPTZ NOT NULL,
+       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+       revoked_at TIMESTAMPTZ
+     )`,
+    `CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id)`,
+    `CREATE INDEX IF NOT EXISTS idx_sessions_refresh_hash ON sessions(refresh_token_hash)`,
   ];
   for (const stmt of statements) {
     await _db.execute(sql.raw(stmt));
@@ -562,7 +577,7 @@ async function resetDb() {
   // Single TRUNCATE with a comma-separated list IS a single SQL statement per
   // Postgres grammar, so PGlite's extended protocol accepts it.
   await _db.execute(sql.raw(
-    "TRUNCATE TABLE accounts, reports, emergency_contacts, reviews, host_payouts, " +
+    "TRUNCATE TABLE sessions, accounts, reports, emergency_contacts, reviews, host_payouts, " +
     "thank_you_letters, " +
     "priority_matching_vouchers, crossover_discovery_pushes, escrow_adjustments, " +
     "tour_proposal_edits, tour_crossover_requests, " +

@@ -286,24 +286,15 @@ export default function ChatConversationPage() {
         // Strip EXIF -- travel photos often carry GPS coords.
         preserveExif: false,
       });
-      // Grab the auth token from Zustand persist so the upload route can
-      // authenticate the client-upload token request.
-      const authStr = typeof localStorage !== "undefined"
-        ? localStorage.getItem("locomate-auth")
-        : null;
-      const accessToken = authStr
-        ? (JSON.parse(authStr) as { state?: { accessToken?: string } }).state?.accessToken
-        : null;
-      if (!accessToken) {
-        toast.error(t("toast.uploadAuthRequired"));
-        return;
-      }
+      // Auth rides on the httpOnly `lm_access` cookie: @vercel/blob's
+      // client `upload()` POSTs to the same-origin handleUploadUrl, which
+      // includes cookies by default, so the route authenticates the
+      // client-upload token request from the cookie (no Bearer needed).
       const pathname = `chat/${matchId}/${Date.now()}-${file.name}`;
       const blob = await upload(pathname, compressed, {
         access: "public",
         handleUploadUrl: "/api/chat/upload",
         clientPayload: JSON.stringify({ matchId }),
-        headers: { authorization: `Bearer ${accessToken}` },
       });
       await sendMutation.mutateAsync({
         matchId,

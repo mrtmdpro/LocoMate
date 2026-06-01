@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { trpc } from "@/lib/trpc";
 import { useAuthStore } from "@/stores/auth";
+import { serverLogout } from "@/lib/trpc-auth-link";
 import { toast } from "sonner";
 import { SPOKEN_LANGUAGES, type SpokenLanguage } from "@/lib/spoken-languages";
 
@@ -86,7 +87,8 @@ export default function ProfilePage() {
   const personalityLabel = derived.personalityLabel || t("personality.defaultLabel");
   const fitScore = topTraits.length > 0 ? Math.round(topTraits.reduce((s, t) => s + t.value, 0) / topTraits.length) : 75;
 
-  function handleLogout() {
+  async function handleLogout() {
+    await serverLogout();
     logout();
     router.push("/login");
   }

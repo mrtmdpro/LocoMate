@@ -17,97 +17,106 @@ import { Redis } from "@upstash/redis";
 
 // ---- Shared state ---------------------------------------------------------
 
-let cached: {
-  burst: Ratelimit;
-  daily: Ratelimit;
-  redis: Redis;
-} | null = null;
+let redisClient: Redis | null = null;
+let redisChecked = false;
 
-function getUpstash(): typeof cached {
-  if (cached !== null) return cached;
+function getRedis(): Redis | null {
+  if (redisChecked) return redisClient;
+  redisChecked = true;
   const url = process.env.UPSTASH_REDIS_REST_URL;
   const token = process.env.UPSTASH_REDIS_REST_TOKEN;
   if (!url || !token) return null;
-  const redis = new Redis({ url, token });
-  cached = {
-    redis,
-    burst: new Ratelimit({
+  redisClient = new Redis({ url, token });
+  return redisClient;
+}
+
+// One Upstash Ratelimit instance per (limit, windowSec) config, cached so we
+// don't rebuild the sliding-window machinery on every call.
+const limiterCache = new Map<string, Ratelimit>();
+
+function getLimiter(limit: number, windowSec: number): Ratelimit | null {
+  const redis = getRedis();
+  if (!redis) return null;
+  const cacheKey = `${limit}:${windowSec}`;
+  let limiter = limiterCache.get(cacheKey);
+  if (!limiter) {
+    limiter = new Ratelimit({
       redis,
-      limiter: Ratelimit.slidingWindow(10, "60 s"),
-      prefix: "chat:burst",
-    }),
-    daily: new Ratelimit({
-      redis,
-      limiter: Ratelimit.slidingWindow(100, "86400 s"),
-      prefix: "chat:daily",
-    }),
-  };
-  return cached;
+      limiter: Ratelimit.slidingWindow(limit, `${windowSec} s`),
+      prefix: "rl",
+    });
+    limiterCache.set(cacheKey, limiter);
+  }
+  return limiter;
 }
 
 // ---- Local fallback -------------------------------------------------------
 
-const local = {
-  burst: new Map<string, number[]>(),
-  daily: new Map<string, number[]>(),
-};
+// Single in-memory bucket store keyed by the caller-supplied `key`. Keys are
+// unique per endpoint (e.g. `auth:login:ip:1.2.3.4`) so configs never collide.
+const localBuckets = new Map<string, number[]>();
 
-function localCheck(
-  map: Map<string, number[]>,
-  userId: string,
-  limit: number,
-  windowMs: number,
-): boolean {
+function localCheck(key: string, limit: number, windowMs: number): boolean {
   const now = Date.now();
   const cutoff = now - windowMs;
-  const stamps = (map.get(userId) ?? []).filter((t) => t > cutoff);
+  const stamps = (localBuckets.get(key) ?? []).filter((t) => t > cutoff);
   if (stamps.length >= limit) {
-    map.set(userId, stamps);
+    localBuckets.set(key, stamps);
     return false;
   }
   stamps.push(now);
-  map.set(userId, stamps);
+  localBuckets.set(key, stamps);
   return true;
 }
 
 // ---- Public API -----------------------------------------------------------
 
-export async function enforceChatRateLimit(userId: string): Promise<void> {
-  const upstash = getUpstash();
-  if (upstash) {
-    const [burst, daily] = await Promise.all([
-      upstash.burst.limit(userId),
-      upstash.daily.limit(userId),
-    ]);
-    if (!burst.success) {
-      throw new TRPCError({
-        code: "TOO_MANY_REQUESTS",
-        message: "You're sending too fast. Please wait a moment.",
-      });
-    }
-    if (!daily.success) {
-      throw new TRPCError({
-        code: "TOO_MANY_REQUESTS",
-        message: "Daily message limit reached. Try again tomorrow.",
-      });
-    }
+const TOO_MANY = (message: string) =>
+  new TRPCError({ code: "TOO_MANY_REQUESTS", message });
+
+/**
+ * General-purpose fixed-window rate limit. Backed by Upstash when configured;
+ * falls back to a process-local in-memory window in dev / preview / tests.
+ *
+ * Throws `TOO_MANY_REQUESTS` when the bucket is exhausted. Callers pick a
+ * stable `key` (IP for unauthenticated endpoints, userId for authenticated
+ * ones) namespaced by feature.
+ */
+export async function rateLimit(opts: {
+  key: string;
+  limit: number;
+  windowSec: number;
+  message?: string;
+}): Promise<void> {
+  const { key, limit, windowSec } = opts;
+  const message = opts.message ?? "Too many requests. Please slow down.";
+  const limiter = getLimiter(limit, windowSec);
+  if (limiter) {
+    const { success } = await limiter.limit(key);
+    if (!success) throw TOO_MANY(message);
     return;
   }
-  // In-memory fallback (dev / test).
-  const burstOk = localCheck(local.burst, userId, 10, 60_000);
-  if (!burstOk) {
-    throw new TRPCError({
-      code: "TOO_MANY_REQUESTS",
-      message: "You're sending too fast. Please wait a moment.",
-    });
-  }
-  const dailyOk = localCheck(local.daily, userId, 100, 86_400_000);
-  if (!dailyOk) {
-    throw new TRPCError({
-      code: "TOO_MANY_REQUESTS",
-      message: "Daily message limit reached. Try again tomorrow.",
-    });
-  }
+  if (!localCheck(key, limit, windowSec * 1000)) throw TOO_MANY(message);
+}
+
+/**
+ * Chat-message limiter: 10 messages / 60s (burst) AND 100 / 24h (daily),
+ * keyed by userId. Thin wrapper over `rateLimit` so existing callers + tests
+ * keep working unchanged.
+ */
+export async function enforceChatRateLimit(userId: string): Promise<void> {
+  await rateLimit({
+    key: `chat:burst:${userId}`,
+    limit: 10,
+    windowSec: 60,
+    message: "You're sending too fast. Please wait a moment.",
+  });
+  await rateLimit({
+    key: `chat:daily:${userId}`,
+    limit: 100,
+    windowSec: 86_400,
+    message: "Daily message limit reached. Try again tomorrow.",
+  });
 }
 
 /**
@@ -115,6 +124,5 @@ export async function enforceChatRateLimit(userId: string): Promise<void> {
  * across cases. Has no effect on the Upstash path.
  */
 export function __resetChatRateLimit(): void {
-  local.burst.clear();
-  local.daily.clear();
+  localBuckets.clear();
 }

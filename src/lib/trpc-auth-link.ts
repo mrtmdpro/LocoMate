@@ -4,44 +4,104 @@ import type { AppRouter } from "@/server/routers/_app";
 import { useAuthStore } from "@/stores/auth";
 
 /**
- * Custom tRPC link that intercepts UNAUTHORIZED (HTTP 401) responses on
- * BOTH queries and mutations, attempts a single-flight silent
- * `auth.refreshToken` call using the persisted refresh token, and replays
- * the original operation with the new access token.
+ * Custom tRPC link that intercepts UNAUTHORIZED (HTTP 401) responses on BOTH
+ * queries and mutations, attempts a single-flight silent `auth.refreshToken`
+ * call (the refresh token rides automatically in the `lm_refresh` httpOnly
+ * cookie — no token argument), and replays the original operation.
  *
- * The previous setup only retried *queries* via `defaultOptions.queries.retry`,
- * so mutations like `cart.add` would fail silently on an expired JWT --
- * users saw `toast.error("UNAUTHORIZED")` and assumed the button was
- * broken. Now an expired token recovers transparently.
+ * Post-Cluster-C: tokens are httpOnly cookies, so the client never reads or
+ * sends them explicitly; `credentials: "include"` on the fetch link is what
+ * carries them. The only client-held credential is the LEGACY localStorage
+ * token left over from before the migration, which the upgrade shim below
+ * attaches as a one-time Bearer header so the server can mint cookies.
  *
- * Single-flight: concurrent 401s share one refresh promise, so adding three
- * items to cart in quick succession doesn't spawn three refresh requests.
+ * Single-flight: concurrent 401s share one refresh promise.
  *
- * Final fallback: if refresh itself returns 401 (or no refresh token is
- * stored), we clear auth and bounce the user to `/login?returnTo=<here>`
- * preserving where they were so they can resume after re-auth.
+ * Final fallback: if refresh itself 401s (no/again-invalid refresh cookie), we
+ * clear the user and bounce to `/login?returnTo=<here>`.
  */
+
+const LEGACY_KEY = "locomate-auth";
+
+/**
+ * Reads the access token from the pre-Cluster-C persisted Zustand blob, if an
+ * existing device still has one. Returns null once cleared / on fresh installs.
+ */
+export function getLegacyAccessToken(): string | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(LEGACY_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as {
+      state?: { accessToken?: unknown };
+    };
+    const token = parsed?.state?.accessToken;
+    return typeof token === "string" && token.length > 0 ? token : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Strips the legacy access/refresh tokens out of the persisted blob after the
+ * server has upgraded the session to cookies. Preserves the persisted `user`.
+ */
+export function clearLegacyTokens(): void {
+  if (typeof window === "undefined") return;
+  try {
+    const raw = window.localStorage.getItem(LEGACY_KEY);
+    if (!raw) return;
+    const parsed = JSON.parse(raw) as {
+      state?: Record<string, unknown>;
+      version?: number;
+    };
+    if (parsed?.state) {
+      delete parsed.state.accessToken;
+      delete parsed.state.refreshToken;
+      window.localStorage.setItem(LEGACY_KEY, JSON.stringify(parsed));
+    }
+  } catch {
+    // Non-fatal: a malformed blob just means nothing to clear.
+  }
+}
 
 let inFlightRefresh: Promise<boolean> | null = null;
 
 /**
  * Standalone vanilla client used only to call `auth.refreshToken`. Kept
- * separate from the React-bound client so the refresh call itself never
- * loops back through `authLink`.
+ * separate from the React-bound client so the refresh call itself never loops
+ * back through `authLink`. `credentials: "include"` carries the refresh cookie.
  */
 const refreshClient = createTRPCClient<AppRouter>({
-  links: [httpLink({ url: "/api/trpc" })],
+  links: [
+    httpLink({
+      url: "/api/trpc",
+      fetch(url, options) {
+        return fetch(url, { ...options, credentials: "include" });
+      },
+    }),
+  ],
 });
 
-async function performRefresh(): Promise<boolean> {
-  const { refreshToken, setToken, logout } = useAuthStore.getState();
-  if (!refreshToken) {
-    logout();
-    return false;
-  }
+/**
+ * Best-effort server logout: revokes the current refresh session row and
+ * clears the httpOnly cookies. Always clears any leftover legacy tokens too.
+ * Callers still update the Zustand store + navigate themselves.
+ */
+export async function serverLogout(): Promise<void> {
   try {
-    const { accessToken } = await refreshClient.auth.refreshToken.mutate({ refreshToken });
-    setToken(accessToken);
+    await refreshClient.auth.logout.mutate();
+  } catch {
+    // Non-fatal: cookies expire on their own; the session row may already be
+    // gone (e.g. account deletion cascade).
+  }
+  clearLegacyTokens();
+}
+
+async function performRefresh(): Promise<boolean> {
+  const { logout } = useAuthStore.getState();
+  try {
+    await refreshClient.auth.refreshToken.mutate();
     return true;
   } catch {
     logout();

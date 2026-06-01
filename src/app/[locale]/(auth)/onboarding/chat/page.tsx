@@ -72,14 +72,14 @@ export default function OnboardingChatPage() {
 function OnboardingChatPageInner() {
   const router = useRouter();
   const search = useSearchParams();
-  const { user, accessToken, setAuth, refreshToken } = useAuthStore();
+  const { user, setAuth } = useAuthStore();
   const utils = trpc.useUtils();
   const t = useTranslations("onboarding.chat");
   const savePersonality = trpc.user.savePersonality.useMutation();
   const submitOnboarding = trpc.user.submitOnboarding.useMutation({
     onSuccess: () => {
-      if (user && accessToken && refreshToken) {
-        setAuth({ ...user, onboardingCompleted: true }, accessToken, refreshToken);
+      if (user) {
+        setAuth({ ...user, onboardingCompleted: true });
       }
     },
   });
@@ -126,7 +126,6 @@ function OnboardingChatPageInner() {
           questionPrompt: promptText,
           nickname: nickname,
           tone: tone ?? undefined,
-          authToken: accessToken ?? undefined,
           onChunk: (chunk) => {
             setMessages((prev) =>
               prev.map((m) =>
@@ -158,7 +157,7 @@ function OnboardingChatPageInner() {
         setStreamingId(null);
       }
     },
-    [accessToken, nickname, tone],
+    [nickname, tone],
   );
 
   // Auto-start the quiz once the user picks a tone.

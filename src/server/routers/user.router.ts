@@ -20,6 +20,7 @@ import {
 import { desc } from "drizzle-orm";
 import { onboardingSchema } from "@/lib/validations/auth";
 import { computeDerivedProfile } from "../services/profile-engine";
+import { rateLimit } from "../services/chat-ratelimit";
 import {
   mergeExplicitData,
   mergeDerivedData,
@@ -552,6 +553,13 @@ export const userRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
+      // Destructive + a second-factor gate; cap attempts so a stolen access
+      // token can't brute-force the password confirmation.
+      await rateLimit({
+        key: `user:deleteAccount:${ctx.user.id}`,
+        limit: 5,
+        windowSec: 300,
+      });
       const userId = ctx.user.id;
       const storedEmail = (ctx.user.email ?? "").toLowerCase();
       const typedEmail = input.confirmEmail.trim().toLowerCase();

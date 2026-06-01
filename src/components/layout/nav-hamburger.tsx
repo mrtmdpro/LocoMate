@@ -12,6 +12,7 @@ import {
   type OverflowGroups,
 } from "@/lib/nav";
 import { useAuthStore } from "@/stores/auth";
+import { serverLogout } from "@/lib/trpc-auth-link";
 import { cn } from "@/lib/utils";
 
 /**
@@ -71,8 +72,9 @@ export function NavHamburger() {
   }, [pathname]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
-  const handleSignOut = () => {
+  const handleSignOut = async () => {
     setOpen(false);
+    await serverLogout();
     logout();
     router.replace("/login");
   };

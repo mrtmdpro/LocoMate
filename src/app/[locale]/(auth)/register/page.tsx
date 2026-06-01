@@ -29,7 +29,7 @@ function RegisterPageInner() {
 
   const registerMutation = trpc.auth.register.useMutation({
     onSuccess: (data) => {
-      setAuth(data.user, data.accessToken, data.refreshToken);
+      setAuth(data.user);
       router.push("/onboarding");
     },
     onError: (err) => setError(err.message),

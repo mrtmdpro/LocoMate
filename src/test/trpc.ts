@@ -30,7 +30,15 @@ async function loadUserFromDb(id: string) {
   return row;
 }
 
-export async function callerAs(user: UserInput) {
+// Extra context fields the HTTP layer would normally populate (Cluster C auth
+// lifecycle). Tests that exercise cookie-setting / refresh / rate limiting pass
+// these explicitly since the in-process caller bypasses createContext.
+type CtxExtra = Pick<
+  Context,
+  "resHeaders" | "clientIp" | "userAgent" | "cookieHeader" | "authSource"
+>;
+
+export async function callerAs(user: UserInput, extra: CtxExtra = {}) {
   const db = getTestDb();
   let ctxUser: Context["user"] = null;
   if (user) {
@@ -46,6 +54,7 @@ export async function callerAs(user: UserInput) {
   return appRouter.createCaller({
     user: ctxUser,
     db: db as unknown as Context["db"],
+    ...extra,
   });
 }
 

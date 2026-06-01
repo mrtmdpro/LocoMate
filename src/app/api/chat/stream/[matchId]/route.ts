@@ -3,6 +3,7 @@ import { verifyToken } from "@/server/middleware/auth";
 import { matches } from "@/server/db/schema";
 import { eq } from "drizzle-orm";
 import { Redis } from "@upstash/redis";
+import { ACCESS_COOKIE, readCookie } from "@/server/lib/auth-cookies";
 
 /**
  * Server-Sent Events endpoint that forwards chat events to the
@@ -54,23 +55,13 @@ export async function GET(
 ): Promise<Response> {
   const { matchId } = await context.params;
 
-  // Auth: accept either Authorization header (native fetch) or a cookie
-  // (browser EventSource which can't set headers). The cookie name
-  // `locomate-auth` matches what the Zustand store writes at login.
+  // Auth: browser EventSource can't set headers, so it relies on the
+  // httpOnly `lm_access` cookie (raw access JWT) sent automatically with
+  // `withCredentials`. Native fetch callers may still pass an Authorization
+  // header. The cookie value IS the JWT — no JSON parsing.
   const auth = request.headers.get("authorization") ?? "";
-  let token = auth.startsWith("Bearer ") ? auth.slice(7) : "";
-  if (!token) {
-    const cookie = request.headers.get("cookie") ?? "";
-    const match = cookie.match(/(?:^|;\s*)locomate-auth=([^;]+)/);
-    if (match) {
-      try {
-        const parsed = JSON.parse(decodeURIComponent(match[1]));
-        token = parsed?.state?.accessToken ?? "";
-      } catch {
-        // fall through -> 401
-      }
-    }
-  }
+  const bearer = auth.startsWith("Bearer ") ? auth.slice(7) : "";
+  const token = bearer || readCookie(request.headers.get("cookie"), ACCESS_COOKIE) || "";
   if (!token) {
     return new Response("Unauthorized", { status: 401 });
   }

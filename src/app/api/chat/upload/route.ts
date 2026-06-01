@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
 import { verifyToken } from "@/server/middleware/auth";
+import { ACCESS_COOKIE, readCookie } from "@/server/lib/auth-cookies";
+import { rateLimit } from "@/server/services/chat-ratelimit";
 
 /**
  * Client-upload endpoint for chat image attachments.
@@ -42,15 +44,19 @@ export async function POST(request: Request): Promise<NextResponse> {
       body,
       request,
       onBeforeGenerateToken: async (pathname, clientPayload) => {
-        // Client must include `Authorization: Bearer <token>`. We use the
-        // same JWT the rest of tRPC sees; there's no separate "upload
-        // session" token.
+        // Auth via the httpOnly `lm_access` cookie (same-origin upload POST
+        // carries it) or an Authorization header (native fetch / legacy). We
+        // use the same JWT the rest of tRPC sees; no separate upload session.
         const auth = request.headers.get("authorization") ?? "";
-        const token = auth.startsWith("Bearer ") ? auth.slice(7) : "";
+        const bearer = auth.startsWith("Bearer ") ? auth.slice(7) : "";
+        const token =
+          bearer || readCookie(request.headers.get("cookie"), ACCESS_COOKIE) || "";
         if (!token) {
           throw new Error("Unauthorized");
         }
         const payload = verifyToken(token);
+        // Per-user upload rate limit (10/min, 100/day) keyed by uploader id.
+        await rateLimit({ key: `upload:${payload.userId}`, limit: 30, windowSec: 60 });
         // `pathname` is client-supplied; stamp it with the user id so
         // enumerating the bucket reveals nothing but pre-scoped paths.
         // Example: "chat/u_acf6a.../1718-...-photo.jpg"
@@ -71,7 +77,6 @@ export async function POST(request: Request): Promise<NextResponse> {
       onUploadCompleted: async ({ blob, tokenPayload }) => {
         // Fire-and-forget; the client is already aware of the upload
         // result. Used here for audit logging only.
-        // eslint-disable-next-line no-console
         console.log("chat upload completed", {
           url: blob.url,
           tokenPayload,
