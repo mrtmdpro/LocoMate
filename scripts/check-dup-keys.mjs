@@ -3,8 +3,11 @@
 // `home.chapter` block. Uses a custom tokenizer to track sibling keys per
 // brace level so we only flag real collisions, not coincidental same-named
 // keys in unrelated objects.
-const fs = require("fs");
-const path = require("path");
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 function findDupes(text) {
   const dupes = [];
@@ -12,10 +15,6 @@ function findDupes(text) {
   const stack = [{ path: "$", keys: new Set() }];
   let i = 0;
   const n = text.length;
-
-  function skipWs() {
-    while (i < n && /\s/.test(text[i])) i++;
-  }
 
   function readString() {
     // Assumes text[i] === '"'. Returns the raw key string.
@@ -37,6 +36,10 @@ function findDupes(text) {
       i++;
     }
     return out;
+  }
+
+  function skipWs() {
+    while (i < n && /\s/.test(text[i])) i++;
   }
 
   while (i < n) {

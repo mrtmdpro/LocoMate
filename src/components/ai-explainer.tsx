@@ -1,6 +1,7 @@
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
+import { Link } from "@/i18n/navigation";
 import { trpc } from "@/lib/trpc";
 import { useAuthStore } from "@/stores/auth";
 
@@ -120,7 +121,7 @@ export function AiExplainer({ itemKind, itemTitle, itemCategory, itemHighlights,
         </ul>
         <p className="text-xs text-muted-foreground pt-1">
           Based on your profile preferences. Update in{" "}
-          <a href="/profile/preferences" className="text-primary font-medium">preferences</a>.
+          <Link href="/profile/preferences" className="text-primary font-medium">preferences</Link>.
         </p>
       </CardContent>
     </Card>

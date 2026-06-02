@@ -1,8 +1,30 @@
 import { describe, test, expect, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render as rtlRender, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { NextIntlClientProvider } from "next-intl";
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { HostExperienceWizard } from "../_wizard";
 import { HOST_TOUR_PRICING } from "@/lib/pricing";
+
+// The wizard renders real translated copy via `useTranslations` and routes via
+// next-intl's `@/i18n/navigation`. We exercise it against the real `en`
+// catalogue (defaultLocale is "en", localePrefix "as-needed", so internal hrefs
+// stay prefix-less, e.g. "/host-setup"). Loaded from cwd (the app root) so the
+// path is independent of this file's nesting depth.
+const enMessages = JSON.parse(
+  readFileSync(path.resolve(process.cwd(), "messages/en.json"), "utf8"),
+);
+
+function render(ui: React.ReactElement) {
+  return rtlRender(ui, {
+    wrapper: ({ children }) => (
+      <NextIntlClientProvider locale="en" messages={enMessages}>
+        {children}
+      </NextIntlClientProvider>
+    ),
+  });
+}
 
 // Wizard tests. Client-side behavior only: step progression guard, publish
 // button gating on host verification + content validity, live pricing
@@ -40,9 +62,24 @@ vi.mock("@/lib/trpc", () => {
   };
 });
 
-vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: vi.fn() }),
-}));
+// next-intl's createNavigation pulls several primitives off next/navigation
+// (redirect, permanentRedirect, usePathname, ...). Spread the real module and
+// override only the router so the component's navigation stays inert in tests.
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+  return {
+    ...actual,
+    useRouter: () => ({
+      push: vi.fn(),
+      replace: vi.fn(),
+      prefetch: vi.fn(),
+      back: vi.fn(),
+      forward: vi.fn(),
+      refresh: vi.fn(),
+    }),
+    usePathname: () => "/",
+  };
+});
 
 vi.mock("sonner", () => ({
   toast: { success: vi.fn(), error: vi.fn(), info: vi.fn() },

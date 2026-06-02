@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -493,9 +493,9 @@ export function HostExperienceWizard({
             {!hostIsVerified && (
               <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-xs text-amber-900">
                 {t("step5.verifyHint")} {" "}
-                <a href="/host-setup" className="underline font-medium">
+                <Link href="/host-setup" className="underline font-medium">
                   {t("step5.openSetup")}
-                </a>
+                </Link>
                 .
               </div>
             )}

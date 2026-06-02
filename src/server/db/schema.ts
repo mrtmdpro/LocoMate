@@ -66,7 +66,7 @@ export const hostProfiles = pgTable(
     // Nullable so migrations can land without backfilling every row in the
     // same commit; the generation helper in `slugify.ts` guarantees
     // uniqueness within the table at host-approval time.
-    publicSlug: varchar("public_slug", { length: 80 }).unique(),
+    publicSlug: varchar("public_slug", { length: 80 }),
     bio: varchar("bio", { length: 300 }),
     bioVi: varchar("bio_vi", { length: 300 }),
     bioEn: varchar("bio_en", { length: 300 }),
@@ -85,6 +85,11 @@ export const hostProfiles = pgTable(
   (table) => [
     index("idx_host_verification").on(table.verificationStatus),
     index("idx_host_available").on(table.isAvailable),
+    // Partial unique (WHERE NOT NULL) so the many slug-less rows don't collide,
+    // matching the real DDL in scripts/create-host-profile-slugs.ts.
+    uniqueIndex("host_profiles_public_slug_key")
+      .on(table.publicSlug)
+      .where(sql`public_slug IS NOT NULL`),
   ]
 );
 
@@ -756,7 +761,7 @@ export const escrowAdjustments = pgTable(
     costOld: integer("cost_old").notNull(),
     costNew: integer("cost_new").notNull(),
     /** GENERATED ALWAYS AS (cost_new - cost_old) STORED. Read-only in INSERTs. */
-    delta: integer("delta"),
+    delta: integer("delta").generatedAlwaysAs(sql`cost_new - cost_old`),
     /** 'pending' | 'confirmed' | 'refunded' | 'failed' */
     status: varchar("status", { length: 20 }).notNull().default("pending"),
     /** Stripe Payment Intent ref reserved for Phase C. Null in mock mode. */
@@ -1033,9 +1038,10 @@ export const orders = pgTable(
   "orders",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-    userId: uuid("user_id")
-      .notNull()
-      .references(() => users.id, { onDelete: "set null" }),
+    // Nullable to honor the FK's ON DELETE SET NULL (a deleted user's orders
+    // survive with a null buyer rather than cascading away). Matches the real
+    // DDL in scripts/create-product-pivot-tables.ts.
+    userId: uuid("user_id").references(() => users.id, { onDelete: "set null" }),
     status: varchar("status", { length: 20 }).default("pending").notNull(),
     // Totals are denormalised from order_items at write time -- trading a
     // few bytes for much faster dashboard reads.

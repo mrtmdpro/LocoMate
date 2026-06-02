@@ -1,0 +1,193 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Cancel in-progress runs of the same branch when new commits land.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "22"
+  PNPM_VERSION: "10"
+
+# NOTE: the git repository root IS this `app/` directory (package.json,
+# src/, next.config.ts all live here), so there is NO `working-directory: app`
+# and the pnpm cache / artifact paths are repo-root-relative.
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+
+  typecheck:
+    name: Typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+
+  test:
+    name: Unit + integration (Vitest + PGlite)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test:coverage
+        env:
+          # Deterministic env for tests that read process.env. Real secrets
+          # live in Vercel and are never needed here -- PGlite is in-process.
+          JWT_SECRET: ci-jwt-secret-minimum-thirty-two-characters!!
+          GOOGLE_CLIENT_ID: ci-google-client-id
+          GOOGLE_CLIENT_SECRET: ci-google-client-secret
+          OAUTH_REDIRECT_BASE: http://localhost:3000
+      - name: Upload coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ github.sha }}
+          path: coverage
+          if-no-files-found: ignore
+
+  schema-drift:
+    name: Schema drift (schema.ts vs DDL scripts)
+    runs-on: ubuntu-latest
+    # Spin up a real Postgres so we can build BOTH databases and compare:
+    #   DB-A  <-  migrations + scripts/apply-all-ddl.ts (the real DDL path)
+    #   DB-B  <-  drizzle-kit export of src/server/db/schema.ts
+    # `pnpm db:check` needs CREATE/DROP DATABASE on the server; the postgres
+    # superuser below has it.
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - name: Compare schema.ts against the canonical DDL scripts
+        run: pnpm db:check
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
+
+  e2e:
+    name: Playwright E2E
+    runs-on: ubuntu-latest
+    # Run E2E only after the fast jobs pass.
+    needs: [lint, typecheck, test, schema-drift]
+    # The 3 specs sign in as seeded users and walk real booking/host flows, so
+    # they depend on the seed catalogue + runtime DB matching the live UI. That
+    # makes them inherently fragile on a first CI pass, so the job is marked
+    # continue-on-error: it RUNS and uploads its report, but a failure does not
+    # block the pipeline. Tighten to a hard gate once the specs are stabilised.
+    continue-on-error: true
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
+      JWT_SECRET: ci-jwt-secret-minimum-thirty-two-characters!!
+      GOOGLE_CLIENT_ID: ci-google-client-id
+      GOOGLE_CLIENT_SECRET: ci-google-client-secret
+      OAUTH_REDIRECT_BASE: http://localhost:3000
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+      - name: Build the schema + seed data into the test DB
+        run: |
+          pnpm exec tsx scripts/apply-all-ddl.ts
+          pnpm db:seed
+      - name: Build the app
+        run: pnpm build
+      - name: Start the app and wait for it to be ready
+        run: |
+          pnpm start &
+          for i in $(seq 1 60); do
+            if curl -sSf http://localhost:3000 >/dev/null 2>&1; then
+              echo "App is up after ${i}s"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "App did not become ready in time" >&2
+          exit 1
+      - name: Run Playwright
+        env:
+          PLAYWRIGHT_BASE_URL: http://localhost:3000
+        run: pnpm test:e2e
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ github.sha }}
+          path: playwright-report
+          if-no-files-found: ignore

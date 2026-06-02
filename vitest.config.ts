@@ -10,6 +10,17 @@ export default defineConfig({
   test: {
     environment: "happy-dom",
     globals: true,
+    // next-intl's `createNavigation` does a bare `import "next/navigation"`
+    // (no extension). When next-intl is left externalized, Node's ESM
+    // resolver -- running from next-intl's nested pnpm dir -- fails with
+    // "Cannot find module '.../next/navigation'". Inlining next-intl routes
+    // that import through Vite's resolver (which honors next's `exports`
+    // map), so component suites that pull in `@/i18n/navigation` load.
+    server: {
+      deps: {
+        inline: [/next-intl/],
+      },
+    },
     // Each test file boots its own PGlite instance in setup.ts and wipes rows
     // via `resetDb` in afterEach. No global teardown needed.
     setupFiles: ["./src/test/setup.ts"],
