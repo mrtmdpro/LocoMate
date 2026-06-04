@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
@@ -31,7 +32,7 @@ export default function LandingPage() {
         <LogoLockup size="sm" />
         {user && (
           <div className="w-10 h-10 rounded-full bg-mustard/25 flex items-center justify-center overflow-hidden border-2 border-white">
-            <img src={user.avatarUrl || ""} alt="" className="w-full h-full object-cover" />
+            {user.avatarUrl && <Image src={user.avatarUrl} alt="" width={40} height={40} className="w-full h-full object-cover" />}
           </div>
         )}
       </header>
@@ -109,11 +110,13 @@ export default function LandingPage() {
         </div>
 
         <div className="absolute top-10 right-[-20px] rotate-6 opacity-40 pointer-events-none">
-          <div className="bg-card p-2 rounded-xl shadow-xl w-32 h-32 border-4 border-white overflow-hidden">
-            <img
+          <div className="bg-card p-2 rounded-xl shadow-xl w-32 h-32 border-4 border-white overflow-hidden relative">
+            <Image
               src="https://images.pexels.com/photos/30739567/pexels-photo-30739567.jpeg?auto=compress&cs=tinysrgb&w=300"
               alt="Map view"
-              className="w-full h-full object-cover rounded-lg"
+              fill
+              sizes="128px"
+              className="object-cover rounded-lg"
             />
           </div>
         </div>

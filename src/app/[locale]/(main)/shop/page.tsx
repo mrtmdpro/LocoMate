@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
@@ -87,10 +88,12 @@ export default function ShopPage() {
                 <Card className="border-0 shadow-sm overflow-hidden h-full transition-shadow group-hover:shadow-md">
                   <div className="h-36 lg:h-48 bg-card relative overflow-hidden">
                     {photoUrl && (
-                      <img
+                      <Image
                         src={photoUrl}
                         alt={pTitle ?? p.title ?? "Locomate merch"}
-                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        fill
+                        sizes="(max-width: 1024px) 50vw, 33vw"
+                        className="object-cover transition-transform duration-300 group-hover:scale-105"
                       />
                     )}
                     {p.bundleDiscountPct ? (

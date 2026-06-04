@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import type { ReactNode } from "react";
 import { Link } from "@/i18n/navigation";
 import { useRouter } from "@/i18n/navigation";
@@ -126,13 +127,13 @@ function RankedHeroCard({
         <div className="grid grid-cols-1 lg:grid-cols-12">
           {/* Image */}
           <div className="relative lg:col-span-5 h-56 sm:h-64 lg:h-auto lg:min-h-[320px] bg-muted">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <Image
               src={fixedTourImage(topTour.tourId)}
               alt={primaryTitle}
-              loading="eager"
-              decoding="async"
-              className="absolute inset-0 w-full h-full object-cover"
+              fill
+              priority
+              sizes="(max-width: 1024px) 100vw, 42vw"
+              className="object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent lg:bg-gradient-to-r lg:from-transparent lg:via-transparent lg:to-card/0" />
             {topTour.matchPercent !== null && (

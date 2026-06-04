@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
@@ -344,13 +345,12 @@ export default function HomePage() {
                      match%. Keeps the card visually anchored even when
                      the user hasn't quizzed yet (no match pill). */}
                   <div className="h-28 relative overflow-hidden bg-muted">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
+                    <Image
                       src={fixedTourImage(tour.tourId)}
                       alt={tourTitle}
-                      loading="lazy"
-                      decoding="async"
-                      className="absolute inset-0 w-full h-full object-cover"
+                      fill
+                      sizes="(max-width: 1024px) 50vw, 33vw"
+                      className="object-cover"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent" />
                     {/* Token-paired chip on photo overlays. The earlier
@@ -400,7 +400,7 @@ export default function HomePage() {
               <Link key={p.id} href={`/explore/${p.slug || p.id}`} className="shrink-0 w-40">
                 <Card className="overflow-hidden pt-0 shadow-sm dark:ring-foreground/18">
                   <div className="h-24 bg-gradient-to-br from-secondary to-[#A8C589] relative overflow-hidden">
-                    {p.photos?.[0] && <img src={p.photos[0]} alt={pName ?? ""} className="absolute inset-0 w-full h-full object-cover" />}
+                    {p.photos?.[0] && <Image src={p.photos[0]} alt={pName ?? ""} fill sizes="160px" className="object-cover" />}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                     {idx === 0 && <Badge className="absolute top-2 left-2 bg-sage border-0 text-earth text-xs">{t("hiddenGems.topChoice")}</Badge>}
                     <div className="absolute bottom-2 left-2 flex items-center gap-1">
@@ -436,8 +436,7 @@ export default function HomePage() {
               <Link key={a.id} href={`/activities/${a.slug || a.id}`} className="shrink-0 w-48">
                 <Card className="overflow-hidden pt-0 shadow-sm dark:ring-foreground/18">
                   <div className="h-24 relative overflow-hidden">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    {aPreview && <img src={aPreview} alt={aTitle ?? ""} className="absolute inset-0 w-full h-full object-cover" />}
+                    {aPreview && <Image src={aPreview} alt={aTitle ?? ""} fill sizes="160px" className="object-cover" />}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
                     <Badge className="absolute top-2 left-2 bg-card/95 text-foreground border-0 text-xs uppercase tracking-wider">{a.category}</Badge>
                     <p className="absolute bottom-2 left-2 right-2 text-white text-xs font-bold line-clamp-1">{aTitle}</p>
@@ -533,7 +532,7 @@ export default function HomePage() {
               <Link key={p.id} href={`/shop/${p.slug || p.id}`} className="shrink-0 w-32">
                 <Card className="overflow-hidden pt-0 shadow-sm dark:ring-foreground/18">
                   <div className="h-24 bg-card relative overflow-hidden">
-                    {photoUrl && <img src={photoUrl} alt={pTitle ?? p.title ?? "Locomate merch"} className="absolute inset-0 w-full h-full object-cover" />}
+                    {photoUrl && <Image src={photoUrl} alt={pTitle ?? p.title ?? "Locomate merch"} fill sizes="128px" className="object-cover" />}
                     {p.bundleDiscountPct ? (
                       <Badge className="absolute top-1.5 left-1.5 bg-primary border-0 text-primary-foreground text-xs">{t("merch.bundleBadge", { pct: p.bundleDiscountPct })}</Badge>
                     ) : null}

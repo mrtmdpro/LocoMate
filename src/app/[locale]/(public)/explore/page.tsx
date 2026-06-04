@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
@@ -146,7 +147,7 @@ export default function ExplorePage() {
               <Card className="border-0 shadow-md overflow-hidden h-full">
                 <div className="h-full min-h-[200px] lg:min-h-[320px] relative overflow-hidden">
                   {(featuredPlace as { photos: string[] | null }).photos?.[0] && (
-                    <img src={(featuredPlace as { photos: string[] }).photos[0]} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                    <Image src={(featuredPlace as { photos: string[] }).photos[0]} alt="" fill sizes="(max-width: 1024px) 100vw, 66vw" className="object-cover" />
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
                     <Badge className="absolute top-3 left-3 bg-sage border-0 text-earth text-xs">{t("topChoice")}</Badge>
@@ -170,7 +171,7 @@ export default function ExplorePage() {
                 <Card className="border-0 shadow-sm overflow-hidden h-full">
                   <div className="h-24 lg:h-[150px] relative overflow-hidden bg-gradient-to-br from-secondary to-[#A8C589]">
                     {(randomGem as { photos: string[] | null }).photos?.[0] && (
-                      <img src={(randomGem as { photos: string[] }).photos[0]} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                      <Image src={(randomGem as { photos: string[] }).photos[0]} alt="" fill sizes="(max-width: 1024px) 50vw, 33vw" className="object-cover" />
                     )}
                     <div className="absolute inset-0 bg-black/20" />
                     <p className="absolute bottom-1.5 lg:bottom-2.5 left-2 lg:left-3 right-2 lg:right-3 text-white text-xs lg:text-xs font-semibold line-clamp-1">{
@@ -256,7 +257,7 @@ function PlaceCard({ place, locale }: { place: Record<string, unknown>; locale: 
     <Link href={`/explore/${p.slug || p.id}`}>
       <Card className="overflow-hidden border-0 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
         <div className="h-40 bg-gradient-to-br from-secondary to-[#A8C589] relative overflow-hidden">
-          {photo && <img src={photo} alt={name ?? ""} className="absolute inset-0 w-full h-full object-cover" />}
+          {photo && <Image src={photo} alt={name ?? ""} fill sizes="(max-width: 1024px) 50vw, 33vw" className="object-cover" />}
           <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
           <Badge className="absolute top-3 right-3 bg-primary border-0 text-primary-foreground text-xs">{p.category}</Badge>
           {p.priceRange && (

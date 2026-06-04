@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
@@ -211,12 +212,13 @@ export default function FixedTourDetailPage() {
             both dark and bright shots. Match% pill sits top-right when
             the user has a quiz vector. */}
         <div className="relative h-64 lg:h-80 overflow-hidden bg-muted">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <Image
             src={fixedTourImage(tour.tourId)}
             alt={heroTitle}
-            decoding="async"
-            className="absolute inset-0 w-full h-full object-cover"
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-transparent" />
           <div className="absolute inset-0 flex flex-col justify-end p-4 lg:p-8">

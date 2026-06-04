@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { Suspense, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
@@ -44,10 +45,10 @@ function RegisterPageInner() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#FAF6EC]/30 to-white flex items-center justify-center p-4 relative overflow-hidden">
-      <img src="https://images.unsplash.com/photo-1616486410185-81af2d32a2af?w=1200&h=800&fit=crop" alt="" className="absolute inset-0 w-full h-full object-cover opacity-10 z-0" />
+      <Image src="https://images.unsplash.com/photo-1616486410185-81af2d32a2af?w=1200&h=800&fit=crop" alt="" fill sizes="100vw" className="object-cover opacity-10 z-0" />
       <Card className="w-full max-w-md border-0 shadow-xl relative z-10 overflow-hidden">
         <div className="h-36 relative overflow-hidden">
-          <img src="https://images.unsplash.com/photo-1616486410185-81af2d32a2af?w=800&h=300&fit=crop" alt="" className="absolute inset-0 w-full h-full object-cover" />
+          <Image src="https://images.unsplash.com/photo-1616486410185-81af2d32a2af?w=800&h=300&fit=crop" alt="" fill sizes="(max-width: 768px) 100vw, 448px" className="object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
           <div className="absolute bottom-3 left-4 right-4">
             <h2 className="text-white font-bold text-lg font-heading">{t("hero")}</h2>

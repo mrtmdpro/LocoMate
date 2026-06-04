@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useFlyToCart, type FlyEvent } from "@/components/cart/fly-to-cart-context";
@@ -112,8 +113,7 @@ function FlightChip({ image }: { image: string | null }) {
   if (image) {
     return (
       <div className="size-12 rounded-full overflow-hidden shadow-lg ring-2 ring-white">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={image} alt="" className="w-full h-full object-cover" />
+        <Image src={image} alt="" width={48} height={48} className="w-full h-full object-cover" />
       </div>
     );
   }

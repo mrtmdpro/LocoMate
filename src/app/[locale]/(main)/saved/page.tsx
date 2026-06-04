@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState, useMemo } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { Link } from "@/i18n/navigation";
@@ -116,7 +117,7 @@ export default function SavedPlacesPage() {
               <Link key={place.id} href={`/explore/${place.slug || place.id}`}>
                 <Card className="border-0 shadow-sm overflow-hidden hover:shadow-md transition-shadow cursor-pointer">
                   <div className="h-28 bg-gradient-to-br from-secondary to-[#A8C589] relative overflow-hidden">
-                    {photos?.[0] && <img src={photos[0]} alt={place.name} className="absolute inset-0 w-full h-full object-cover" />}
+                    {photos?.[0] && <Image src={photos[0]} alt={place.name} fill sizes="(max-width: 1024px) 50vw, 33vw" className="object-cover" />}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                     <Badge className="absolute top-2 right-2 bg-primary border-0 text-primary-foreground text-xs">{place.category}</Badge>
                     {isExplicitSave && (

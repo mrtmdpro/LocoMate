@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { PageTransition } from "@/components/layout/page-transition";
@@ -93,11 +94,12 @@ export default function StorePage() {
                   <Card className="border-0 shadow-sm overflow-hidden h-full transition-shadow group-hover:shadow-md">
                     <div className="h-36 lg:h-44 bg-muted relative overflow-hidden">
                       {photoUrl && (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
+                        <Image
                           src={photoUrl}
                           alt={pTitle ?? "Locomate merch"}
-                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"
+                          fill
+                          sizes="(max-width: 1024px) 50vw, 33vw"
+                          className="object-cover transition-transform duration-300 group-hover:scale-[1.04]"
                         />
                       )}
                     </div>

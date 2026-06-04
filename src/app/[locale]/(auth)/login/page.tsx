@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { Suspense, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
@@ -130,10 +131,10 @@ function LoginPageInner() {
       animate={loggingIn ? { opacity: 0, y: -20, scale: 0.98 } : { opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: loggingIn ? 0.5 : 0.4, ease: "easeInOut" }}
     >
-      <img src="https://images.unsplash.com/photo-1616486410185-81af2d32a2af?w=1200&h=800&fit=crop" alt="" className="absolute inset-0 w-full h-full object-cover opacity-10 z-0" />
+      <Image src="https://images.unsplash.com/photo-1616486410185-81af2d32a2af?w=1200&h=800&fit=crop" alt="" fill sizes="100vw" className="object-cover opacity-10 z-0" />
       <Card className="w-full max-w-md border-0 shadow-xl relative z-10 overflow-hidden">
         <div className="h-36 relative overflow-hidden">
-          <img src="https://images.unsplash.com/photo-1616486410185-81af2d32a2af?w=800&h=300&fit=crop" alt="" className="absolute inset-0 w-full h-full object-cover" />
+          <Image src="https://images.unsplash.com/photo-1616486410185-81af2d32a2af?w=800&h=300&fit=crop" alt="" fill sizes="(max-width: 768px) 100vw, 448px" className="object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
           <div className="absolute bottom-3 left-4 right-4">
             <h2 className="text-white font-bold text-lg font-heading">{t("welcomeBack")}</h2>

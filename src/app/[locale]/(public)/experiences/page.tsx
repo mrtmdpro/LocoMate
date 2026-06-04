@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useMemo } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
@@ -255,13 +256,12 @@ export default function ExperiencesPage() {
                           <Link href={`/fixed-tours/${tour.tourId}`}>
                             <Card className="overflow-hidden h-full hover:ring-2 hover:ring-primary/30 transition-all">
                               <div className="h-44 relative overflow-hidden bg-muted">
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img
+                                <Image
                                   src={fixedTourImage(tour.tourId)}
                                   alt={primaryTitle}
-                                  loading="lazy"
-                                  decoding="async"
-                                  className="absolute inset-0 w-full h-full object-cover"
+                                  fill
+                                  sizes="(max-width: 1024px) 50vw, 33vw"
+                                  className="object-cover"
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent" />
                                 {tour.matchPercent !== null && tour.matchPercent !== undefined && (
@@ -368,13 +368,12 @@ export default function ExperiencesPage() {
                         <Card className="overflow-hidden hover:ring-2 hover:ring-primary/30 transition-all">
                           <div className="h-44 relative overflow-hidden bg-muted">
                             {primaryPhoto && (
-                              // eslint-disable-next-line @next/next/no-img-element
-                              <img
+                              <Image
                                 src={primaryPhoto}
                                 alt={expTitle ?? ""}
-                                loading="lazy"
-                                decoding="async"
-                                className="absolute inset-0 w-full h-full object-cover"
+                                fill
+                                sizes="(max-width: 1024px) 50vw, 33vw"
+                                className="object-cover"
                               />
                             )}
                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />

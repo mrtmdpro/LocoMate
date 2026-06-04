@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useRouter } from "@/i18n/navigation";
@@ -170,7 +171,7 @@ export default function CartPage() {
               <CardContent className="p-3 flex gap-3">
                 <div className="w-16 h-16 bg-card rounded-lg shrink-0 relative overflow-hidden">
                   {item.thumbnail ? (
-                    <img src={item.thumbnail} alt={item.displayLabel} className="absolute inset-0 w-full h-full object-cover" />
+                    <Image src={item.thumbnail} alt={item.displayLabel} fill sizes="64px" className="object-cover" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-2xl">
                       {item.kind === "fixed_tour" ? "🗺️" : item.kind === "activity" ? "🎫" : item.kind === "merch" ? "🛍️" : item.kind === "esim" ? "📶" : "👤"}

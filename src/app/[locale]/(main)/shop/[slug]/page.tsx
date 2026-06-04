@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
@@ -86,7 +87,7 @@ export default function ShopProductPage() {
           {/* Mobile hero */}
           <div className="relative h-72 bg-card lg:hidden">
             {photoUrl && (
-              <img src={photoUrl} alt={productAlt} className="absolute inset-0 w-full h-full object-cover" />
+              <Image src={photoUrl} alt={productAlt} fill sizes="(max-width: 1024px) 100vw, 50vw" className="object-cover" />
             )}
             <Link href="/shop" className="absolute top-4 left-4 w-11 h-11 rounded-full bg-card/90 flex items-center justify-center">
               <svg className="w-5 h-5 text-secondary" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
@@ -109,7 +110,7 @@ export default function ShopProductPage() {
           <div className="hidden lg:block">
             <div className="relative aspect-square bg-card rounded-2xl overflow-hidden">
               {photoUrl && (
-                <img src={photoUrl} alt={productAlt} className="absolute inset-0 w-full h-full object-cover" />
+                <Image src={photoUrl} alt={productAlt} fill sizes="(max-width: 1024px) 100vw, 50vw" className="object-cover" />
               )}
               {product.bundleDiscountPct ? (
                 <Badge className="absolute top-4 right-4 bg-primary border-0 text-primary-foreground text-xs">

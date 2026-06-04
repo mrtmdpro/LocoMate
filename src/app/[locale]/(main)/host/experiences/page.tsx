@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import { Link } from "@/i18n/navigation";
 import { useRouter } from "@/i18n/navigation";
@@ -100,12 +101,14 @@ export default function HostExperiencesListPage() {
               grouped[tabKey].map((exp) => (
                 <Card key={exp.id} className="border-0 shadow-sm overflow-hidden">
                   <CardContent className="p-3 flex gap-3">
-                    <div className="w-16 h-16 rounded-xl bg-muted shrink-0 overflow-hidden">
+                    <div className="w-16 h-16 rounded-xl bg-muted shrink-0 overflow-hidden relative">
                       {exp.photos?.[0] && (
-                        <img
+                        <Image
                           src={exp.photos[0]}
                           alt=""
-                          className="w-full h-full object-cover"
+                          fill
+                          sizes="64px"
+                          className="object-cover"
                         />
                       )}
                     </div>

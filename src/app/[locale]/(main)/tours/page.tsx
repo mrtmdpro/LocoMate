@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { Link } from "@/i18n/navigation";
@@ -93,13 +94,14 @@ export default function TourHistoryPage() {
                     <Link key={tour.id} href={`/tour/${tour.id}`}>
                       <Card className="hover:ring-2 hover:ring-primary/30 transition-all cursor-pointer overflow-hidden">
                         <div className="flex">
-                          <div className="w-24 h-24 bg-secondary/15 flex items-center justify-center shrink-0 overflow-hidden">
+                          <div className="w-24 h-24 bg-secondary/15 flex items-center justify-center shrink-0 overflow-hidden relative">
                             {thumbnailUrl ? (
-                              // eslint-disable-next-line @next/next/no-img-element
-                              <img
+                              <Image
                                 src={thumbnailUrl}
                                 alt=""
-                                className="w-full h-full object-cover"
+                                fill
+                                sizes="96px"
+                                className="object-cover"
                               />
                             ) : (
                               <MamCom size={56} color="var(--secondary)" />

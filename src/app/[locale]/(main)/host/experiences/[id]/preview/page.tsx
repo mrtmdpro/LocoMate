@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useParams } from "next/navigation";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
@@ -53,10 +54,12 @@ export default function HostExperiencePreviewPage() {
     <div className="pb-24">
       <div className="h-56 relative bg-gradient-to-br from-secondary to-[#A8C589] overflow-hidden">
         {coverPhoto && (
-          <img
+          <Image
             src={coverPhoto}
             alt=""
-            className="w-full h-full object-cover"
+            fill
+            sizes="100vw"
+            className="object-cover"
           />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />

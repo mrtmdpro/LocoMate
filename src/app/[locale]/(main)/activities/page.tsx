@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
@@ -135,8 +136,7 @@ export default function ActivitiesPage() {
                   <div className="flex lg:hidden">
                     <div className="w-32 h-32 bg-card relative shrink-0">
                       {previewSrc ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={previewSrc} alt={aTitle ?? ""} className="absolute inset-0 w-full h-full object-cover" />
+                        <Image src={previewSrc} alt={aTitle ?? ""} fill sizes="128px" className="object-cover" />
                       ) : (
                         <div className="absolute inset-0 flex items-center justify-center text-3xl text-muted-foreground/40">
                           {a.category === "workshop" ? "🛠️" : a.category === "food" ? "🍜" : a.category === "performance" ? "🎭" : "🎫"}
@@ -174,11 +174,12 @@ export default function ActivitiesPage() {
                   <div className="hidden lg:flex lg:flex-col">
                     <div className="aspect-[4/3] bg-card relative overflow-hidden">
                       {previewSrc ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
+                        <Image
                           src={previewSrc}
                           alt={aTitle ?? ""}
-                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                          fill
+                          sizes="(max-width: 1024px) 50vw, 33vw"
+                          className="object-cover transition-transform duration-300 group-hover:scale-105"
                         />
                       ) : (
                         <div className="absolute inset-0 flex items-center justify-center text-6xl text-muted-foreground/30">

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
@@ -104,7 +105,7 @@ export default function PlaceDetailPage() {
     <div className="pb-24 lg:pb-8 lg:max-w-6xl lg:mx-auto">
       <div className="h-64 bg-gradient-to-br from-secondary to-[#A8C589] relative overflow-hidden">
         {(place.photos as string[] | null)?.[0] && (
-          <img src={(place.photos as string[])[0]} alt={placeName ?? ""} className="absolute inset-0 w-full h-full object-cover" />
+          <Image src={(place.photos as string[])[0]} alt={placeName ?? ""} fill sizes="(max-width: 1024px) 100vw, 1024px" className="object-cover" />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
         <button onClick={() => router.back()} className="absolute top-4 left-4 bg-card/90 rounded-full p-2 shadow-md z-10">

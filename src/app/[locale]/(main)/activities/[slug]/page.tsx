@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState, useMemo } from "react";
 import { useParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
@@ -182,8 +183,7 @@ export default function ActivityDetailPage() {
         {/* Hero (taller + wider overlays on desktop) */}
         <div className="relative h-60 lg:h-96">
           {heroSrc && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={heroSrc} alt={activityTitle ?? ""} className="absolute inset-0 w-full h-full object-cover" />
+            <Image src={heroSrc} alt={activityTitle ?? ""} fill sizes="100vw" className="object-cover" />
           )}
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/10 to-black/60" />
           <Link href="/activities" className="absolute top-4 left-4 w-11 h-11 rounded-full bg-card/90 flex items-center justify-center hover:bg-card transition-colors">
