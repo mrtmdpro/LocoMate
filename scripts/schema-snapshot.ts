@@ -5,6 +5,9 @@ import path from "node:path";
 
 /**
  * Produce a deterministic, normalized snapshot of a Postgres `public` schema.
+ * Payload CMS owns editorial tables in the separate `payload` schema; those
+ * are intentionally excluded from Cluster D drift checks so CMS-managed
+ * migrations do not fight the app's Drizzle/DDL safety gate.
  *
  * Why a catalog snapshot instead of a raw `pg_dump --schema-only` text diff:
  * the two databases the `schema-drift` job compares are built by independent

@@ -1,6 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { upload } from "@vercel/blob/client";
+import imageCompression from "browser-image-compression";
+import Image from "next/image";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { Card, CardContent } from "@/components/ui/card";
@@ -33,8 +36,14 @@ import {
 export interface WizardInitialValues {
   id?: string;
   title?: string;
+  titleVi?: string | null;
+  titleEn?: string | null;
   subtitle?: string;
+  subtitleVi?: string | null;
+  subtitleEn?: string | null;
   description?: string;
+  descriptionVi?: string | null;
+  descriptionEn?: string | null;
   category?: string;
   durationMinutes?: number;
   priceAmount?: number;
@@ -83,8 +92,14 @@ export function HostExperienceWizard({
   const [id, setId] = useState<string | undefined>(initial?.id);
 
   const [title, setTitle] = useState(initial?.title ?? "");
+  const [titleVi, setTitleVi] = useState(initial?.titleVi ?? "");
+  const [titleEn, setTitleEn] = useState(initial?.titleEn ?? "");
   const [subtitle, setSubtitle] = useState(initial?.subtitle ?? "");
+  const [subtitleVi, setSubtitleVi] = useState(initial?.subtitleVi ?? "");
+  const [subtitleEn, setSubtitleEn] = useState(initial?.subtitleEn ?? "");
   const [description, setDescription] = useState(initial?.description ?? "");
+  const [descriptionVi, setDescriptionVi] = useState(initial?.descriptionVi ?? "");
+  const [descriptionEn, setDescriptionEn] = useState(initial?.descriptionEn ?? "");
   const [category, setCategory] = useState(initial?.category ?? "cultural");
   const [durationHours, setDurationHours] = useState<number[]>([
     (initial?.durationMinutes ?? 180) / 60,
@@ -105,6 +120,7 @@ export function HostExperienceWizard({
   const [newStopLabel, setNewStopLabel] = useState("");
   const [photos, setPhotos] = useState<string[]>(initial?.photos ?? []);
   const [newPhoto, setNewPhoto] = useState("");
+  const [photoUploading, setPhotoUploading] = useState(false);
   const [priceAmount, setPriceAmount] = useState<number[]>([
     initial?.priceAmount ?? HOST_TOUR_PRICING.minPrice,
   ]);
@@ -131,8 +147,14 @@ export function HostExperienceWizard({
   function currentPatch() {
     return {
       title: title.trim() || undefined,
+      titleVi: titleVi.trim() || undefined,
+      titleEn: titleEn.trim() || undefined,
       subtitle: subtitle.trim() || undefined,
+      subtitleVi: subtitleVi.trim() || undefined,
+      subtitleEn: subtitleEn.trim() || undefined,
       description: description.trim() || undefined,
+      descriptionVi: descriptionVi.trim() || undefined,
+      descriptionEn: descriptionEn.trim() || undefined,
       category,
       durationMinutes: Math.round(durationHours[0] * 60),
       maxGroupSize: maxGroupSize[0],
@@ -182,6 +204,46 @@ export function HostExperienceWizard({
     const finalId = await saveStep();
     if (!finalId) return;
     publishMutation.mutate({ id: finalId });
+  }
+
+  async function handlePhotoUpload(file: File | undefined) {
+    if (!file) return;
+    if (photos.length >= 10) {
+      toast.error(t("toast.photoLimit"));
+      return;
+    }
+    if (!file.type.startsWith("image/")) {
+      toast.error(t("toast.photoType"));
+      return;
+    }
+
+    setPhotoUploading(true);
+    try {
+      const experienceId = id ?? await saveStep();
+      if (!experienceId) return;
+      const compressed = await imageCompression(file, {
+        maxSizeMB: 1,
+        maxWidthOrHeight: 1600,
+        preserveExif: false,
+        useWebWorker: true,
+      });
+      const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_").slice(0, 80);
+      const blob = await upload(
+        `host-experiences/${experienceId}/${Date.now()}-${safeName}`,
+        compressed,
+        {
+          access: "public",
+          clientPayload: JSON.stringify({ experienceId }),
+          handleUploadUrl: "/api/host/experience-upload",
+        },
+      );
+      setPhotos((current) => [...current, blob.url].slice(0, 10));
+      toast.success(t("toast.photoUploaded"));
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : t("toast.photoUploadFailed"));
+    } finally {
+      setPhotoUploading(false);
+    }
   }
 
   // Keep host-verification feedback synchronized when the prop changes.
@@ -244,6 +306,48 @@ export function HostExperienceWizard({
                 value={subtitle}
                 onChange={(e) => setSubtitle(e.target.value)}
               />
+            </div>
+            <div className="grid gap-3 lg:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="titleEn">{t("step1.titleEn")}</Label>
+                <Input
+                  id="titleEn"
+                  maxLength={200}
+                  value={titleEn}
+                  onChange={(e) => setTitleEn(e.target.value)}
+                  placeholder={t("step1.titlePlaceholder")}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="titleVi">{t("step1.titleVi")}</Label>
+                <Input
+                  id="titleVi"
+                  maxLength={200}
+                  value={titleVi}
+                  onChange={(e) => setTitleVi(e.target.value)}
+                  placeholder={t("step1.titlePlaceholder")}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="subtitleEn">{t("step1.subtitleEn")}</Label>
+                <Input
+                  id="subtitleEn"
+                  maxLength={300}
+                  value={subtitleEn}
+                  onChange={(e) => setSubtitleEn(e.target.value)}
+                  placeholder={t("step1.subtitlePlaceholder")}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="subtitleVi">{t("step1.subtitleVi")}</Label>
+                <Input
+                  id="subtitleVi"
+                  maxLength={300}
+                  value={subtitleVi}
+                  onChange={(e) => setSubtitleVi(e.target.value)}
+                  placeholder={t("step1.subtitlePlaceholder")}
+                />
+              </div>
             </div>
             <div className="space-y-2">
               <Label>{t("step1.category")}</Label>
@@ -315,6 +419,30 @@ export function HostExperienceWizard({
               <p className="text-xs text-muted-foreground">
                 {t("step2.descriptionHelper", { count: description.length })}
               </p>
+            </div>
+            <div className="grid gap-3 lg:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="descriptionEn">{t("step2.descriptionEn")}</Label>
+                <Textarea
+                  id="descriptionEn"
+                  rows={5}
+                  maxLength={5000}
+                  value={descriptionEn}
+                  onChange={(e) => setDescriptionEn(e.target.value)}
+                  placeholder={t("step2.descriptionPlaceholder")}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="descriptionVi">{t("step2.descriptionVi")}</Label>
+                <Textarea
+                  id="descriptionVi"
+                  rows={5}
+                  maxLength={5000}
+                  value={descriptionVi}
+                  onChange={(e) => setDescriptionVi(e.target.value)}
+                  placeholder={t("step2.descriptionPlaceholder")}
+                />
+              </div>
             </div>
             <TagList
               label={t("step2.highlights")}
@@ -413,11 +541,14 @@ export function HostExperienceWizard({
             </p>
             <div className="grid grid-cols-3 gap-2">
               {photos.map((p, i) => (
-                <div key={`${p}-${i}`} className="relative">
-                  <img
+                <div key={`${p}-${i}`} className="relative h-20 overflow-hidden rounded-lg bg-muted">
+                  <Image
                     src={p}
                     alt=""
-                    className="w-full h-20 object-cover rounded-lg bg-muted"
+                    data-testid="experience-photo-preview"
+                    fill
+                    sizes="(min-width: 1024px) 120px, 30vw"
+                    className="object-cover"
                   />
                   <button
                     className="absolute top-1 right-1 bg-card/90 rounded-full w-5 h-5 text-xs font-bold text-red-600"
@@ -434,6 +565,21 @@ export function HostExperienceWizard({
               ))}
             </div>
             <div className="flex gap-2">
+              <label className="inline-flex h-7 cursor-pointer items-center justify-center rounded-lg border border-foreground/30 px-3 text-[0.8rem] font-medium hover:bg-muted">
+                {photoUploading ? t("step4.uploading") : t("step4.upload")}
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  className="sr-only"
+                  data-testid="experience-photo-upload"
+                  disabled={photoUploading}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    void handlePhotoUpload(file);
+                    e.currentTarget.value = "";
+                  }}
+                />
+              </label>
               <Input
                 placeholder={t("step4.urlPlaceholder")}
                 value={newPhoto}

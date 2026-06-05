@@ -1362,9 +1362,13 @@
         "step1": {
           "heading": "Thông tin cơ bản",
           "title": "Tiêu đề",
+          "titleEn": "Tiêu đề tiếng Anh",
+          "titleVi": "Tiêu đề tiếng Việt",
           "titlePlaceholder": "Ví dụ: Bình minh trên sông Hồng",
           "titleHelper": "Tối thiểu 8 ký tự. Hiển thị làm tiêu đề trải nghiệm.",
           "subtitle": "Phụ đề (không bắt buộc)",
+          "subtitleEn": "Phụ đề tiếng Anh",
+          "subtitleVi": "Phụ đề tiếng Việt",
           "subtitlePlaceholder": "Tagline một dòng",
           "category": "Danh mục",
           "duration": "Thời lượng",
@@ -1373,6 +1377,8 @@
         "step2": {
           "heading": "Câu chuyện của bạn",
           "description": "Mô tả",
+          "descriptionEn": "Mô tả tiếng Anh",
+          "descriptionVi": "Mô tả tiếng Việt",
           "descriptionPlaceholder": "Vì sao lữ khách nên chọn tour này? Có gì diễn ra, điều gì khiến nó là của bạn?",
           "descriptionHelper": "Tối thiểu 100 ký tự. ({count} / 100)",
           "highlights": "Điểm nổi bật",
@@ -1389,10 +1395,12 @@
         },
         "step4": {
           "heading": "Ảnh",
-          "subtitle": "Tối thiểu 3 ảnh (URL https). Ảnh đầu là ảnh bìa. Tải ảnh trực tiếp sẽ sớm có — hiện tại dán link.",
+          "subtitle": "Tối thiểu 3 ảnh. Tải ảnh từ thiết bị hoặc dán URL https có sẵn. Ảnh đầu là ảnh bìa.",
           "cover": "BÌA",
           "urlPlaceholder": "https://...",
-          "addPhoto": "Thêm"
+          "addPhoto": "Thêm",
+          "upload": "Tải ảnh",
+          "uploading": "Đang tải..."
         },
         "step5": {
           "heading": "Định giá",
@@ -1430,7 +1438,10 @@
           "verifyHint": "Bạn cần hoàn tất xác minh ID trước khi đăng.",
           "timeFormat": "Thời gian phải dạng HH:MM 24h.",
           "photoUrlScheme": "URL ảnh phải bắt đầu bằng http(s)://",
-          "photoLimit": "Tối đa 10 ảnh."
+          "photoLimit": "Tối đa 10 ảnh.",
+          "photoType": "Hãy tải ảnh JPEG, PNG hoặc WebP.",
+          "photoUploaded": "Đã tải ảnh.",
+          "photoUploadFailed": "Tải ảnh thất bại."
         },
         "validation": {
           "titleLength": "Tiêu đề tối thiểu 8 ký tự.",
