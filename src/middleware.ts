@@ -11,6 +11,7 @@ import { isProtectedPath, verifyAccessCookie } from "@/lib/auth-gate";
  *   - `/_vercel` — Vercel infrastructure pings.
  *   - Static files with a literal extension (`.svg`, `.png`, `.woff2`, ...).
  *   - `/uploads/*`, `/brand/*` — public asset folders, never localised.
+ *   - `/cms-admin/*` — Payload owns its own root admin route and auth flow.
  *
  * Anything else (`/`, `/home`, `/host`, `/explore`, ...) goes through
  * next-intl which:
@@ -55,6 +56,6 @@ function stripLocalePrefix(pathname: string): { locale: string | null } {
 
 export const config = {
   matcher: [
-    "/((?!api|_next|_vercel|uploads|brand|.*\\..*).*)",
+    "/((?!api|_next|_vercel|uploads|brand|cms-admin|.*\\..*).*)",
   ],
 };
