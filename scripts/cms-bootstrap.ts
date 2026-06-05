@@ -8,13 +8,20 @@
  */
 import "dotenv/config";
 
-process.env.PAYLOAD_DB_PUSH = "true";
+async function main() {
+  process.env.PAYLOAD_DB_PUSH = "true";
 
-const [{ default: config }, { getPayload }] = await Promise.all([
-  import("../payload.config.ts"),
-  import("payload"),
-]);
+  const [{ default: config }, { getPayload }] = await Promise.all([
+    import("../payload.config.ts"),
+    import("payload"),
+  ]);
 
-const payload = await getPayload({ config });
-await payload.db.init?.();
-console.log("Payload CMS schema bootstrapped.");
+  const payload = await getPayload({ config });
+  await payload.db.init?.();
+  console.log("Payload CMS schema bootstrapped.");
+}
+
+main().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});
