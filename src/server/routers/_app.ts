@@ -18,6 +18,7 @@ import { cartRouter } from "./cart.router";
 import { orderRouter } from "./order.router";
 import { merchRouter } from "./merch.router";
 import { couponRouter } from "./coupon.router";
+import { catalogAdminRouter } from "./catalog-admin.router";
 
 export const appRouter = router({
   auth: authRouter,
@@ -40,6 +41,7 @@ export const appRouter = router({
   cart: cartRouter,
   order: orderRouter,
   merch: merchRouter,
+  catalogAdmin: catalogAdminRouter,
   // Wrap-up coupon: issued by tour.completeTour, validated at /checkout,
   // atomically redeemed inside payment.confirm. See coupon.router.ts.
   coupon: couponRouter,

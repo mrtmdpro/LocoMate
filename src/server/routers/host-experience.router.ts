@@ -1,8 +1,8 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { eq, and, desc, inArray } from "drizzle-orm";
-import { router, hostProcedure } from "../trpc";
-import { experiences, hostProfiles } from "../db/schema";
+import { router, adminProcedure, hostProcedure } from "../trpc";
+import { experiences, hostProfiles, users } from "../db/schema";
 import { slugify } from "@/lib/slugify";
 import { isValidHostTourPrice, HOST_TOUR_PRICING } from "@/lib/pricing";
 
@@ -11,8 +11,14 @@ import { isValidHostTourPrice, HOST_TOUR_PRICING } from "@/lib/pricing";
 // minimum required to insert a valid row; everything else defaults.
 const experienceDraftSchema = z.object({
   title: z.string().min(1).max(200).optional(),
+  titleVi: z.string().max(200).optional(),
+  titleEn: z.string().max(200).optional(),
   subtitle: z.string().max(300).optional(),
+  subtitleVi: z.string().max(300).optional(),
+  subtitleEn: z.string().max(300).optional(),
   description: z.string().max(5000).optional(),
+  descriptionVi: z.string().max(5000).optional(),
+  descriptionEn: z.string().max(5000).optional(),
   category: z.string().min(1).max(50).optional(),
   durationMinutes: z.number().int().min(15).max(24 * 60).optional(),
   priceAmount: z.number().int().min(0).optional(),
@@ -30,8 +36,30 @@ const experienceDraftSchema = z.object({
     .max(10)
     .optional(),
   highlights: z.array(z.string().min(1).max(200)).max(10).optional(),
+  highlightsVi: z.array(z.string().min(1).max(200)).max(10).optional(),
+  highlightsEn: z.array(z.string().min(1).max(200)).max(10).optional(),
   included: z.array(z.string().min(1).max(200)).max(20).optional(),
+  includedVi: z.array(z.string().min(1).max(200)).max(20).optional(),
+  includedEn: z.array(z.string().min(1).max(200)).max(20).optional(),
   schedule: z
+    .array(
+      z.object({
+        time: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/),
+        label: z.string().min(1).max(300),
+      }),
+    )
+    .max(20)
+    .optional(),
+  scheduleVi: z
+    .array(
+      z.object({
+        time: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/),
+        label: z.string().min(1).max(300),
+      }),
+    )
+    .max(20)
+    .optional(),
+  scheduleEn: z
     .array(
       z.object({
         time: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/),
@@ -125,7 +153,7 @@ async function loadOwnExperience(
   const row = await db.query.experiences.findFirst({
     where: eq(experiences.id, id),
   });
-  if (!row || row.authorId !== userId) {
+  if (row?.authorId !== userId) {
     throw new TRPCError({
       code: "NOT_FOUND",
       message: "Experience not found",
@@ -158,16 +186,28 @@ export const hostExperienceRouter = router({
           kind: "host_custom",
           status: "draft",
           title: input.title ?? "Untitled experience",
+          titleVi: input.titleVi ?? null,
+          titleEn: input.titleEn ?? null,
           subtitle: input.subtitle ?? null,
+          subtitleVi: input.subtitleVi ?? null,
+          subtitleEn: input.subtitleEn ?? null,
           description: input.description ?? null,
+          descriptionVi: input.descriptionVi ?? null,
+          descriptionEn: input.descriptionEn ?? null,
           category: input.category ?? "cultural",
           durationMinutes: input.durationMinutes ?? 180,
           priceAmount: input.priceAmount ?? HOST_TOUR_PRICING.minPrice,
           maxGroupSize: input.maxGroupSize ?? 4,
           photos: input.photos ?? [],
           highlights: input.highlights ?? [],
+          highlightsVi: input.highlightsVi ?? null,
+          highlightsEn: input.highlightsEn ?? null,
           included: input.included ?? [],
+          includedVi: input.includedVi ?? null,
+          includedEn: input.includedEn ?? null,
           schedule: input.schedule ?? [],
+          scheduleVi: input.scheduleVi ?? null,
+          scheduleEn: input.scheduleEn ?? null,
           isActive: true,
         })
         .returning();
@@ -235,7 +275,7 @@ export const hostExperienceRouter = router({
       const host = await ctx.db.query.hostProfiles.findFirst({
         where: eq(hostProfiles.userId, ctx.user.id),
       });
-      if (!host || host.verificationStatus !== "approved") {
+      if (host?.verificationStatus !== "approved") {
         throw new TRPCError({
           code: "PRECONDITION_FAILED",
           message: "Complete host ID verification before publishing experiences.",
@@ -296,6 +336,69 @@ export const hostExperienceRouter = router({
         .where(eq(experiences.id, exp.id))
         .returning();
       return row;
+    }),
+
+  adminListModeration: adminProcedure.query(async ({ ctx }) => {
+    return ctx.db
+      .select({
+        authorEmail: users.email,
+        authorName: users.displayName,
+        experience: experiences,
+      })
+      .from(experiences)
+      .leftJoin(users, eq(experiences.authorId, users.id))
+      .where(eq(experiences.kind, "host_custom"))
+      .orderBy(desc(experiences.createdAt));
+  }),
+
+  adminApprove: adminProcedure
+    .input(z.object({ id: z.string().uuid() }))
+    .mutation(async ({ ctx, input }) => {
+      const exp = await ctx.db.query.experiences.findFirst({
+        where: eq(experiences.id, input.id),
+      });
+      if (exp?.kind !== "host_custom") {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Experience not found" });
+      }
+      const reason = validateForPublish(exp);
+      if (reason) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: reason });
+      }
+      const slug = await findUniqueSlug(ctx.db, slugify(exp.title), exp.id);
+      const [updated] = await ctx.db
+        .update(experiences)
+        .set({
+          publishedAt: new Date(),
+          reviewNotes: null,
+          slug,
+          status: "published",
+        })
+        .where(eq(experiences.id, input.id))
+        .returning();
+      return updated;
+    }),
+
+  adminReject: adminProcedure
+    .input(
+      z.object({
+        id: z.string().uuid(),
+        reviewNotes: z.string().min(5).max(2000),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const [updated] = await ctx.db
+        .update(experiences)
+        .set({
+          publishedAt: null,
+          reviewNotes: input.reviewNotes,
+          status: "rejected",
+        })
+        .where(and(eq(experiences.id, input.id), eq(experiences.kind, "host_custom")))
+        .returning();
+      if (!updated) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Experience not found" });
+      }
+      return updated;
     }),
 
   /** Host-side detail for the edit/preview pages. Ownership-checked. */

@@ -212,13 +212,13 @@ export default function SettingsPage() {
               <Separator />
               {(["terms", "privacy", "licenses"] as const).map((item, i) => (
                 <div key={item}>
-                  <button
-                    onClick={() => toast.info(t(`about.${item}Soon`))}
+                  <Link
+                    href={`/legal/${item}`}
                     className="w-full flex items-center justify-between p-4 hover:bg-muted transition-colors"
                   >
                     <span className="text-sm font-medium">{t(`about.${item}`)}</span>
                     <svg className="w-4 h-4 text-muted-foreground/60" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
-                  </button>
+                  </Link>
                   {i < 2 && <Separator />}
                 </div>
               ))}

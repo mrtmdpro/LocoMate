@@ -1362,9 +1362,13 @@
         "step1": {
           "heading": "The basics",
           "title": "Title",
+          "titleEn": "English title",
+          "titleVi": "Vietnamese title",
           "titlePlaceholder": "e.g. Dawn at the Red River",
           "titleHelper": "At least 8 characters. Shown as the listing headline.",
           "subtitle": "Subtitle (optional)",
+          "subtitleEn": "English subtitle",
+          "subtitleVi": "Vietnamese subtitle",
           "subtitlePlaceholder": "One-line tagline",
           "category": "Category",
           "duration": "Duration",
@@ -1373,6 +1377,8 @@
         "step2": {
           "heading": "Your story",
           "description": "Description",
+          "descriptionEn": "English description",
+          "descriptionVi": "Vietnamese description",
           "descriptionPlaceholder": "Why should a traveler choose this tour? What happens, what makes it yours?",
           "descriptionHelper": "At least 100 characters. ({count} / 100)",
           "highlights": "Highlights",
@@ -1389,10 +1395,12 @@
         },
         "step4": {
           "heading": "Photos",
-          "subtitle": "At least 3 photos (https URLs). The first photo is the cover. Real photo upload coming soon — for now, paste links.",
+          "subtitle": "At least 3 photos. Upload images from your device or paste an existing https URL. The first photo is the cover.",
           "cover": "COVER",
           "urlPlaceholder": "https://...",
-          "addPhoto": "Add"
+          "addPhoto": "Add",
+          "upload": "Upload",
+          "uploading": "Uploading..."
         },
         "step5": {
           "heading": "Pricing",
@@ -1430,7 +1438,10 @@
           "verifyHint": "You'll need to finish ID verification before you can publish.",
           "timeFormat": "Time must be HH:MM in 24h format.",
           "photoUrlScheme": "Photo URL must start with http(s)://",
-          "photoLimit": "Maximum 10 photos."
+          "photoLimit": "Maximum 10 photos.",
+          "photoType": "Upload a JPEG, PNG, or WebP image.",
+          "photoUploaded": "Photo uploaded.",
+          "photoUploadFailed": "Photo upload failed."
         },
         "validation": {
           "titleLength": "Title must be at least 8 characters.",

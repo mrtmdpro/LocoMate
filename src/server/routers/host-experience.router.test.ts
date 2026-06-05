@@ -97,6 +97,39 @@ describe("hostExperience.update", () => {
     expect(result.title).toBe("Updated title that is long enough");
   });
 
+  test("persists bilingual draft fields for host-authored experiences", async () => {
+    const { user } = await createHost();
+    const draft = await createExperience({
+      authorId: user.id,
+      kind: "host_custom",
+      status: "draft",
+    });
+    const caller = await callerAs(user);
+
+    await caller.hostExperience.update({
+      id: draft.id,
+      titleEn: "Old Quarter coffee walk",
+      titleVi: "Dạo cà phê phố cổ",
+      descriptionEn:
+        "A slow English description for travelers who want to understand the morning rhythm.",
+      descriptionVi:
+        "Một mô tả tiếng Việt chậm rãi cho lữ khách muốn hiểu nhịp buổi sáng.",
+      highlightsEn: ["Egg coffee", "Market lane"],
+      highlightsVi: ["Cà phê trứng", "Ngõ chợ"],
+    });
+
+    const [row] = await getTestDb()
+      .select()
+      .from(experiences)
+      .where(eq(experiences.id, draft.id));
+    expect(row.titleEn).toBe("Old Quarter coffee walk");
+    expect(row.titleVi).toBe("Dạo cà phê phố cổ");
+    expect(row.descriptionEn).toContain("English description");
+    expect(row.descriptionVi).toContain("mô tả tiếng Việt");
+    expect(row.highlightsEn).toEqual(["Egg coffee", "Market lane"]);
+    expect(row.highlightsVi).toEqual(["Cà phê trứng", "Ngõ chợ"]);
+  });
+
   test("allows edit on rejected experience so host can fix and resubmit", async () => {
     const { user } = await createHost();
     const rejected = await createExperience({
@@ -517,6 +550,42 @@ describe("hostExperience.publish", () => {
     const result = await caller.hostExperience.publish({ id: draft.id });
     expect(result.reviewNotes).toBeNull();
     expect(result.status).toBe("published");
+  });
+});
+
+describe("hostExperience admin moderation", () => {
+  test("admin can reject a host-authored listing with review notes", async () => {
+    const admin = await createUser({ role: "admin" });
+    const host = await createHost();
+    const listing = await createExperience({
+      ...validDraftBody(),
+      authorId: host.user.id,
+      kind: "host_custom",
+      status: "published",
+    });
+    const caller = await callerAs(admin);
+
+    const result = await caller.hostExperience.adminReject({
+      id: listing.id,
+      reviewNotes: "Please replace the stock photos with original images.",
+    });
+
+    expect(result.status).toBe("rejected");
+    expect(result.reviewNotes).toContain("stock photos");
+    const [row] = await getTestDb()
+      .select()
+      .from(experiences)
+      .where(eq(experiences.id, listing.id));
+    expect(row.status).toBe("rejected");
+    expect(row.reviewNotes).toContain("stock photos");
+  });
+
+  test("non-admin cannot list the moderation queue", async () => {
+    const { user } = await createHost();
+    const caller = await callerAs(user);
+    await expect(caller.hostExperience.adminListModeration()).rejects.toMatchObject({
+      code: "FORBIDDEN",
+    });
   });
 });
 

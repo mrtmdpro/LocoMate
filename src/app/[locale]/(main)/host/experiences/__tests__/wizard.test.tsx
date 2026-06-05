@@ -4,6 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
 import { readFileSync } from "node:fs";
 import path from "node:path";
+import { upload } from "@vercel/blob/client";
 import { HostExperienceWizard } from "../_wizard";
 import { HOST_TOUR_PRICING } from "@/lib/pricing";
 
@@ -15,6 +16,16 @@ import { HOST_TOUR_PRICING } from "@/lib/pricing";
 const enMessages = JSON.parse(
   readFileSync(path.resolve(process.cwd(), "messages/en.json"), "utf8"),
 );
+
+vi.mock("@vercel/blob/client", () => ({
+  upload: vi.fn(async () => ({
+    url: "https://example.public.blob.vercel-storage.com/host-experiences/photo.jpg",
+  })),
+}));
+
+vi.mock("browser-image-compression", () => ({
+  default: vi.fn(async (file: File) => file),
+}));
 
 function render(ui: React.ReactElement) {
   return rtlRender(ui, {
@@ -213,5 +224,35 @@ describe("HostExperienceWizard -- pricing currency + math", () => {
     // prevents drift with the shared pricing module.
     const payout = screen.getByTestId("host-payout");
     expect(payout.textContent).toContain(HOST_TOUR_PRICING.currency);
+  });
+});
+
+describe("HostExperienceWizard -- photo uploads", () => {
+  test("uploads a selected image to Vercel Blob and appends the returned URL", async () => {
+    const user = userEvent.setup();
+    const initial = validInitial();
+    initial.photos = [];
+    render(
+      <HostExperienceWizard
+        hostIsVerified={true}
+        initialStep={4}
+        initial={initial}
+      />,
+    );
+
+    const input = screen.getByTestId("experience-photo-upload") as HTMLInputElement;
+    const file = new File(["photo"], "hanoi.jpg", { type: "image/jpeg" });
+    await user.upload(input, file);
+
+    expect(upload).toHaveBeenCalledWith(
+      expect.stringMatching(/^host-experiences\/existing-draft-id\/\d+-hanoi\.jpg$/),
+      file,
+      {
+        access: "public",
+        clientPayload: JSON.stringify({ experienceId: "existing-draft-id" }),
+        handleUploadUrl: "/api/host/experience-upload",
+      },
+    );
+    expect(screen.getAllByTestId("experience-photo-preview")).toHaveLength(1);
   });
 });
