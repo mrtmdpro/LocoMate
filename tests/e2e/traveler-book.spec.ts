@@ -25,12 +25,14 @@ test.describe("traveler booking flow", () => {
   test("Alex books a host-authored experience and lands on checkout", async ({ page }) => {
     await signInAsTraveler(page);
 
-    // Open marketplace and filter to host-made listings.
+    // Open marketplace and jump to host-made listings.
     await page.goto("/experiences");
-    await page.getByRole("button", { name: /by local hosts/i }).click();
+    await page.getByRole("link", { name: /local tours/i }).click();
 
     // Click the first visible experience card.
-    const firstCard = page.locator('a[href*="/experiences/"]').first();
+    const localTours = page.locator("#local-tours");
+    await expect(localTours).toBeVisible({ timeout: 10_000 });
+    const firstCard = localTours.locator('a[href*="/experiences/"]').first();
     await expect(firstCard).toBeVisible({ timeout: 10_000 });
     await firstCard.click();
 
