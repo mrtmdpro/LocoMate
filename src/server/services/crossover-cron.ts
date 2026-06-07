@@ -1,12 +1,10 @@
 /**
  * Crossover Matching cron sweep functions (CROSS-05 — logic only).
  *
- * Four pure functions, each idempotent and time-injected for tests.
- * NOT wired to Vercel cron in this PR — they're directly invokable
- * from integration tests and (Phase D) from `/api/cron/crossover-t*`
- * route handlers when Vercel Pro lands and 15-minute cron becomes
- * available. Until then the team can trigger them by hand from an
- * admin tool.
+ * Four pure functions, each idempotent and time-injected for tests. They are
+ * wired to Vercel Cron by `/api/cron/crossover-t48`, `-t36`, `-t28`, and `-t24`
+ * route handlers, with `/api/cron/crossover-sweeps` retained for manual
+ * operator checks that run the full sequence.
  *
  * Lifecycle (per docs/fixed-tour-feature.md):
  *
@@ -20,7 +18,7 @@
  *   T-24h  — auto-cancel unrescued bookings + issue 100% refund.
  *
  * Each function returns a short numeric report so the calling cron
- * route can log to Sentry (Phase D) without inspecting DB state.
+ * route can emit structured logs without inspecting DB state.
  *
  * Time injection: every function accepts `now` as a parameter, default
  * `new Date()`. Tests pass synthetic clocks to walk every transition
@@ -28,11 +26,10 @@
  * filling stuck rows by simulating a past clock.
  */
 
-import { and, eq, inArray, isNull, lt, ne, or, sql } from "drizzle-orm";
+import { and, eq, inArray, isNull, lt, sql } from "drizzle-orm";
 import type { PgDatabase, PgQueryResultHKT } from "drizzle-orm/pg-core";
 import {
   tours,
-  fixedTours,
   tourCrossoverRequests,
   crossoverDiscoveryPushes,
   userProfiles,

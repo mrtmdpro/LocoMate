@@ -131,7 +131,11 @@ The 15-minute cadence is granular enough that a traveler buying a tour
 at, say, "exactly T−48h minus 14 minutes" still gets a clean booking-cutoff
 experience on the very next tick. Vercel Hobby's daily-cron limit
 forced the original order-reaper to run once a day; Crossover requires
-Pro-tier cron frequency.
+Pro-tier cron frequency. In production the four routes are offset by a few
+minutes in `vercel.json` so the lifecycle runs in order instead of firing all
+mutations at the same minute. `/api/cron/crossover-sweeps` remains available
+for manual operator checks that intentionally run the full T−48h → T−24h
+sequence in one authenticated call.
 
 ## Concurrency invariants
 

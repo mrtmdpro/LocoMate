@@ -315,11 +315,11 @@ tables), TRD §5.7, BOOKING.md (Pre-departure timeline + Refunds).
 
 - [x] **CROSS-04: PII-stripped DTO contract** -- ✅ **DONE (verified 27 May 2026)**. `app/src/server/lib/crossover-dto.ts` defines `DiscoveryCandidateSchema` with `.strict()` Zod gating. Contract tests in `crossover-dto.test.ts` explicitly reject candidates with injected `displayName`, `avatarUrl`, `email`, `phone`. Defence-in-depth regex sweep (`PII_FIELD_REGEX`) also tested.
 
-- [ ] **CROSS-05: Cron jobs** -- *(Verified 27 May 2026: **half done**.)* The sweep functions exist (`app/src/server/services/crossover-cron.ts`: `runT48hSweep`, `runT36hSweep`, `runT28hSweep`, `runT24hSweep`). **Missing:**
-  - HTTP route handlers — `app/src/app/api/cron/` only has `purge-messages`, `reap-orders`, `send-thank-you`. No `crossover-t48` / `-t36` / `-t28` / `-t24` route files.
-  - `vercel.json` cron entries — none registered.
-  - The 15-min cadence requires Vercel Pro (Hobby is daily-only).
-  - `Authorization: Bearer $CRON_SECRET` gate to be added on each handler.
+- [x] **CROSS-05: Cron jobs** -- ✅ **DONE (verified 7 Jun 2026)**. The sweep functions exist (`app/src/server/services/crossover-cron.ts`: `runT48hSweep`, `runT36hSweep`, `runT28hSweep`, `runT24hSweep`) and are wired through authenticated route handlers:
+  - `/api/cron/crossover-t48`, `/api/cron/crossover-t36`, `/api/cron/crossover-t28`, `/api/cron/crossover-t24` each run one lifecycle sweep.
+  - `vercel.json` registers each route every 15 minutes with offsets so the lifecycle does not fire all four mutations at once.
+  - All handlers require `Authorization: Bearer $CRON_SECRET`.
+  - `/api/cron/crossover-sweeps` remains as a manual authenticated aggregate endpoint that runs the full sequence in order.
 
 - [x] **CROSS-06: Escrow Δ-payment plumbing** -- ✅ **DONE (verified 27 May 2026)**. `payment.router.ts:288` has `refundPartial` (admin-gated). `crossover.router.ts:786` has `lockItinerary` and `:867` has `confirmEscrowDelta`. Idempotent on the `escrow_adjustments` row — the test file's "double-confirm rejection" case (`crossover.router.test.ts:626`) exercises this.
 
@@ -329,7 +329,7 @@ tables), TRD §5.7, BOOKING.md (Pre-departure timeline + Refunds).
 
 - [ ] **CROSS-08: SSE event types** -- *(Verified 27 May 2026: still actual.)* Searched the whole `app/src/` tree for `crossover:proposalPending`, `crossover:proposalDecided`, `crossover:escrowReady`, `crossover:locked`, `crossover:terminated`, `tour:routeUpdated` — no matches. The existing SSE channel `/api/chat/stream/[matchId]` has not been extended.
 
-- [ ] **CROSS-09: Observability** -- *(Verified 27 May 2026: still actual.)* `crossover-cron.ts` line 22-24 contains the comment `"Each function returns a short numeric report so the calling cron route can log to Sentry (Phase D)"` — i.e., explicitly Phase D work. No `@sentry/*` package usage in the crossover code today, no "stuck booking" alarm.
+- [ ] **CROSS-09: Observability** -- *(Verified 7 Jun 2026: partially actual.)* Crossover cron routes now return structured `{ ok, sweep, ranAt, result }` payloads and log warning-level output when a sweep reports row-level errors. Still missing: a real error-reporting backend such as Sentry and a stuck-booking alarm.
 
 ### UI
 

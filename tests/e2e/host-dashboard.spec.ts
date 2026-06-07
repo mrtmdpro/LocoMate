@@ -19,7 +19,7 @@ async function signInAsHost(page: import("@playwright/test").Page) {
   await page.getByLabel(/email/i).fill("nam@test.com");
   await page.getByLabel(/password/i).fill("password123");
   await page.getByRole("button", { name: /^sign in$/i }).click();
-  await page.waitForURL(/\/(home|onboarding)/);
+  await page.waitForURL(/\/(host|home|onboarding)/);
 }
 
 test.describe("host dashboard", () => {
