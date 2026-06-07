@@ -55,7 +55,7 @@ test.describe("traveler booking flow", () => {
     await page.waitForURL(/\/tour\/[^/]+\/checkout$/, { timeout: 10_000 });
     await expect(page.getByRole("heading", { name: /checkout/i })).toBeVisible();
 
-    // Checkout shows a non-placeholder VND amount.
-    await expect(page.locator("body")).toContainText(/\d{3,}[\s,]\d{3}\s*VND/i);
+    // Checkout shows a non-placeholder VND amount using Vietnamese currency copy.
+    await expect(page.locator("body")).toContainText(/\d{1,3}(?:[.,]\d{3})+\s*VNĐ/i);
   });
 });

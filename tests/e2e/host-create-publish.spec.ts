@@ -36,13 +36,13 @@ test.describe("host create + publish flow", () => {
 
     // Step 1 -- Basics
     await page.getByLabel(/^title$/i).fill(TITLE_UNIQUE);
-    await page.getByLabel(/subtitle/i).fill("Dawn over West Lake");
+    await page.getByLabel(/^subtitle \(optional\)$/i).fill("Dawn over West Lake");
     await page.getByRole("button", { name: /save & continue/i }).click();
 
     // Step 2 -- Story
     await expect(page.getByText("Your story")).toBeVisible();
     await page
-      .getByLabel(/description/i)
+      .getByLabel(/^description$/i)
       .fill(
         "A quiet dawn walk around West Lake with freshly-pressed coconut coffee at a local stall and a stop at Tran Quoc Pagoda for sunrise reflections. Good pace, no rush, and a pocketful of stories from growing up here.",
       );
