@@ -19,6 +19,7 @@
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:check": "tsx scripts/db-check.ts",
+    "db:repair:data-integrity": "tsx scripts/create-production-data-integrity.ts",
     "db:seed": "tsx src/server/db/seed.ts",
     "db:studio": "drizzle-kit studio",
     "slots:topup": "tsx scripts/topup-activity-slots.ts",

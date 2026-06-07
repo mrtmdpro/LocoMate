@@ -26,6 +26,12 @@ Multi-lens audit. Six independent reviewers (security, data integrity, architect
 
 ## The Critical 10 (ship-blockers — fix before next deploy)
 
+> **Jun 8 2026 update:** Critical #3 and the FK portions of #4 have now been
+> addressed in code: `payments.tour_id` / `payments.user_id` detach with
+> `ON DELETE SET NULL`, known FK drift surfaces are mirrored in `schema.ts`,
+> and `db:check` fails important DDL-only FK / unique-index drift instead of
+> treating it as informational.
+
 | # | Issue | Source lens(es) | Effort | One-line fix |
 |---|---|---|---|---|
 | 1 | `match.unmatch` accepts any matchId — global IDOR | Sec C1 | tiny | Add participant ownership check in resolver |

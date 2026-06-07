@@ -99,7 +99,7 @@ async function main() {
       proposer_user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
       edit_order integer NOT NULL,
       edit_kind varchar(10) NOT NULL,
-      target_activity_id uuid,
+      target_activity_id uuid REFERENCES activities(id) ON DELETE SET NULL,
       status varchar(20) NOT NULL DEFAULT 'pending_approval',
       responded_at timestamptz,
       created_at timestamptz NOT NULL DEFAULT now()
@@ -139,6 +139,19 @@ async function main() {
   await sql`
     CREATE INDEX IF NOT EXISTS idx_proposal_edits_request
       ON tour_proposal_edits(crossover_request_id, edit_order)
+  `;
+  await sql`
+    DO $$
+    BEGIN
+      IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint
+        WHERE conname = 'tour_proposal_edits_target_activity_id_fkey'
+      ) THEN
+        ALTER TABLE tour_proposal_edits
+          ADD CONSTRAINT tour_proposal_edits_target_activity_id_fkey
+          FOREIGN KEY (target_activity_id) REFERENCES activities(id) ON DELETE SET NULL;
+      END IF;
+    END$$
   `;
 
   // ────────────────────────────────────────────────────────────────────

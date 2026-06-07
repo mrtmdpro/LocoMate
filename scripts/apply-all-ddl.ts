@@ -224,6 +224,17 @@ export const SCHEMA_DDL: string[] = [
   // payments gains order_id + relaxes tour_id NOT NULL.
   `ALTER TABLE payments ALTER COLUMN tour_id DROP NOT NULL`,
   `ALTER TABLE payments ADD COLUMN IF NOT EXISTS order_id UUID UNIQUE REFERENCES orders(id) ON DELETE CASCADE`,
+  // Financial audit rows must survive account/tour deletion. The base Drizzle
+  // migration created payments.tour_id with ON DELETE CASCADE and user_id with
+  // NO ACTION; replace both with SET NULL for the canonical production path.
+  `ALTER TABLE payments DROP CONSTRAINT IF EXISTS payments_tour_id_tours_id_fk`,
+  `ALTER TABLE payments DROP CONSTRAINT IF EXISTS payments_tour_id_fkey`,
+  `ALTER TABLE payments ADD CONSTRAINT payments_tour_id_tours_id_fk
+     FOREIGN KEY (tour_id) REFERENCES tours(id) ON DELETE SET NULL`,
+  `ALTER TABLE payments DROP CONSTRAINT IF EXISTS payments_user_id_users_id_fk`,
+  `ALTER TABLE payments DROP CONSTRAINT IF EXISTS payments_user_id_fkey`,
+  `ALTER TABLE payments ADD CONSTRAINT payments_user_id_users_id_fk
+     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL`,
 
   // Chat overhaul (see scripts/create-chat-features.ts). Mirrors the
   // production DDL so tests catch any missing column / constraint.
@@ -463,13 +474,24 @@ export const SCHEMA_DDL: string[] = [
      proposer_user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
      edit_order INTEGER NOT NULL CHECK (edit_order BETWEEN 1 AND 3),
      edit_kind VARCHAR(10) NOT NULL CHECK (edit_kind IN ('add', 'remove')),
-     target_activity_id UUID,
+     target_activity_id UUID REFERENCES activities(id) ON DELETE SET NULL,
      status VARCHAR(20) NOT NULL DEFAULT 'pending_approval' CHECK (status IN ('pending_approval', 'approved', 'rejected')),
      responded_at TIMESTAMPTZ,
      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
    )`,
   `CREATE UNIQUE INDEX IF NOT EXISTS idx_proposal_edits_one_pending ON tour_proposal_edits(crossover_request_id) WHERE status = 'pending_approval'`,
   `CREATE INDEX IF NOT EXISTS idx_proposal_edits_request ON tour_proposal_edits(crossover_request_id, edit_order)`,
+  `DO $$
+   BEGIN
+     IF NOT EXISTS (
+       SELECT 1 FROM pg_constraint
+       WHERE conname = 'tour_proposal_edits_target_activity_id_fkey'
+     ) THEN
+       ALTER TABLE tour_proposal_edits
+         ADD CONSTRAINT tour_proposal_edits_target_activity_id_fkey
+         FOREIGN KEY (target_activity_id) REFERENCES activities(id) ON DELETE SET NULL;
+     END IF;
+   END$$`,
   `CREATE TABLE IF NOT EXISTS escrow_adjustments (
      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
      tour_id UUID NOT NULL REFERENCES tours(id) ON DELETE CASCADE,
