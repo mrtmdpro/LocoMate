@@ -868,9 +868,12 @@ Implements PRD §5.11. Lives in a new router
 | `/api/cron/crossover-t24` | every 15 min | Auto-cancel any `fixed_tour` booking still under capacity OR with `tour_crossover_requests.status != 'locked'`. Refund 100%, push to traveler + guide, free `host_availability`. |
 
 All four endpoints require `Authorization: Bearer $CRON_SECRET` (same
-pattern as the existing reaper) and emit Sentry breadcrumbs on every
-transition so a stuck booking shows up in observability instead of
-silently rotting.
+pattern as the existing reaper). `vercel.json` offsets the four schedules by a
+few minutes while keeping each route on a 15-minute cadence, so the lifecycle
+mutations do not race each other. Each route returns `{ ok, sweep, ranAt,
+result }` and logs a structured warning when the sweep reports row-level
+errors. `/api/cron/crossover-sweeps` is an authenticated manual aggregate
+endpoint for running the full sequence during operator checks.
 
 #### SSE / real-time event types (Crossover-specific additions)
 

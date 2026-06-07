@@ -17,8 +17,20 @@
       "schedule": "0 2 * * *"
     },
     {
-      "path": "/api/cron/crossover-sweeps",
-      "schedule": "0 1 * * *"
+      "path": "/api/cron/crossover-t48",
+      "schedule": "0,15,30,45 * * * *"
+    },
+    {
+      "path": "/api/cron/crossover-t36",
+      "schedule": "3,18,33,48 * * * *"
+    },
+    {
+      "path": "/api/cron/crossover-t28",
+      "schedule": "6,21,36,51 * * * *"
+    },
+    {
+      "path": "/api/cron/crossover-t24",
+      "schedule": "9,24,39,54 * * * *"
     }
   ]
 }
