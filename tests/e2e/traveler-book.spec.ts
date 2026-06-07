@@ -47,6 +47,7 @@ test.describe("traveler booking flow", () => {
     const vn = new Date(Date.now() + 7 * 60 * 60 * 1000 + 24 * 60 * 60 * 1000);
     const isoDate = `${vn.getUTCFullYear()}-${String(vn.getUTCMonth() + 1).padStart(2, "0")}-${String(vn.getUTCDate()).padStart(2, "0")}`;
     await page.getByLabel(/^date$/i).fill(isoDate);
+    await page.getByLabel(/^start time$/i).fill("18:30");
 
     // Confirm booking.
     await page.getByTestId("confirm-book-button").click();
