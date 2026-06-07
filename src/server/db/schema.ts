@@ -613,7 +613,10 @@ export const tours = pgTable(
     // Set on both halves when two tours cross over and lock a shared
     // itinerary. UNIQUE partial index (where not null) enforces the
     // 1:1 pairing at the DB level.
-    crossoverPairId: uuid("crossover_pair_id"),
+    crossoverPairId: uuid("crossover_pair_id").references(
+      (): AnyPgColumn => tours.id,
+      { onDelete: "set null" },
+    ),
     cancelledAt: timestamp("cancelled_at", { withTimezone: true }),
     // 'system_t24h' | 'user_cancel' | 'escrow_failed' | future codes.
     // varchar + comment per codebase convention; values enforced at the
@@ -732,13 +735,18 @@ export const tourProposalEdits = pgTable(
     editOrder: integer("edit_order").notNull(),
     /** 'add' | 'remove' */
     editKind: varchar("edit_kind", { length: 10 }).notNull(),
-    targetActivityId: uuid("target_activity_id"),
+    targetActivityId: uuid("target_activity_id").references(() => activities.id, {
+      onDelete: "set null",
+    }),
     /** 'pending_approval' | 'approved' | 'rejected' */
     status: varchar("status", { length: 20 }).notNull().default("pending_approval"),
     respondedAt: timestamp("responded_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [
+    uniqueIndex("idx_proposal_edits_one_pending")
+      .on(table.crossoverRequestId)
+      .where(sql`status = 'pending_approval'`),
     index("idx_proposal_edits_request").on(table.crossoverRequestId, table.editOrder),
   ]
 );
@@ -824,6 +832,7 @@ export const crossoverDiscoveryPushes = pgTable(
     dedupeKey: varchar("dedupe_key", { length: 120 }).notNull(),
   },
   (table) => [
+    uniqueIndex("idx_discovery_pushes_dedupe").on(table.dedupeKey),
     index("idx_discovery_pushes_tour").on(table.tourId),
   ]
 );
@@ -838,11 +847,11 @@ export const payments = pgTable(
     // new order.createPayment path).
     tourId: uuid("tour_id")
       .unique()
-      .references(() => tours.id, { onDelete: "cascade" }),
+      .references(() => tours.id, { onDelete: "set null" }),
     orderId: uuid("order_id")
       .unique()
       .references(() => orders.id, { onDelete: "cascade" }),
-    userId: uuid("user_id").references(() => users.id),
+    userId: uuid("user_id").references(() => users.id, { onDelete: "set null" }),
     amount: integer("amount").notNull(),
     currency: varchar("currency", { length: 3 }).default("VND"),
     paymentMethod: varchar("payment_method", { length: 30 }).notNull(),
@@ -1012,7 +1021,10 @@ export const cartItems = pgTable(
     experienceId: uuid("experience_id").references(() => experiences.id, { onDelete: "cascade" }),
     activityId: uuid("activity_id").references(() => activities.id, { onDelete: "cascade" }),
     activitySlotId: uuid("activity_slot_id").references(() => activitySlots.id, { onDelete: "cascade" }),
-    productVariantId: uuid("product_variant_id"),
+    productVariantId: uuid("product_variant_id").references(
+      (): AnyPgColumn => productVariants.id,
+      { onDelete: "cascade" },
+    ),
     // For esim / guide_addon: the related activity or order scope. Both null
     // when the add-on is cart-wide (e.g. eSIM bundle at checkout).
     parentActivityId: uuid("parent_activity_id").references(() => activities.id, { onDelete: "cascade" }),
@@ -1075,7 +1087,10 @@ export const orderItems = pgTable(
     experienceId: uuid("experience_id").references(() => experiences.id, { onDelete: "set null" }),
     activityId: uuid("activity_id").references(() => activities.id, { onDelete: "set null" }),
     activitySlotId: uuid("activity_slot_id").references(() => activitySlots.id, { onDelete: "set null" }),
-    productVariantId: uuid("product_variant_id"),
+    productVariantId: uuid("product_variant_id").references(
+      (): AnyPgColumn => productVariants.id,
+      { onDelete: "set null" },
+    ),
     quantity: integer("quantity").notNull(),
     unitPriceVnd: integer("unit_price_vnd").notNull(),
     lineTotalVnd: integer("line_total_vnd").notNull(),

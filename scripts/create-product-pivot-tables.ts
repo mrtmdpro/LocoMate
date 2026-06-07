@@ -174,6 +174,23 @@ async function main() {
   // Relax payments.tour_id to nullable + add order_id.
   await sql`ALTER TABLE payments ALTER COLUMN tour_id DROP NOT NULL`;
   await sql`ALTER TABLE payments ADD COLUMN IF NOT EXISTS order_id uuid UNIQUE REFERENCES orders(id) ON DELETE CASCADE`;
+  // Preserve financial audit rows when a user or their legacy tour is deleted.
+  // The original base migration used tour_id ON DELETE CASCADE and user_id
+  // NO ACTION; both are now SET NULL so the immutable payment row survives.
+  await sql`ALTER TABLE payments DROP CONSTRAINT IF EXISTS payments_tour_id_tours_id_fk`;
+  await sql`ALTER TABLE payments DROP CONSTRAINT IF EXISTS payments_tour_id_fkey`;
+  await sql`
+    ALTER TABLE payments
+      ADD CONSTRAINT payments_tour_id_tours_id_fk
+      FOREIGN KEY (tour_id) REFERENCES tours(id) ON DELETE SET NULL
+  `;
+  await sql`ALTER TABLE payments DROP CONSTRAINT IF EXISTS payments_user_id_users_id_fk`;
+  await sql`ALTER TABLE payments DROP CONSTRAINT IF EXISTS payments_user_id_fkey`;
+  await sql`
+    ALTER TABLE payments
+      ADD CONSTRAINT payments_user_id_users_id_fk
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+  `;
 
   console.log("Product-pivot tables ready.");
   await sql.end();

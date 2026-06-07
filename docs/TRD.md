@@ -674,8 +674,8 @@ CREATE INDEX idx_tour_stops_tour ON tour_stops(tour_id, stop_order);
 ```sql
 CREATE TABLE payments (
   id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  tour_id           UUID UNIQUE REFERENCES tours(id) ON DELETE CASCADE,
-  user_id           UUID REFERENCES users(id),
+  tour_id           UUID UNIQUE REFERENCES tours(id) ON DELETE SET NULL,
+  user_id           UUID REFERENCES users(id) ON DELETE SET NULL,
   amount            INT NOT NULL,
   currency          VARCHAR(3) DEFAULT 'VND',
   payment_method    VARCHAR(30) NOT NULL,
@@ -724,6 +724,10 @@ CREATE TABLE emergency_contacts (
   created_at  TIMESTAMPTZ DEFAULT NOW()
 );
 ```
+
+`tour_id` and `user_id` intentionally detach rather than cascade. Payment rows
+are financial audit records; deleting an account or its legacy tour must not
+delete the charge/refund history.
 
 #### `reports`
 ```sql
@@ -1633,14 +1637,14 @@ No OpenAI / AI gateway line — both matching and explainers are local.
 | Unit | Vitest | 100% on `src/lib/pricing.ts`; 80%+ on other feature-new files | Pure fns: pricing helpers, time helpers | Active |
 | Integration | Vitest + `@electric-sql/pglite` (in-process Postgres) | 80%+ on feature routers | tRPC procedures against a real schema (schema migration + data mutations + authz gates) | Active |
 | Component | Vitest + `@testing-library/react` + `happy-dom` | Key UI primitives | Host wizard step gating, pricing breakdown, publish button state | Active |
-| E2E | Playwright | Critical paths | host creates + publishes -> traveler books + pays -> host dashboard shows booking | Specs written, CI job gated behind preview URL deploy (FOLLOW-13) |
+| E2E | Playwright | Critical paths | host creates + publishes -> traveler books + pays -> host dashboard shows booking | Runs in CI after lint/typecheck/Vitest/schema-drift; still soft-gated with `continue-on-error` while specs stabilize |
 | Performance | k6 | API endpoints | Response time under load | Future |
 
 **Coverage enforcement**: per-file thresholds in `vitest.config.ts` so the 80% bar applies only to code the marketplace feature authored; pre-marketplace routers (`auth`, `chat`, `match`, `place`, `user`, `review`) are not retro-covered in this pass.
 
 **Database testing**: `src/test/setup.ts` boots one PGlite instance per test file, runs the drizzle migrations + the marketplace ALTERs, and truncates all tables between tests via `afterEach`. `fileParallelism: false` serializes test files on Windows where PGlite WASM workers cannot safely share state.
 
-**CI**: `.github/workflows/ci.yml` runs lint + typecheck + vitest (with coverage upload) on every PR. The Playwright job is scaffolded but guarded by `if: false` pending FOLLOW-13.
+**CI**: `.github/workflows/ci.yml` runs lint + typecheck + vitest (with coverage upload) + schema drift on every PR. Playwright E2E runs after those checks and uploads a report, but remains soft-gated with `continue-on-error` pending a separate policy change.
 
 ### 13.2 Critical Test Scenarios
 

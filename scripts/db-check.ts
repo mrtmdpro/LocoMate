@@ -94,6 +94,7 @@ async function main() {
     const setA = new Set(linesA);
     const onlyInScripts = linesA.filter((l) => l && !l.startsWith("#") && !setB.has(l));
     const onlyInSchema = linesB.filter((l) => l && !l.startsWith("#") && !setA.has(l));
+    const importantOnlyInScripts = onlyInScripts.filter(isImportantDdlOnlyDrift);
 
     // Asymmetric verdict. The DANGEROUS direction is `onlyInSchema`: schema.ts
     // (which the app's queries are generated from) declares a table / column /
@@ -102,34 +103,47 @@ async function main() {
     // `fixed_tour_steps.activity_id`-class incident and the case the deliberate
     // drift-proof exercises.
     //
-    // The reverse (`onlyInScripts`) is benign over-specification: production has
-    // a constraint / FK / index the Drizzle model simply doesn't mirror. The DB
-    // still enforces it; queries still work. We surface it as an informational
-    // notice but do NOT fail on it.
+    // The reverse (`onlyInScripts`) is usually benign over-specification, but
+    // FKs and unique indexes define runtime invariants the Drizzle model should
+    // also understand. Treat those as important reverse drift and fail below.
     if (onlyInScripts.length) {
       console.error(
         "\nℹ️  Notice -- applied by the DDL scripts (DB-A) but not modelled in schema.ts (DB-B):",
       );
       for (const l of onlyInScripts) console.error(`  - ${l}`);
-      console.error(
-        "  (benign: the database enforces these; the Drizzle model just doesn't declare them.)",
-      );
+      if (importantOnlyInScripts.length === 0) {
+        console.error(
+          "  (benign: these are over-specification not currently required by the Drizzle model.)",
+        );
+      }
     }
 
-    if (onlyInSchema.length === 0) {
+    if (onlyInSchema.length === 0 && importantOnlyInScripts.length === 0) {
       console.log("\n✅ db:check PASSED -- schema.ts declares nothing the DDL scripts don't apply.");
       return;
     }
 
-    console.error("\n❌ db:check FAILED -- schema.ts declares schema the DDL scripts never apply:");
-    for (const l of onlyInSchema) console.error(`  + ${l}`);
-    console.error(
-      "\nA query built from schema.ts would reference DB objects that don't exist in production.",
-    );
-    console.error(
-      "Fix: add the missing DDL to scripts/apply-all-ddl.ts (and the create-*/add-* scripts),",
-    );
-    console.error("or remove the stray declaration from src/server/db/schema.ts.");
+    if (onlyInSchema.length > 0) {
+      console.error("\n❌ db:check FAILED -- schema.ts declares schema the DDL scripts never apply:");
+      for (const l of onlyInSchema) console.error(`  + ${l}`);
+      console.error(
+        "\nA query built from schema.ts would reference DB objects that don't exist in production.",
+      );
+      console.error(
+        "Fix: add the missing DDL to scripts/apply-all-ddl.ts (and the create-*/add-* scripts),",
+      );
+      console.error("or remove the stray declaration from src/server/db/schema.ts.");
+    }
+
+    if (importantOnlyInScripts.length > 0) {
+      console.error(
+        "\n❌ db:check FAILED -- important FK / unique-index constraints exist in DDL but are missing from schema.ts:",
+      );
+      for (const l of importantOnlyInScripts) console.error(`  - ${l}`);
+      console.error(
+        "\nFix: model these constraints in src/server/db/schema.ts, or remove stale DDL if the invariant is no longer intended.",
+      );
+    }
     process.exitCode = 1;
   } finally {
     // Best-effort cleanup so repeat local runs stay clean.
@@ -147,3 +161,7 @@ main().catch((err) => {
   console.error(err);
   process.exit(1);
 });
+
+function isImportantDdlOnlyDrift(line: string): boolean {
+  return line.includes(" -> ") || /^CREATE UNIQUE INDEX\b/i.test(line);
+}

@@ -17,6 +17,13 @@ import { createExperience } from "./fixtures";
 
 type ColumnRow = { column_name: string; data_type: string; is_nullable: "YES" | "NO"; column_default: string | null };
 type IndexRow = { indexname: string };
+type ForeignKeyRow = {
+  column_name: string;
+  delete_rule: string;
+  foreign_column: string;
+  foreign_table: string;
+  table_name: string;
+};
 
 async function experienceColumns() {
   const rows = await getTestDb().execute(sql.raw(
@@ -39,6 +46,31 @@ async function indexes(table: string) {
     `SELECT indexname FROM pg_indexes WHERE tablename = '${table}'`,
   ));
   return (rows.rows as IndexRow[]).map((r) => r.indexname);
+}
+
+async function foreignKeys(table: string) {
+  const rows = await getTestDb().execute(sql.raw(
+    `SELECT
+       tc.table_name,
+       kcu.column_name,
+       ccu.table_name AS foreign_table,
+       ccu.column_name AS foreign_column,
+       rc.delete_rule
+     FROM information_schema.table_constraints tc
+     JOIN information_schema.key_column_usage kcu
+       ON tc.constraint_name = kcu.constraint_name
+      AND tc.table_schema = kcu.table_schema
+     JOIN information_schema.constraint_column_usage ccu
+       ON ccu.constraint_name = tc.constraint_name
+      AND ccu.table_schema = tc.table_schema
+     JOIN information_schema.referential_constraints rc
+       ON rc.constraint_name = tc.constraint_name
+      AND rc.constraint_schema = tc.table_schema
+     WHERE tc.constraint_type = 'FOREIGN KEY'
+       AND tc.table_schema = 'public'
+       AND tc.table_name = '${table}'`,
+  ));
+  return rows.rows as ForeignKeyRow[];
 }
 
 describe("marketplace migration", () => {
@@ -116,5 +148,63 @@ describe("marketplace migration", () => {
       `INSERT INTO tours (user_id, experience_id, request_params, package_type, price_amount, status)
        VALUES ('11111111-1111-1111-1111-111111111111', '00000000-0000-0000-0000-000000000001', '{}'::jsonb, 'host_experience', 500000, 'preview')`,
     ))).rejects.toThrow();
+  });
+
+  test("payment audit FKs detach instead of cascading on user/tour delete", async () => {
+    const fks = await foreignKeys("payments");
+
+    expect(fks).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          column_name: "tour_id",
+          delete_rule: "SET NULL",
+          foreign_table: "tours",
+        }),
+        expect.objectContaining({
+          column_name: "user_id",
+          delete_rule: "SET NULL",
+          foreign_table: "users",
+        }),
+      ]),
+    );
+  });
+
+  test("product and crossover FKs are modelled in the canonical schema", async () => {
+    await expect(foreignKeys("cart_items")).resolves.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          column_name: "product_variant_id",
+          delete_rule: "CASCADE",
+          foreign_table: "product_variants",
+        }),
+      ]),
+    );
+    await expect(foreignKeys("order_items")).resolves.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          column_name: "product_variant_id",
+          delete_rule: "SET NULL",
+          foreign_table: "product_variants",
+        }),
+      ]),
+    );
+    await expect(foreignKeys("tour_proposal_edits")).resolves.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          column_name: "target_activity_id",
+          delete_rule: "SET NULL",
+          foreign_table: "activities",
+        }),
+      ]),
+    );
+    await expect(foreignKeys("tours")).resolves.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          column_name: "crossover_pair_id",
+          delete_rule: "SET NULL",
+          foreign_table: "tours",
+        }),
+      ]),
+    );
   });
 });

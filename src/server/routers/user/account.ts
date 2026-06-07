@@ -132,11 +132,12 @@ export const userAccountProcedures = {
 
         // 5. The remaining dependents cascade on users.id delete:
         //    user_profiles, host_profiles (and host_availability via it),
-        //    saved_places, swipe_actions, tours (and tour_stops,
-        //    payments.tour_id via it), emergency_contacts, accounts,
-        //    message_reactions, message_reports, user_blocks.
+        //    saved_places, swipe_actions, tours (and tour_stops),
+        //    emergency_contacts, accounts, message_reactions,
+        //    message_reports, user_blocks.
         //    `messages.sender_id`, `matches.user_a_id`, `matches.user_b_id`,
-        //    `reviews.reviewer_id`, `reports.reporter_id`
+        //    `reviews.reviewer_id`, `reports.reporter_id`, `payments.user_id`,
+        //    and `payments.tour_id`
         //    are ON DELETE SET NULL so historical content is preserved
         //    without PII ownership.
         const deleted = await tx

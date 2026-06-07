@@ -67,7 +67,7 @@ flight (status: shipped or partial):
    and a test file.
 2. **Crossover Matching backend** — backend complete (schema + router
    + cron sweeps + tests + PII contract) but **no UI consumer**.
-   Tracked as CROSS-05/08/09/10/11/12/13 + the new
+   Tracked as CROSS-08/09/10/11/12/13 + the new
    CROSS-FOLLOW-01/02 below.
 3. **Customized Tour Templates** (`customizedTourTemplates` table,
    schema.ts:375) — not mentioned in the tracker. Drives a templated
@@ -87,7 +87,7 @@ flight (status: shipped or partial):
 - **UI stubs:** UI-02, UI-05, UI-10, UI-15, UI-16, UI-17, UI-21, UI-22. (UI-11 downgraded but still UI debt.)
 - **May follow-ups not yet shipped:** MAY-03, MAY-06, MAY-07, MAY-08, MAY-13, MAY-15.
 - **Partial / re-scope needed:** MAY-04, MAY-05, MAY-09, MAY-12, MAY-14.
-- **Crossover UI / cron / observability:** CROSS-05, CROSS-08, CROSS-09, CROSS-10, CROSS-11, CROSS-12, CROSS-13, plus the two new CROSS-FOLLOW items.
+- **Crossover UI / observability:** CROSS-08, CROSS-09, CROSS-10, CROSS-11, CROSS-12, CROSS-13, plus the two new CROSS-FOLLOW items. (CROSS-05 cron wiring is closed.)
 - **Follow-ups:** FOLLOW-02, -03, -04, -06, -07, -08, -09, -10, -11, -12, -13, -14, -15. (FOLLOW-01, -05, -16, -17, -18 remain closed.)
 - **Trust + safety:** UI-14 stays closed (Verification card replaced the fake sessions list).
 
@@ -100,6 +100,8 @@ flight (status: shipped or partial):
 - [x] **SEC-02: Chat authorization** -- FIXED. Added `verifyMatchParticipant()` to `getMessages`, `sendMessage`, `markRead`. Checks user is a participant AND match status is 'matched'. Also fixed `getConversations` to not leak `passwordHash` (now selects only id/displayName/avatarUrl/role).
 
 - [x] **SEC-03: Tour lifecycle ownership + status gates** -- FIXED. `startTour` requires ownership + status 'paid'. `completeTour` requires ownership + status 'active'. `markStopVisited` loads stop, then verifies parent tour ownership. Prevents bypassing payment flow.
+
+- [x] **SEC-04: Payment audit retention on account deletion** -- FIXED (verified 8 Jun 2026). `payments.tour_id` and `payments.user_id` now use `ON DELETE SET NULL`, `user.deleteAccount` preserves tour-linked payment rows, and `db:check` fails important FK/unique-index reverse drift instead of leaving it as a notice.
 
 ---
 

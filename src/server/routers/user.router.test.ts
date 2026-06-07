@@ -6,6 +6,7 @@ import {
   createHost,
   createExperience,
   createTour,
+  createPayment,
 } from "@/test/fixtures";
 import { getTestDb } from "@/test/setup";
 import {
@@ -14,6 +15,7 @@ import {
   tours,
   hostProfiles,
   userProfiles,
+  payments,
 } from "@/server/db/schema";
 import { hashSync } from "bcryptjs";
 
@@ -315,13 +317,13 @@ describe("user.deleteAccount", () => {
       status: "published",
       title: "Will be archived 1",
     });
-    const exp2 = await createExperience({
+    await createExperience({
       authorId: user.id,
       kind: "host_custom",
       status: "published",
       title: "Will be archived 2",
     });
-    const draft = await createExperience({
+    await createExperience({
       authorId: user.id,
       kind: "host_custom",
       status: "draft",
@@ -391,6 +393,42 @@ describe("user.deleteAccount", () => {
       .from(users)
       .where(eq(users.id, user.id));
     expect(remaining).toBeUndefined();
+  });
+
+  test("preserves tour-linked payment audit rows when a traveler deletes their account", async () => {
+    const password = "password123";
+    const user = await createUser({
+      email: "paid-traveler@test.com",
+      passwordHash: hashSync(password, 4),
+    });
+    const tour = await createTour({
+      userId: user.id,
+      status: "paid",
+      priceAmount: 750_000,
+    });
+    const payment = await createPayment({
+      amount: 750_000,
+      paidAt: new Date(),
+      status: "succeeded",
+      tourId: tour.id,
+      userId: user.id,
+    });
+
+    const caller = await callerAs(user);
+    await caller.user.deleteAccount({
+      confirmEmail: "paid-traveler@test.com",
+      currentPassword: password,
+    });
+
+    const [remainingPayment] = await getTestDb()
+      .select()
+      .from(payments)
+      .where(eq(payments.id, payment.id));
+    expect(remainingPayment).toBeDefined();
+    expect(remainingPayment.amount).toBe(750_000);
+    expect(remainingPayment.status).toBe("succeeded");
+    expect(remainingPayment.userId).toBeNull();
+    expect(remainingPayment.tourId).toBeNull();
   });
 
   test("rejects mismatched email confirmation", async () => {

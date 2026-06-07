@@ -26,6 +26,7 @@ import {
   escrowAdjustments,
   priorityMatchingVouchers,
   crossoverDiscoveryPushes,
+  activities,
   payments,
   tours,
   userProfiles,
@@ -60,6 +61,22 @@ async function seedFixedTour(tourId: string, chapter = "MORNING_SHIFT") {
     basePriceVnd: 1_000_000,
     vector: [0.25, 0.25, 0.25, 0.25],
   });
+}
+
+async function seedActivity(id: string) {
+  const db = getTestDb();
+  await db.insert(activities).values({
+    id,
+    category: "tour_lite",
+    description: "A proposal target activity used by crossover tests.",
+    durationMinutes: 60,
+    maxCapacityPerSlot: 8,
+    priceAmount: 150_000,
+    slug: `proposal-${id.slice(-4)}`,
+    status: "published",
+    title: `Proposal activity ${id.slice(-4)}`,
+  });
+  return id;
 }
 
 /**
@@ -472,7 +489,7 @@ describe("Smart Proposal Hub (proposeEdit + respondToProposal)", () => {
 
   it("caps proposals at 3 per request", async () => {
     const { callerA, callerB, requestId } = await setupMatched();
-    const activityId = "00000000-0000-0000-0000-000000000001";
+    const activityId = await seedActivity("00000000-0000-0000-0000-000000000001");
 
     // Edit 1
     const e1 = await callerA.crossover.proposeEdit({
@@ -517,7 +534,7 @@ describe("Smart Proposal Hub (proposeEdit + respondToProposal)", () => {
 
   it("enforces sequential approval (no second pending until first responds)", async () => {
     const { callerA, requestId } = await setupMatched();
-    const activityId = "00000000-0000-0000-0000-000000000002";
+    const activityId = await seedActivity("00000000-0000-0000-0000-000000000002");
 
     await callerA.crossover.proposeEdit({
       requestId,
@@ -535,7 +552,7 @@ describe("Smart Proposal Hub (proposeEdit + respondToProposal)", () => {
 
   it("forbids the proposer from approving their own proposal", async () => {
     const { callerA, requestId } = await setupMatched();
-    const activityId = "00000000-0000-0000-0000-000000000003";
+    const activityId = await seedActivity("00000000-0000-0000-0000-000000000003");
 
     const e = await callerA.crossover.proposeEdit({
       requestId,
