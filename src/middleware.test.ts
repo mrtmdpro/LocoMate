@@ -2,6 +2,7 @@ import { describe, test, expect } from "vitest";
 import { randomUUID } from "node:crypto";
 import {
   isProtectedPath,
+  shouldRunLocaleMiddleware,
   verifyAccessCookie,
   stripLocale,
 } from "./lib/auth-gate";
@@ -27,6 +28,12 @@ describe("middleware auth gate", () => {
     expect(isProtectedPath("/vi/register", LOCALES)).toBe(false);
     expect(isProtectedPath("/", LOCALES)).toBe(false);
     expect(isProtectedPath("/vi", LOCALES)).toBe(false);
+  });
+
+  test("Payload CMS admin is excluded from locale middleware", () => {
+    expect(shouldRunLocaleMiddleware("/cms-admin")).toBe(false);
+    expect(shouldRunLocaleMiddleware("/cms-admin/collections/articles")).toBe(false);
+    expect(shouldRunLocaleMiddleware("/vi/admin/content")).toBe(true);
   });
 
   test("stripLocale peels a known locale prefix only", () => {

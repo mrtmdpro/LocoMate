@@ -46,6 +46,27 @@ describe("editorial CMS helpers", () => {
     expect(doc).toBeNull();
   });
 
+  it("does not request draft content for public detail pages", async () => {
+    const find = vi.fn().mockResolvedValue({ docs: [] });
+
+    await getPublishedEditorialBySlug(
+      { find },
+      { collection: "articles", locale: "en", slug: "draft-story" },
+    );
+
+    expect(find).toHaveBeenCalledWith(
+      expect.objectContaining({
+        draft: false,
+        where: {
+          and: [
+            { slug: { equals: "draft-story" } },
+            { _status: { equals: "published" } },
+          ],
+        },
+      }),
+    );
+  });
+
   it("lists published localized documents newest first", async () => {
     const find = vi.fn().mockResolvedValue({
       docs: [{ slug: "a" }, { slug: "b" }],

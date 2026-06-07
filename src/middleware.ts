@@ -1,7 +1,10 @@
 import createMiddleware from "next-intl/middleware";
 import { NextResponse, type NextRequest } from "next/server";
 import { routing } from "@/i18n/routing";
-import { isProtectedPath, verifyAccessCookie } from "@/lib/auth-gate";
+import {
+  isProtectedPath,
+  verifyAccessCookie,
+} from "@/lib/auth-gate";
 
 /**
  * Locale negotiation runs on every page request. The matcher excludes:

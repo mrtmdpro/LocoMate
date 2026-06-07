@@ -33,6 +33,12 @@ export const PROTECTED_SEGMENTS = new Set([
   "tours",
 ]);
 
+const LOCALE_MIDDLEWARE_EXCLUSIONS = /^(api|_next|_vercel|uploads|brand|cms-admin)(\/|$)|\.[^/]+$/;
+
+export function shouldRunLocaleMiddleware(pathname: string): boolean {
+  return !LOCALE_MIDDLEWARE_EXCLUSIONS.test(pathname.replace(/^\/+/, ""));
+}
+
 export function stripLocale(
   pathname: string,
   locales: readonly string[],
