@@ -49,6 +49,7 @@ export default function OrderCheckoutPage() {
     },
     onError: (e) => toast.error(e.message ?? t("paymentFailed")),
   });
+  const paymentError = confirm.error?.message ?? null;
 
   if (isLoading) {
     return (
@@ -86,6 +87,17 @@ export default function OrderCheckoutPage() {
             Mobile: stacked as before. */}
         <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(320px,380px)] lg:gap-8 lg:items-start">
           <div className="space-y-4">
+        {paymentError && (
+          <Card className="border-0 shadow-sm bg-amber-50 border-l-4 border-l-amber-400">
+            <CardContent className="p-4 space-y-2">
+              <p className="text-sm font-semibold text-amber-900">{t("paymentNeedsCartFixTitle")}</p>
+              <p className="text-sm text-amber-800">{t("paymentNeedsCartFixBody")}</p>
+              <Link href="/cart" className="inline-flex text-sm font-semibold text-secondary hover:text-primary">
+                {t("backToCartLink")}
+              </Link>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Line items */}
         <Card className="border-0 shadow-sm">

@@ -39,6 +39,28 @@ async function createActivityWithSlot(authorId: string, price = 400_000) {
   return { activity: act, slot };
 }
 
+async function createSlot(
+  activityId: string,
+  offsetMs: number,
+  overrides: Partial<typeof activitySlots.$inferInsert> = {},
+) {
+  const db = getTestDb();
+  const startsAt = new Date(Date.now() + offsetMs);
+  const [slot] = await db
+    .insert(activitySlots)
+    .values({
+      activityId,
+      startsAt,
+      endsAt: new Date(startsAt.getTime() + 120 * 60_000),
+      capacity: 6,
+      bookedCount: 0,
+      status: "open",
+      ...overrides,
+    })
+    .returning();
+  return slot;
+}
+
 async function createProductWithVariant(price = 200_000, stock = 10) {
   const db = getTestDb();
   const [product] = await db
@@ -193,6 +215,84 @@ describe("cart.add + get", () => {
 });
 
 describe("cart.updateQuantity + remove + clear", () => {
+  test("updates an activity line to another future slot for the same activity", async () => {
+    const host = await createHost();
+    const { activity, slot } = await createActivityWithSlot(host.user.id);
+    const replacement = await createSlot(activity.id, 3 * 86400_000);
+    const traveler = await createUser();
+    const caller = await callerAs(traveler);
+    const item = await caller.cart.add({
+      kind: "activity",
+      activityId: activity.id,
+      activitySlotId: slot.id,
+      quantity: 2,
+    });
+
+    const updated = await caller.cart.updateActivitySlot({
+      activitySlotId: replacement.id,
+      cartItemId: item.id,
+    });
+    expect(updated.activitySlotId).toBe(replacement.id);
+
+    const cart = await caller.cart.get();
+    expect(cart.items[0].activitySlotId).toBe(replacement.id);
+    expect(cart.items[0].availabilityStatus).toBe("ok");
+    expect(cart.blockingIssues).toHaveLength(0);
+  });
+
+  test("rejects updating an activity line to a slot from another activity", async () => {
+    const host = await createHost();
+    const { activity, slot } = await createActivityWithSlot(host.user.id);
+    const other = await createActivityWithSlot(host.user.id);
+    const traveler = await createUser();
+    const caller = await callerAs(traveler);
+    const item = await caller.cart.add({
+      kind: "activity",
+      activityId: activity.id,
+      activitySlotId: slot.id,
+      quantity: 1,
+    });
+
+    await expect(
+      caller.cart.updateActivitySlot({
+        activitySlotId: other.slot.id,
+        cartItemId: item.id,
+      }),
+    ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+  });
+
+  test("rejects updating an activity line to expired or sold-out slots", async () => {
+    const host = await createHost();
+    const { activity, slot } = await createActivityWithSlot(host.user.id);
+    const expired = await createSlot(activity.id, -2 * 60 * 60_000);
+    const soldOut = await createSlot(activity.id, 3 * 86400_000, {
+      bookedCount: 6,
+      capacity: 6,
+      status: "open",
+    });
+    const traveler = await createUser();
+    const caller = await callerAs(traveler);
+    const item = await caller.cart.add({
+      kind: "activity",
+      activityId: activity.id,
+      activitySlotId: slot.id,
+      quantity: 1,
+    });
+
+    await expect(
+      caller.cart.updateActivitySlot({
+        activitySlotId: expired.id,
+        cartItemId: item.id,
+      }),
+    ).rejects.toMatchObject({ code: "PRECONDITION_FAILED" });
+    await expect(
+      caller.cart.updateActivitySlot({
+        activitySlotId: soldOut.id,
+        cartItemId: item.id,
+      }),
+    ).rejects.toMatchObject({ code: "PRECONDITION_FAILED" });
+  });
+
   test("remove line subtracts subtotal", async () => {
     const { variant } = await createProductWithVariant(100_000, 10);
     const traveler = await createUser();

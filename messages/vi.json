@@ -202,6 +202,8 @@
       "blocking": {
         "title": "{count, plural, =1 {Một mục cần xử lý} other {# mục cần xử lý}}",
         "hint": "Xoá mục đã quá giờ hoặc không còn khả dụng trước khi thanh toán.",
+        "removeAll": "Xoá mục không khả dụng",
+        "removing": "Đang xoá…",
         "expired": "Đã quá giờ",
         "too_close": "Quá sát giờ",
         "unavailable": "Không khả dụng",
@@ -209,6 +211,11 @@
       },
       "line": {
         "remove": "Xoá",
+        "changeTime": "Đổi giờ",
+        "chooseNewTime": "Chọn giờ mới",
+        "loadingSlots": "Đang tải giờ…",
+        "noSlots": "Không còn giờ sắp tới. Hãy xoá mục này và chọn hoạt động khác.",
+        "timeUpdated": "Đã đổi giờ",
         "qtyOne": "SL 1",
         "fallback": "Mục",
         "esimLabel": "eSIM · {gb} GB",
@@ -1592,6 +1599,8 @@
     "pay": "Thanh toán {amount}",
     "paymentConfirmed": "Đã xác nhận thanh toán",
     "paymentFailed": "Thanh toán thất bại",
+    "paymentNeedsCartFixTitle": "Cập nhật giỏ hàng",
+    "paymentNeedsCartFixBody": "Một mục có giờ hẹn không còn thanh toán được. Quay lại giỏ để đổi giờ hoặc xoá mục đó.",
     "tour": {
       "title": "Thanh toán",
       "orderSummary": "Tóm tắt đơn hàng",
