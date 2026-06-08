@@ -163,13 +163,14 @@ export async function createTour(overrides: Partial<NewTour> = {}) {
   if (!overrides.userId) {
     throw new Error("createTour: userId is required");
   }
+  const defaultDate = new Date(Date.now() + 2 * 86400_000).toISOString().slice(0, 10);
   const [tour] = await db
     .insert(tours)
     .values({
       userId: overrides.userId,
       status: overrides.status ?? "preview",
       requestParams: overrides.requestParams ?? {
-        date: new Date().toISOString().slice(0, 10),
+        date: defaultDate,
         startTime: "09:00",
         durationHours: 3,
         budgetLevel: "medium",

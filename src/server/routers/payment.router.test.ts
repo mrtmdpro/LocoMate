@@ -184,6 +184,35 @@ describe("payment.confirm", () => {
     ).rejects.toMatchObject({ code: "PRECONDITION_FAILED" });
   });
 
+  test("rejects confirming a legacy tour payment after the tour time passed", async () => {
+    const traveler = await createUser();
+    const past = new Date(Date.now() - 24 * 60 * 60_000).toISOString().slice(0, 10);
+    const tour = await createTour({
+      userId: traveler.id,
+      requestParams: {
+        date: past,
+        startTime: "09:00",
+        durationHours: 2,
+        budgetLevel: "medium",
+        interests: ["culture"],
+        withHost: false,
+        groupSize: 1,
+      },
+      status: "preview",
+    });
+    const payment = await createPayment({
+      tourId: tour.id,
+      userId: traveler.id,
+      status: "pending",
+    });
+    const caller = await callerAs(traveler);
+
+    await expect(caller.payment.confirm({ paymentId: payment.id })).rejects.toMatchObject({
+      code: "PRECONDITION_FAILED",
+      message: expect.stringMatching(/already passed|too soon/i),
+    });
+  });
+
   test("rejects confirming a payment whose experience was archived after booking", async () => {
     // Regression guard for adv-07: previously a traveler who booked an
     // experience, then saw the host archive it, could still confirm payment

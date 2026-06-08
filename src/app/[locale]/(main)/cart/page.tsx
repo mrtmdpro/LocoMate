@@ -86,8 +86,11 @@ export default function CartPage() {
 
   const items = data?.items ?? [];
   const conflicts = data?.conflicts ?? [];
+  const blockingIssues = data?.blockingIssues ?? [];
   const subtotal = data?.subtotalVnd ?? 0;
   const hasConflicts = conflicts.length > 0;
+  const hasBlockingIssues = blockingIssues.length > 0;
+  const checkoutBlocked = hasConflicts || hasBlockingIssues;
 
   if (items.length === 0) {
     return (
@@ -141,6 +144,25 @@ export default function CartPage() {
         <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(320px,380px)] lg:gap-8 lg:items-start">
           <div className="space-y-3">
 
+        {/* Blocking issue banner */}
+        {hasBlockingIssues && (
+          <Card className="border-0 shadow-sm bg-amber-50 border-l-4 border-l-amber-400">
+            <CardContent className="p-4 space-y-1.5">
+              <p className="text-sm font-semibold text-amber-900">
+                {t("blocking.title", { count: blockingIssues.length })}
+              </p>
+              <ul className="text-sm text-amber-800 space-y-0.5">
+                {blockingIssues.slice(0, 3).map((issue) => (
+                  <li key={issue.cartItemId}>
+                    <span className="font-semibold">{issue.label}</span>: {issue.message}
+                  </li>
+                ))}
+              </ul>
+              <p className="text-sm text-amber-800">{t("blocking.hint")}</p>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Conflict banner */}
         {hasConflicts && (
           <Card className="border-0 shadow-sm bg-red-50 border-l-4 border-l-red-400">
@@ -188,6 +210,11 @@ export default function CartPage() {
                       {item.slotStartsAt && (
                         <Badge className="mt-1 bg-muted text-foreground border-0 text-xs">
                           {formatShortDate(item.slotStartsAt, locale)}
+                        </Badge>
+                      )}
+                      {item.availabilityStatus && item.availabilityStatus !== "ok" && (
+                        <Badge className="mt-1 ml-1 bg-amber-100 text-amber-900 border-0 text-xs">
+                          {t(`blocking.${item.availabilityStatus}`)}
                         </Badge>
                       )}
                     </div>
@@ -246,11 +273,13 @@ export default function CartPage() {
                 </div>
                 <Button
                   onClick={() => createOrder.mutate()}
-                  disabled={hasConflicts || createOrder.isPending}
+                  disabled={checkoutBlocked || createOrder.isPending}
                   className="w-full bg-primary hover:bg-primary/85 text-primary-foreground rounded-xl h-12 text-base font-bold disabled:opacity-60"
                 >
-                  {hasConflicts
-                    ? t("summary.resolveConflicts")
+                  {hasBlockingIssues
+                    ? t("summary.resolveIssues")
+                    : hasConflicts
+                      ? t("summary.resolveConflicts")
                     : createOrder.isPending
                       ? t("summary.processing")
                       : t("summary.checkout")}
@@ -274,11 +303,13 @@ export default function CartPage() {
           </div>
           <Button
             onClick={() => createOrder.mutate()}
-            disabled={hasConflicts || createOrder.isPending}
+            disabled={checkoutBlocked || createOrder.isPending}
             className="bg-primary hover:bg-primary/85 text-primary-foreground rounded-xl px-6 h-12 font-bold disabled:opacity-60"
           >
-            {hasConflicts
-              ? t("summary.resolveConflicts")
+            {hasBlockingIssues
+              ? t("summary.resolveIssues")
+              : hasConflicts
+                ? t("summary.resolveConflicts")
               : createOrder.isPending
                 ? t("summary.processing")
                 : t("summary.checkout")}

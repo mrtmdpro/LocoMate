@@ -15,6 +15,7 @@ import {
 } from "../db/schema";
 import { detectConflicts } from "@/lib/cart-conflicts";
 import { tourTimeWindow } from "@/lib/tour-time";
+import { assertScheduledTimeBookable } from "@/lib/scheduled-time";
 import { readRequestParams } from "../lib/tour-request-shape";
 import { reapStaleOrders } from "@/server/services/reap-orders";
 
@@ -108,6 +109,13 @@ export const orderRouter = router({
           });
           if (!slot || slot.status !== "open") {
             throw new TRPCError({ code: "PRECONDITION_FAILED", message: "Time slot no longer available" });
+          }
+          const slotTimeIssue = assertScheduledTimeBookable(slot.startsAt);
+          if (slotTimeIssue) {
+            throw new TRPCError({
+              code: "PRECONDITION_FAILED",
+              message: slotTimeIssue.message,
+            });
           }
           if (slot.bookedCount + item.quantity > slot.capacity) {
             throw new TRPCError({ code: "PRECONDITION_FAILED", message: "Not enough seats in this slot" });
@@ -360,6 +368,22 @@ export const orderRouter = router({
 
         for (const line of lines) {
           if (line.kind === "activity" && line.activitySlotId) {
+            const currentSlot = await tx.query.activitySlots.findFirst({
+              where: eq(activitySlots.id, line.activitySlotId),
+            });
+            if (!currentSlot) {
+              throw new TRPCError({
+                code: "PRECONDITION_FAILED",
+                message: "Time slot no longer available",
+              });
+            }
+            const slotTimeIssue = assertScheduledTimeBookable(currentSlot.startsAt);
+            if (slotTimeIssue) {
+              throw new TRPCError({
+                code: "PRECONDITION_FAILED",
+                message: slotTimeIssue.message,
+              });
+            }
             const [slot] = await tx
               .update(activitySlots)
               .set({

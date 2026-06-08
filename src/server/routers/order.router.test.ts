@@ -123,6 +123,26 @@ describe("order.createFromCart", () => {
       code: "BAD_REQUEST",
     });
   });
+
+  test("rejects activity slot that expired while sitting in cart", async () => {
+    const host = await createHost();
+    const { activity, slot } = await createActivityWithSlot(host.user.id);
+    const traveler = await createUser();
+    const caller = await callerAs(traveler);
+    await caller.cart.add({ kind: "activity", activityId: activity.id, activitySlotId: slot.id, quantity: 1 });
+    await getTestDb()
+      .update(activitySlots)
+      .set({
+        startsAt: new Date(Date.now() - 2 * 60 * 60_000),
+        endsAt: new Date(Date.now() - 60 * 60_000),
+      })
+      .where(eq(activitySlots.id, slot.id));
+
+    await expect(caller.order.createFromCart()).rejects.toMatchObject({
+      code: "PRECONDITION_FAILED",
+      message: expect.stringMatching(/already passed|too soon/i),
+    });
+  });
 });
 
 describe("order.confirmPayment", () => {
@@ -162,6 +182,27 @@ describe("order.confirmPayment", () => {
 
     await expect(caller.order.confirmPayment({ orderId: out.orderId })).rejects.toMatchObject({
       code: "PRECONDITION_FAILED",
+    });
+  });
+
+  test("rejects payment confirmation when activity slot passes after order creation", async () => {
+    const host = await createHost();
+    const { activity, slot } = await createActivityWithSlot(host.user.id);
+    const traveler = await createUser();
+    const caller = await callerAs(traveler);
+    await caller.cart.add({ kind: "activity", activityId: activity.id, activitySlotId: slot.id, quantity: 1 });
+    const out = await caller.order.createFromCart();
+    await getTestDb()
+      .update(activitySlots)
+      .set({
+        startsAt: new Date(Date.now() - 2 * 60 * 60_000),
+        endsAt: new Date(Date.now() - 60 * 60_000),
+      })
+      .where(eq(activitySlots.id, slot.id));
+
+    await expect(caller.order.confirmPayment({ orderId: out.orderId })).rejects.toMatchObject({
+      code: "PRECONDITION_FAILED",
+      message: expect.stringMatching(/already passed|too soon/i),
     });
   });
 });
