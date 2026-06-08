@@ -202,6 +202,8 @@
       "blocking": {
         "title": "{count, plural, =1 {Cart item needs attention} other {# cart items need attention}}",
         "hint": "Remove expired or unavailable items before checkout.",
+        "removeAll": "Remove unavailable items",
+        "removing": "Removing…",
         "expired": "Expired",
         "too_close": "Too soon",
         "unavailable": "Unavailable",
@@ -209,6 +211,11 @@
       },
       "line": {
         "remove": "Remove",
+        "changeTime": "Change time",
+        "chooseNewTime": "Choose a new time",
+        "loadingSlots": "Loading times…",
+        "noSlots": "No upcoming times available. Remove this item and choose another activity.",
+        "timeUpdated": "Time updated",
         "qtyOne": "Qty 1",
         "fallback": "Item",
         "esimLabel": "eSIM · {gb} GB",
@@ -1592,6 +1599,8 @@
     "pay": "Pay {amount}",
     "paymentConfirmed": "Payment confirmed",
     "paymentFailed": "Payment failed",
+    "paymentNeedsCartFixTitle": "Update your cart",
+    "paymentNeedsCartFixBody": "One scheduled item can no longer be paid for. Go back to your cart, choose another time, or remove it.",
     "tour": {
       "title": "Checkout",
       "orderSummary": "Order Summary",

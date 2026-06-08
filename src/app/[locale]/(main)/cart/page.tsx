@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useRouter } from "@/i18n/navigation";
@@ -36,6 +37,10 @@ export default function CartPage() {
   const { user } = useAuthStore();
   const utils = trpc.useUtils();
   const enabled = !!user;
+  const [editingLine, setEditingLine] = useState<{
+    activityId: string;
+    cartItemId: string;
+  } | null>(null);
 
   // Pass locale to the server query so `displayLabel` / `lineSubtitle`
   // come back in the user's language (pickLocaleField for activity +
@@ -56,6 +61,30 @@ export default function CartPage() {
       utils.cart.getCount.invalidate();
     },
   });
+
+  const updateSlot = trpc.cart.updateActivitySlot.useMutation({
+    onSuccess: () => {
+      toast.success(t("line.timeUpdated"));
+      setEditingLine(null);
+      utils.cart.get.invalidate();
+      utils.cart.getCount.invalidate();
+    },
+    onError: (e) => toast.error(e.message ?? t("toast.updateFailed")),
+  });
+
+  const slotQuery = trpc.activity.getSlots.useQuery(
+    { activityId: editingLine?.activityId ?? "", includeSoldOut: false },
+    { enabled: !!editingLine?.activityId },
+  );
+  const slotData = slotQuery.data;
+  const slotsByDay = useMemo(() => {
+    const grouped = new Map<string, NonNullable<typeof slotData>>();
+    for (const slot of slotData ?? []) {
+      const key = new Date(slot.startsAt).toISOString().slice(0, 10);
+      grouped.set(key, [...(grouped.get(key) ?? []), slot]);
+    }
+    return grouped;
+  }, [slotData]);
 
   const createOrder = trpc.order.createFromCart.useMutation({
     onSuccess: ({ orderId }) => {
@@ -158,7 +187,29 @@ export default function CartPage() {
                   </li>
                 ))}
               </ul>
-              <p className="text-sm text-amber-800">{t("blocking.hint")}</p>
+              <div className="flex flex-wrap items-center gap-2">
+                <p className="text-sm text-amber-800">{t("blocking.hint")}</p>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={remove.isPending}
+                  onClick={async () => {
+                    try {
+                      await Promise.all(
+                        blockingIssues.map((issue) => remove.mutateAsync({ cartItemId: issue.cartItemId })),
+                      );
+                    } catch (err) {
+                      const message =
+                        err && typeof err === "object" && "message" in err && typeof err.message === "string"
+                          ? err.message
+                          : t("toast.updateFailed");
+                      toast.error(message);
+                    }
+                  }}
+                >
+                  {remove.isPending ? t("blocking.removing") : t("blocking.removeAll")}
+                </Button>
+              </div>
             </CardContent>
           </Card>
         )}
@@ -226,6 +277,63 @@ export default function CartPage() {
                       {t("line.remove")}
                     </button>
                   </div>
+                  {item.kind === "activity" && item.activityId && item.availabilityStatus !== "ok" && (
+                    <div className="mt-2">
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setEditingLine({ activityId: item.activityId!, cartItemId: item.id })}
+                      >
+                        {t("line.changeTime")}
+                      </Button>
+                    </div>
+                  )}
+                  {editingLine?.cartItemId === item.id && (
+                    <div className="mt-3 rounded-xl border border-border bg-muted/30 p-3 space-y-2">
+                      <p className="text-sm font-semibold text-secondary">{t("line.chooseNewTime")}</p>
+                      {slotQuery.isLoading ? (
+                        <p className="text-sm text-muted-foreground">{t("line.loadingSlots")}</p>
+                      ) : (slotQuery.data?.length ?? 0) === 0 ? (
+                        <p className="text-sm text-muted-foreground">{t("line.noSlots")}</p>
+                      ) : (
+                        <div className="space-y-2">
+                          {Array.from(slotsByDay.entries()).slice(0, 5).map(([day, slots]) => (
+                            <div key={day} className="space-y-1">
+                              <p className="text-xs uppercase tracking-widest text-muted-foreground font-semibold">
+                                {new Date(`${day}T00:00:00`).toLocaleDateString(
+                                  locale === "vi" ? "vi-VN" : "en-US",
+                                  { weekday: "short", month: "short", day: "numeric" },
+                                )}
+                              </p>
+                              <div className="flex flex-wrap gap-1.5">
+                                {slots.map((slot) => (
+                                  <Button
+                                    key={slot.id}
+                                    type="button"
+                                    size="sm"
+                                    variant="outline"
+                                    disabled={updateSlot.isPending}
+                                    onClick={() =>
+                                      updateSlot.mutate({
+                                        activitySlotId: slot.id,
+                                        cartItemId: item.id,
+                                      })
+                                    }
+                                  >
+                                    {new Date(slot.startsAt).toLocaleTimeString(
+                                      locale === "vi" ? "vi-VN" : "en-US",
+                                      { hour: "numeric", minute: "2-digit", hour12: false },
+                                    )}
+                                  </Button>
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
                   <div className="flex items-center justify-between mt-2">
                     {(item.kind === "fixed_tour" || item.kind === "activity" || item.kind === "merch") ? (
                       <div className="flex items-center gap-1.5">

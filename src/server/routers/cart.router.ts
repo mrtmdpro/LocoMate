@@ -461,6 +461,43 @@ export const cartRouter = router({
       return updated;
     }),
 
+  updateActivitySlot: protectedProcedure
+    .input(z.object({ cartItemId: z.string().uuid(), activitySlotId: z.string().uuid() }))
+    .mutation(async ({ ctx, input }) => {
+      const [row] = await ctx.db
+        .select()
+        .from(cartItems)
+        .where(and(eq(cartItems.id, input.cartItemId), eq(cartItems.userId, ctx.user.id)));
+      if (!row) throw new TRPCError({ code: "NOT_FOUND" });
+      if (row.kind !== "activity" || !row.activityId) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Only activity lines can change time" });
+      }
+
+      const slot = await ctx.db.query.activitySlots.findFirst({
+        where: eq(activitySlots.id, input.activitySlotId),
+      });
+      if (!slot || slot.activityId !== row.activityId) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Slot does not belong to this activity" });
+      }
+      if (slot.status !== "open") {
+        throw new TRPCError({ code: "PRECONDITION_FAILED", message: "Slot is not open" });
+      }
+      const slotStatus = getScheduledTimeStatus(slot.startsAt);
+      if (slotStatus !== "ok") {
+        throw new TRPCError({ code: "PRECONDITION_FAILED", message: scheduledTimeMessage(slotStatus) });
+      }
+      if (slot.bookedCount + row.quantity > slot.capacity) {
+        throw new TRPCError({ code: "PRECONDITION_FAILED", message: "Not enough seats left in this slot" });
+      }
+
+      const [updated] = await ctx.db
+        .update(cartItems)
+        .set({ activitySlotId: input.activitySlotId, updatedAt: new Date() })
+        .where(eq(cartItems.id, row.id))
+        .returning();
+      return updated;
+    }),
+
   remove: protectedProcedure
     .input(z.object({ cartItemId: z.string().uuid() }))
     .mutation(async ({ ctx, input }) => {
