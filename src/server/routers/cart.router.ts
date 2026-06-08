@@ -11,6 +11,11 @@ import {
 } from "../db/schema";
 import { detectConflicts } from "@/lib/cart-conflicts";
 import { pickLocaleField } from "@/lib/pick-locale-field";
+import {
+  getScheduledTimeStatus,
+  scheduledTimeMessage,
+  type ScheduledTimeStatus,
+} from "@/lib/scheduled-time";
 import type { Locale } from "@/i18n/routing";
 
 /**
@@ -110,7 +115,7 @@ export const cartRouter = router({
       .where(eq(cartItems.userId, ctx.user.id))
       .orderBy(asc(cartItems.createdAt));
     if (items.length === 0) {
-      return { items: [], subtotalVnd: 0, conflicts: [] };
+      return { items: [], subtotalVnd: 0, conflicts: [], blockingIssues: [] };
     }
 
     // Hydrate: fetch names / photos / slots in parallel.
@@ -147,6 +152,8 @@ export const cartRouter = router({
       let lineSubtitle: string | null = null;
       let slotStartsAt: string | null = null;
       let slotEndsAt: string | null = null;
+      let availabilityStatus: ScheduledTimeStatus | "unavailable" | "sold_out" = "ok";
+      let blockingReason: string | null = null;
 
       if (item.kind === "activity" && item.activityId) {
         const act = actMap.get(item.activityId);
@@ -159,6 +166,16 @@ export const cartRouter = router({
         if (slot) {
           slotStartsAt = slot.startsAt.toISOString();
           slotEndsAt = slot.endsAt.toISOString();
+          availabilityStatus = getScheduledTimeStatus(slot.startsAt);
+          if (availabilityStatus !== "ok") {
+            blockingReason = scheduledTimeMessage(availabilityStatus);
+          } else if (slot.status !== "open") {
+            availabilityStatus = "unavailable";
+            blockingReason = "This scheduled time is no longer available. Remove it and choose another time.";
+          } else if (slot.bookedCount >= slot.capacity) {
+            availabilityStatus = "sold_out";
+            blockingReason = "This scheduled time is sold out. Remove it and choose another time.";
+          }
         }
       } else if (item.kind === "merch" && item.productVariantId) {
         const joined = variantMap.get(item.productVariantId);
@@ -187,6 +204,8 @@ export const cartRouter = router({
         lineTotalVnd,
         slotStartsAt,
         slotEndsAt,
+        availabilityStatus,
+        blockingReason,
       };
     });
 
@@ -204,8 +223,16 @@ export const cartRouter = router({
         endsAt: x.slotEndsAt,
       })),
     );
+    const blockingIssues = hydrated
+      .filter((x) => x.availabilityStatus !== "ok")
+      .map((x) => ({
+        cartItemId: x.id,
+        code: x.availabilityStatus,
+        label: x.displayLabel,
+        message: x.blockingReason ?? "This item can no longer be checked out.",
+      }));
 
-    return { items: hydrated, subtotalVnd, conflicts };
+    return { items: hydrated, subtotalVnd, conflicts, blockingIssues };
   }),
 
   add: protectedProcedure

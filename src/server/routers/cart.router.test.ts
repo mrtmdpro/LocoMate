@@ -1,4 +1,5 @@
 import { describe, test, expect } from "vitest";
+import { eq } from "drizzle-orm";
 import { callerAs } from "@/test/trpc";
 import { createUser, createHost, createExperience } from "@/test/fixtures";
 import { getTestDb } from "@/test/setup";
@@ -127,6 +128,31 @@ describe("cart.add + get", () => {
     expect(cart.conflicts).toHaveLength(1);
     expect(cart.conflicts[0].labelA).toBeTruthy();
     expect(cart.conflicts[0].labelB).toBeTruthy();
+  });
+
+  test("marks expired activity slots as blocking cart issues", async () => {
+    const host = await createHost();
+    const { activity, slot } = await createActivityWithSlot(host.user.id, 300_000);
+    await getTestDb()
+      .update(activitySlots)
+      .set({
+        startsAt: new Date(Date.now() - 2 * 60 * 60_000),
+        endsAt: new Date(Date.now() - 60 * 60_000),
+      })
+      .where(eq(activitySlots.id, slot.id));
+
+    const traveler = await createUser();
+    const caller = await callerAs(traveler);
+    await caller.cart.add({ kind: "activity", activityId: activity.id, activitySlotId: slot.id, quantity: 1 });
+
+    const cart = await caller.cart.get();
+    expect(cart.items[0].availabilityStatus).toBe("expired");
+    expect(cart.blockingIssues).toEqual([
+      expect.objectContaining({
+        cartItemId: cart.items[0].id,
+        code: "expired",
+      }),
+    ]);
   });
 
   test("merch line respects stock + variant price", async () => {

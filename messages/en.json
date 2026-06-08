@@ -199,6 +199,14 @@
         "overlap": "<b>{labelA}</b> overlaps with <b>{labelB}</b>",
         "hint": "Remove or reschedule one of these items to check out."
       },
+      "blocking": {
+        "title": "{count, plural, =1 {Cart item needs attention} other {# cart items need attention}}",
+        "hint": "Remove expired or unavailable items before checkout.",
+        "expired": "Expired",
+        "too_close": "Too soon",
+        "unavailable": "Unavailable",
+        "sold_out": "Sold out"
+      },
       "line": {
         "remove": "Remove",
         "qtyOne": "Qty 1",
@@ -214,6 +222,7 @@
         "estimatedTotal": "Estimated total",
         "subtotalShort": "Subtotal",
         "checkout": "Checkout",
+        "resolveIssues": "Resolve cart issues",
         "resolveConflicts": "Resolve conflicts",
         "processing": "Processing…",
         "bundleNote": "Bundle discounts (eSIM, merch) apply automatically on the next step."

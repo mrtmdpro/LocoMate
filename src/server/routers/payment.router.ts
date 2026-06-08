@@ -16,6 +16,9 @@ import {
 import { rateLimit } from "../services/chat-ratelimit";
 import { TOUR_PRICING } from "@/lib/pricing";
 import { COUPON_CODE_REGEX } from "@/lib/coupon-format";
+import { assertScheduledTimeBookable } from "@/lib/scheduled-time";
+import { tourTimeWindow } from "@/lib/tour-time";
+import { readRequestParams } from "../lib/tour-request-shape";
 
 export const paymentRouter = router({
   createIntent: protectedProcedure
@@ -133,6 +136,14 @@ export const paymentRouter = router({
       const tourBefore = await ctx.db.query.tours.findFirst({
         where: eq(tours.id, legacyTourId),
       });
+      const tourWindow = tourTimeWindow(readRequestParams(tourBefore?.requestParams));
+      const tourTimeIssue = assertScheduledTimeBookable(tourWindow?.startsAt ?? null);
+      if (tourTimeIssue) {
+        throw new TRPCError({
+          code: "PRECONDITION_FAILED",
+          message: tourTimeIssue.message,
+        });
+      }
       if (tourBefore?.experienceId) {
         const exp = await ctx.db.query.experiences.findFirst({
           where: eq(experiences.id, tourBefore.experienceId),
