@@ -228,6 +228,12 @@ export default function ProfilePage() {
                 <svg className="w-4 h-4 text-muted-foreground/40" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
               </Link>
               <Separator />
+              <Link href="/orders" className="w-full flex items-center gap-3 p-4 text-left hover:bg-muted/60 transition-colors">
+                <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center text-sm">🛍</div>
+                <span className="flex-1 text-sm lg:text-base font-medium">{t("rows.orderHistory")}</span>
+                <svg className="w-4 h-4 text-muted-foreground/40" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
+              </Link>
+              <Separator />
               <Link href="/payments" className="w-full flex items-center gap-3 p-4 text-left hover:bg-muted/60 transition-colors">
                 <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center text-sm">💳</div>
                 <span className="flex-1 text-sm lg:text-base font-medium">{t("rows.paymentHistory")}</span>

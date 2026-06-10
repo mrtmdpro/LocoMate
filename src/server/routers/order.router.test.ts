@@ -44,7 +44,7 @@ async function createActivityWithSlot(authorId: string, capacity = 6) {
   return { activity: act, slot };
 }
 
-async function createProductWithVariant(stock = 10) {
+async function createProductWithVariant(stock = 10, bundleDiscountPct = 0) {
   const db = getTestDb();
   const [product] = await db
     .insert(products)
@@ -54,6 +54,7 @@ async function createProductWithVariant(stock = 10) {
       slug: `order-product-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
       category: "apparel",
       basePriceVnd: 200_000,
+      bundleDiscountPct,
       photos: ["https://example.com/p.jpg"],
       isActive: true,
     })
@@ -114,6 +115,41 @@ describe("order.createFromCart", () => {
     const [order] = await db.select().from(orders).where(eq(orders.id, out.orderId));
     expect(order.discountVnd).toBe(30_000);
     expect(order.bundleCodes).toContain("ESIM_BUNDLE_10");
+  });
+
+  test("applies MERCH_BUNDLE when merch (bundleDiscountPct) + activity are in cart", async () => {
+    const host = await createHost();
+    const { activity, slot } = await createActivityWithSlot(host.user.id);
+    const { variant } = await createProductWithVariant(10, 20); // 20% bundle
+    const traveler = await createUser();
+    const caller = await callerAs(traveler);
+    await caller.cart.add({ kind: "activity", activityId: activity.id, activitySlotId: slot.id, quantity: 1 });
+    await caller.cart.add({ kind: "merch", productVariantId: variant.id, quantity: 1 });
+
+    const out = await caller.order.createFromCart();
+    // Subtotal = 500k (activity) + 200k (merch) = 700k
+    // Merch bundle = 20% of 200k = 40k → total 660k
+    expect(out.totalVnd).toBe(660_000);
+
+    const db = getTestDb();
+    const [order] = await db.select().from(orders).where(eq(orders.id, out.orderId));
+    expect(order.discountVnd).toBe(40_000);
+    expect(order.bundleCodes).toContain("MERCH_BUNDLE");
+  });
+
+  test("does NOT apply the merch bundle when there is no tour/activity anchor", async () => {
+    const { variant } = await createProductWithVariant(10, 20);
+    const traveler = await createUser();
+    const caller = await callerAs(traveler);
+    await caller.cart.add({ kind: "merch", productVariantId: variant.id, quantity: 1 });
+
+    const out = await caller.order.createFromCart();
+    expect(out.totalVnd).toBe(200_000); // full price, no discount
+
+    const db = getTestDb();
+    const [order] = await db.select().from(orders).where(eq(orders.id, out.orderId));
+    expect(order.discountVnd).toBe(0);
+    expect(order.bundleCodes).toEqual([]);
   });
 
   test("rejects empty cart", async () => {

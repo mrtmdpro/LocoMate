@@ -501,9 +501,30 @@ export const cartRouter = router({
   remove: protectedProcedure
     .input(z.object({ cartItemId: z.string().uuid() }))
     .mutation(async ({ ctx, input }) => {
+      const [row] = await ctx.db
+        .select()
+        .from(cartItems)
+        .where(and(eq(cartItems.id, input.cartItemId), eq(cartItems.userId, ctx.user.id)));
+      if (!row) return { ok: true };
+
       await ctx.db
         .delete(cartItems)
         .where(and(eq(cartItems.id, input.cartItemId), eq(cartItems.userId, ctx.user.id)));
+
+      // Removing an activity orphans its guide add-on: a billable line whose
+      // subtitle points at an activity no longer in the cart, which would
+      // otherwise sail through checkout as a standalone charge. Cascade it.
+      if (row.kind === "activity" && row.activityId) {
+        await ctx.db
+          .delete(cartItems)
+          .where(
+            and(
+              eq(cartItems.userId, ctx.user.id),
+              eq(cartItems.kind, "guide_addon"),
+              eq(cartItems.parentActivityId, row.activityId),
+            ),
+          );
+      }
       return { ok: true };
     }),
 

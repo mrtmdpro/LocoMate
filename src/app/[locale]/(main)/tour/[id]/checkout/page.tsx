@@ -87,6 +87,8 @@ export default function CheckoutPage() {
 
   const packageLabel = tour?.packageType === "solo_mate" ? "Solo Mate" : tour?.packageType === "social_tour" ? "Social Tour" : "Loco Route";
   const tourData = (tour?.tourData || {}) as { title?: string };
+  // FR-PAY-03 — server computes the 48h cutoff from the departure window.
+  const bookingClosed = tour?.bookingClosed ?? false;
 
   function handleApplyCoupon() {
     const trimmed = couponInput.trim().toUpperCase();
@@ -103,7 +105,7 @@ export default function CheckoutPage() {
   }
 
   async function handlePay() {
-    if (!amountIsValid) return;
+    if (!amountIsValid || bookingClosed) return;
     // Pass the applied code only when the server has validated it.
     // A pending validation blocks payment; an errored validation
     // clears `appliedCode` already.
@@ -273,10 +275,17 @@ export default function CheckoutPage() {
         </CardContent>
       </Card>
 
-      {/* Refund Policy */}
-      <div className="bg-card/30 rounded-xl p-3 text-center">
-        <p className="text-xs text-secondary">{t("refundPolicy")}</p>
-      </div>
+      {/* Booking cutoff (T−48h) — replaces the refund note once closed. */}
+      {bookingClosed ? (
+        <div className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-center">
+          <p className="text-sm font-semibold text-amber-900">{t("bookingClosedTitle")}</p>
+          <p className="mt-1 text-xs text-amber-800">{t("bookingClosedBody")}</p>
+        </div>
+      ) : (
+        <div className="bg-card/30 rounded-xl p-3 text-center">
+          <p className="text-xs text-secondary">{t("refundPolicy")}</p>
+        </div>
+      )}
 
       {/* Pay Button — disabled while the coupon validation is in
           flight so we never charge against a stale price. */}
@@ -285,6 +294,7 @@ export default function CheckoutPage() {
           onClick={handlePay}
           disabled={
             !amountIsValid ||
+            bookingClosed ||
             couponPending ||
             createIntentMutation.isPending ||
             confirmMutation.isPending
@@ -292,11 +302,13 @@ export default function CheckoutPage() {
           className="w-full h-14 rounded-2xl bg-secondary hover:bg-secondary/90 text-secondary-foreground font-bold text-base shadow-lg disabled:opacity-60"
         >
           <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" /></svg>
-          {createIntentMutation.isPending || confirmMutation.isPending
-            ? t("processing")
-            : amountIsValid
-              ? t("securePayment", { amount: formatVndPrice(displayAmount) })
-              : t("priceUnavailableHint")}
+          {bookingClosed
+            ? t("bookingClosedButton")
+            : createIntentMutation.isPending || confirmMutation.isPending
+              ? t("processing")
+              : amountIsValid
+                ? t("securePayment", { amount: formatVndPrice(displayAmount) })
+                : t("priceUnavailableHint")}
         </Button>
       </div>
     </div>

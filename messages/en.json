@@ -258,7 +258,8 @@
       "letters": "Letters",
       "saved": "Saved",
       "settings": "Settings",
-      "messages": "Messages"
+      "messages": "Messages",
+      "orders": "Orders"
     },
     "menu": {
       "openMenu": "Open menu",
@@ -543,6 +544,7 @@
     },
     "rows": {
       "securitySettings": "Security Settings",
+      "orderHistory": "My Orders",
       "paymentHistory": "Payment History",
       "vietnamEsim": "Vietnam eSIM"
     },
@@ -1617,7 +1619,10 @@
       "paymentMethodTitle": "Payment Method",
       "refundPolicy": "Free cancellation up to 24h before tour start. Your payment is secure.",
       "securePayment": "Secure Payment — {amount}",
-      "processing": "Processing..."
+      "processing": "Processing...",
+      "bookingClosedTitle": "Booking closed",
+      "bookingClosedBody": "Bookings close 48 hours before departure. This tour departs too soon to book now.",
+      "bookingClosedButton": "Booking closed"
     }
   },
   "onboardingLegacy": {
@@ -1960,6 +1965,14 @@
     }
   },
   "orders": {
+    "list": {
+      "heading": "My Orders",
+      "subtitle": "Activities, merch and eSIM you've purchased.",
+      "empty": "No orders yet.",
+      "emptyCta": "Browse activities",
+      "itemsOne": "{count} item",
+      "itemsOther": "{count} items"
+    },
     "detail": {
       "notFound": "Order not found.",
       "confirmedTitle": "Booking confirmed",

@@ -1,10 +1,20 @@
 "use client";
 
+import { useState } from "react";
 import { useParams } from "next/navigation";
 import { useRouter } from "@/i18n/navigation";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { trpc } from "@/lib/trpc";
 import { HoiVanDivider } from "@/components/brand";
 import { formatVndPrice } from "@/lib/format";
@@ -31,6 +41,29 @@ export default function FullTourPage() {
 
   const startMutation = trpc.tour.startTour.useMutation({
     onSuccess: () => router.push(`/tour/${id}/active`),
+  });
+
+  const utils = trpc.useUtils();
+  const [cancelOpen, setCancelOpen] = useState(false);
+  // Fetch the refund quote only while the dialog is open so the traveler
+  // sees the exact amount they'll get back before confirming.
+  const { data: quote } = trpc.tour.getCancellationQuote.useQuery(
+    { tourId: id },
+    { enabled: cancelOpen, retry: false },
+  );
+  const cancelMutation = trpc.tour.cancelByTraveler.useMutation({
+    onSuccess: (res) => {
+      setCancelOpen(false);
+      toast.success(
+        res.refundVnd > 0
+          ? `Booking cancelled · ${formatVndPrice(res.refundVnd)} refunded (${res.refundPct}%)`
+          : "Booking cancelled. No refund applies this close to departure.",
+      );
+      void utils.tour.getFullTour.invalidate({ tourId: id });
+      void utils.tour.getHistory.invalidate();
+      router.push("/tours");
+    },
+    onError: (err) => toast.error(err.message),
   });
 
   if (isLoading) return <div className="p-4"><div className="h-64 bg-muted rounded-lg animate-pulse" /></div>;
@@ -126,7 +159,7 @@ export default function FullTourPage() {
 
       {/* Start Tour CTA — fixed footer with brand pill. */}
       {tour.status === "paid" && (
-        <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-foreground/10 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+        <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-foreground/10 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] space-y-2">
           <Button
             onClick={() => startMutation.mutate({ tourId: id })}
             disabled={startMutation.isPending}
@@ -136,8 +169,48 @@ export default function FullTourPage() {
           >
             {startMutation.isPending ? "Starting…" : "Start tour"}
           </Button>
+          <Button
+            onClick={() => setCancelOpen(true)}
+            variant="ghost"
+            className="w-full h-10 text-sm text-muted-foreground hover:text-destructive"
+          >
+            Cancel booking
+          </Button>
         </div>
       )}
+
+      {/* Cancel confirmation — shows the computed refund BEFORE confirming. */}
+      <Dialog open={cancelOpen} onOpenChange={setCancelOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Cancel this booking?</DialogTitle>
+            <DialogDescription>
+              {quote
+                ? quote.refundVnd > 0
+                  ? `You'll be refunded ${formatVndPrice(quote.refundVnd)} (${quote.refundPct}% of ${formatVndPrice(quote.paidVnd)}). Cancellation is final.`
+                  : "This booking is within 2 hours of departure, so no refund applies. Cancellation is final."
+                : "Calculating your refund…"}
+            </DialogDescription>
+          </DialogHeader>
+          <p className="text-xs text-muted-foreground">
+            Refunds: 100% more than 24h before departure · 50% within 2–24h · 0%
+            under 2h.
+          </p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCancelOpen(false)}>
+              Keep booking
+            </Button>
+            <Button
+              variant="default"
+              className="bg-destructive text-white hover:bg-destructive/90"
+              disabled={cancelMutation.isPending}
+              onClick={() => cancelMutation.mutate({ tourId: id })}
+            >
+              {cancelMutation.isPending ? "Cancelling…" : "Cancel booking"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
