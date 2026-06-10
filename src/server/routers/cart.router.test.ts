@@ -563,3 +563,35 @@ describe("cart.add idempotency", () => {
     expect(esimLines).toHaveLength(2);
   });
 });
+
+describe("cart.remove cascade", () => {
+  test("removing an activity also removes its orphaned guide add-on", async () => {
+    const host = await createHost();
+    const { activity, slot } = await createActivityWithSlot(host.user.id);
+    // Give the activity a guide add-on price so the add-on line is allowed.
+    await getTestDb()
+      .update(activities)
+      .set({ guideAddonVnd: 100_000 })
+      .where(eq(activities.id, activity.id));
+    const traveler = await createUser();
+    const caller = await callerAs(traveler);
+
+    const item = await caller.cart.add({
+      kind: "activity",
+      activityId: activity.id,
+      activitySlotId: slot.id,
+      quantity: 1,
+    });
+    await caller.cart.add({ kind: "guide_addon", parentActivityId: activity.id });
+
+    let cart = await caller.cart.get();
+    expect(cart.items.filter((i) => i.kind === "guide_addon")).toHaveLength(1);
+
+    // Removing the parent activity must cascade-delete the guide add-on so a
+    // billable orphan line can't sail through checkout.
+    await caller.cart.remove({ cartItemId: item.id });
+
+    cart = await caller.cart.get();
+    expect(cart.items).toHaveLength(0);
+  });
+});

@@ -12,7 +12,7 @@ import {
   createHostPayout,
 } from "@/test/fixtures";
 import { getTestDb } from "@/test/setup";
-import { hostProfiles } from "@/server/db/schema";
+import { hostProfiles, hostAvailability } from "@/server/db/schema";
 import { vietnamDayBoundsUtc } from "@/lib/time";
 
 // Reuse the prod helper directly so the test cannot drift from the query it
@@ -848,5 +848,115 @@ describe("host.setAvailable", () => {
     await expect(
       caller.host.setAvailable({ isAvailable: false }),
     ).rejects.toMatchObject({ code: "FORBIDDEN" });
+  });
+});
+
+describe("host verification — zero → published is reachable", () => {
+  // Regression for the launch-blocking gap: host onboarding persisted nothing
+  // and no code path ever set verificationStatus='approved', so a real host
+  // could never publish. These guard the whole zero→approved→listed journey.
+
+  test("becomeHost sets a public slug so an approved host is listable", async () => {
+    const traveler = await createUser({ role: "traveler", displayName: "Mai Linh" });
+    const caller = await callerAs(traveler);
+    await caller.user.becomeHost();
+
+    const [hp] = await getTestDb()
+      .select()
+      .from(hostProfiles)
+      .where(eq(hostProfiles.userId, traveler.id));
+    expect(hp.publicSlug).toBeTruthy();
+    expect(hp.publicSlug).toContain(traveler.id.slice(0, 8));
+  });
+
+  test("completeSetup creates the row for a register-as-host user (no profile yet)", async () => {
+    // Register-as-host makes role='host' but NO hostProfiles row.
+    const host = await createUser({ role: "host", displayName: "Tuấn" });
+    const caller = await callerAs(host);
+
+    await caller.host.completeSetup({
+      bio: "I run lantern-lit Old Quarter food walks.",
+      languages: ["English", "Tiếng Việt"],
+      specialties: ["Street Food"],
+      availability: [
+        { dayOfWeek: 1, startTime: "08:00", endTime: "20:00", isActive: true },
+        { dayOfWeek: 0, startTime: "08:00", endTime: "20:00", isActive: false },
+      ],
+    });
+
+    const [hp] = await getTestDb()
+      .select()
+      .from(hostProfiles)
+      .where(eq(hostProfiles.userId, host.id));
+    expect(hp).toBeDefined();
+    expect(hp.bio).toContain("food walks");
+    expect(hp.specialties).toContain("Street Food");
+    expect(hp.verificationStatus).toBe("pending");
+    expect(hp.publicSlug).toBeTruthy();
+
+    const slots = await getTestDb()
+      .select()
+      .from(hostAvailability)
+      .where(eq(hostAvailability.hostId, hp.id));
+    expect(slots).toHaveLength(2);
+  });
+
+  test("adminVerifyHost approves a pending host and surfaces them in listPublic", async () => {
+    const host = await createUser({ role: "host", displayName: "Hương" });
+    const hostCaller = await callerAs(host);
+    await hostCaller.host.completeSetup({
+      bio: "Tea-house storyteller in Tây Hồ.",
+      languages: ["English"],
+      specialties: ["History"],
+    });
+
+    const [pending] = await getTestDb()
+      .select()
+      .from(hostProfiles)
+      .where(eq(hostProfiles.userId, host.id));
+    expect(pending.verificationStatus).toBe("pending");
+
+    const admin = await createUser({ role: "admin" });
+    const adminCaller = await callerAs(admin);
+
+    // Appears in the admin queue while pending.
+    const queue = await adminCaller.host.adminListPendingHosts();
+    expect(queue.some((h) => h.hostId === pending.id)).toBe(true);
+
+    await adminCaller.host.adminVerifyHost({ hostId: pending.id });
+
+    const [approved] = await getTestDb()
+      .select()
+      .from(hostProfiles)
+      .where(eq(hostProfiles.id, pending.id));
+    expect(approved.verificationStatus).toBe("approved");
+    expect(approved.verifiedAt).not.toBeNull();
+
+    // Now publicly listable.
+    const anon = await callerAs(null);
+    const listed = await anon.host.listPublic({ limit: 24 });
+    expect(listed.some((h) => h.slug === approved.publicSlug)).toBe(true);
+  });
+
+  test("adminVerifyHost requires admin (host caller is FORBIDDEN)", async () => {
+    const { host } = await createHost({ host: { verificationStatus: "pending" } });
+    const other = await createUser({ role: "host" });
+    const caller = await callerAs(other);
+    await expect(
+      caller.host.adminVerifyHost({ hostId: host.id }),
+    ).rejects.toMatchObject({ code: "FORBIDDEN" });
+  });
+
+  test("completeSetup as 'update profile' keeps an already-approved host approved", async () => {
+    const { user, host } = await createHost({ host: { verificationStatus: "approved" } });
+    const caller = await callerAs(user);
+    await caller.host.completeSetup({ bio: "Updated bio." });
+
+    const [after] = await getTestDb()
+      .select()
+      .from(hostProfiles)
+      .where(eq(hostProfiles.id, host.id));
+    expect(after.verificationStatus).toBe("approved");
+    expect(after.bio).toBe("Updated bio.");
   });
 });

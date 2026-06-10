@@ -258,7 +258,8 @@
       "letters": "Letters",
       "saved": "Saved",
       "settings": "Settings",
-      "messages": "Messages"
+      "messages": "Messages",
+      "orders": "Orders"
     },
     "menu": {
       "openMenu": "Open menu",
@@ -296,6 +297,11 @@
       "evening": { "long": "For tonight", "short": "Evening" },
       "personalisedSubtitle": "Sorted to your taste",
       "seeAll15": "See all 15"
+    },
+    "quizPrompt": {
+      "title": "Take the quiz to see your top matches",
+      "subtitle": "Answer once — we'll rank every Fixed Tour by your taste.",
+      "cta": "Take the quiz"
     },
     "subtitle": {
       "v0": "Phở's piping hot, alleys are calling — ready when you are?",
@@ -538,6 +544,7 @@
     },
     "rows": {
       "securitySettings": "Security Settings",
+      "orderHistory": "My Orders",
       "paymentHistory": "Payment History",
       "vietnamEsim": "Vietnam eSIM"
     },
@@ -1612,7 +1619,10 @@
       "paymentMethodTitle": "Payment Method",
       "refundPolicy": "Free cancellation up to 24h before tour start. Your payment is secure.",
       "securePayment": "Secure Payment — {amount}",
-      "processing": "Processing..."
+      "processing": "Processing...",
+      "bookingClosedTitle": "Booking closed",
+      "bookingClosedBody": "Bookings close 48 hours before departure. This tour departs too soon to book now.",
+      "bookingClosedButton": "Booking closed"
     }
   },
   "onboardingLegacy": {
@@ -1723,6 +1733,8 @@
       },
       "done": {
         "eyebrow": "Locomate has read you",
+        "nicknameLabel": "Locomate nên gọi bạn là gì? (có thể bỏ qua)",
+        "nicknamePlaceholder": "Ví dụ: Kẻ lữ hành",
         "ctaSubmit": "Enter Locomate",
         "ctaSubmitting": "Entering…",
         "ctaPreferences": "Set detailed preferences"
@@ -1824,6 +1836,10 @@
       "continue": "Continue",
       "submit": "Submit for Review",
       "submitting": "Submitting..."
+    },
+    "toast": {
+      "submitted": "Profile submitted — we'll review and verify you shortly.",
+      "error": "Couldn't save your setup. Please try again."
     }
   },
   "security": {
@@ -1949,6 +1965,14 @@
     }
   },
   "orders": {
+    "list": {
+      "heading": "My Orders",
+      "subtitle": "Activities, merch and eSIM you've purchased.",
+      "empty": "No orders yet.",
+      "emptyCta": "Browse activities",
+      "itemsOne": "{count} item",
+      "itemsOther": "{count} items"
+    },
     "detail": {
       "notFound": "Order not found.",
       "confirmedTitle": "Booking confirmed",

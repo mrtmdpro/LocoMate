@@ -258,7 +258,8 @@
       "letters": "Thư",
       "saved": "Đã lưu",
       "settings": "Cài đặt",
-      "messages": "Tin nhắn"
+      "messages": "Tin nhắn",
+      "orders": "Đơn hàng"
     },
     "menu": {
       "openMenu": "Mở menu",
@@ -296,6 +297,11 @@
       "evening": { "long": "Cho tối nay", "short": "Tối" },
       "personalisedSubtitle": "Sắp xếp theo gu của bạn",
       "seeAll15": "Xem cả 15"
+    },
+    "quizPrompt": {
+      "title": "Làm trắc nghiệm để xem tour hợp gu nhất",
+      "subtitle": "Trả lời một lần — Locomate sẽ xếp mọi Fixed Tour theo gu của bạn.",
+      "cta": "Làm trắc nghiệm"
     },
     "subtitle": {
       "v0": "Phở nóng hổi, ngõ nhỏ vẫy chào — đã sẵn sàng chưa?",
@@ -538,6 +544,7 @@
     },
     "rows": {
       "securitySettings": "Bảo mật",
+      "orderHistory": "Đơn hàng của tôi",
       "paymentHistory": "Lịch sử thanh toán",
       "vietnamEsim": "eSIM Việt Nam"
     },
@@ -1612,7 +1619,10 @@
       "paymentMethodTitle": "Phương thức thanh toán",
       "refundPolicy": "Huỷ miễn phí đến 24h trước khi tour bắt đầu. Thanh toán của bạn được bảo mật.",
       "securePayment": "Thanh toán an toàn — {amount}",
-      "processing": "Đang xử lý..."
+      "processing": "Đang xử lý...",
+      "bookingClosedTitle": "Đã đóng đặt chỗ",
+      "bookingClosedBody": "Đặt chỗ đóng trước giờ khởi hành 48 tiếng. Tour này khởi hành quá gần để đặt bây giờ.",
+      "bookingClosedButton": "Đã đóng đặt chỗ"
     }
   },
   "onboardingLegacy": {
@@ -1723,6 +1733,8 @@
       },
       "done": {
         "eyebrow": "Locomate đã hiểu",
+        "nicknameLabel": "Locomate nên gọi bạn là gì? (có thể bỏ qua)",
+        "nicknamePlaceholder": "Ví dụ: Kẻ lữ hành",
         "ctaSubmit": "Vào Locomate",
         "ctaSubmitting": "Đang vào…",
         "ctaPreferences": "Đặt sở thích chi tiết"
@@ -1824,6 +1836,10 @@
       "continue": "Tiếp tục",
       "submit": "Gửi để duyệt",
       "submitting": "Đang gửi..."
+    },
+    "toast": {
+      "submitted": "Đã gửi hồ sơ — Locomate sẽ duyệt và xác minh bạn sớm.",
+      "error": "Chưa lưu được hồ sơ. Vui lòng thử lại."
     }
   },
   "security": {
@@ -1949,6 +1965,14 @@
     }
   },
   "orders": {
+    "list": {
+      "heading": "Đơn hàng của tôi",
+      "subtitle": "Hoạt động, quà lưu niệm và eSIM bạn đã mua.",
+      "empty": "Chưa có đơn hàng nào.",
+      "emptyCta": "Khám phá hoạt động",
+      "itemsOne": "{count} mục",
+      "itemsOther": "{count} mục"
+    },
     "detail": {
       "notFound": "Không tìm thấy đơn hàng.",
       "confirmedTitle": "Đã xác nhận đặt chỗ",

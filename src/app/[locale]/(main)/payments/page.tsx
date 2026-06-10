@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "@/i18n/navigation";
+import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -92,15 +93,29 @@ export default function PaymentHistoryPage() {
                 ? Math.max(refundAmount, amount)
                 : refundAmount;
               const netAmount = amount - effectiveRefund;
+              // Order-backed payments link to the order receipt; legacy
+              // tour payments link to the tour. Both are now re-findable.
+              const href = row.orderId
+                ? `/orders/${row.orderId}`
+                : row.tourId
+                  ? `/tour/${row.tourId}`
+                  : null;
+              const icon = row.orderId
+                ? "🛍"
+                : row.packageType === "solo_mate"
+                  ? "👤"
+                  : row.packageType === "social_tour"
+                    ? "👥"
+                    : "🗺";
 
-              return (
-                <Card key={row.id} className="border-0 shadow-sm">
+              const inner = (
+                <Card className="border-0 shadow-sm transition-colors hover:bg-muted/40">
                   <CardContent className="p-3 flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-lg shrink-0">
-                      {row.packageType === "solo_mate" ? "👤" : row.packageType === "social_tour" ? "👥" : "🗺"}
+                      {icon}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">{row.tourTitle || t("untitledTour")}</p>
+                      <p className="text-sm font-medium truncate">{row.label || t("untitledTour")}</p>
                       <div className="flex items-center gap-2 mt-0.5">
                         <p className="text-xs text-muted-foreground">{date ? new Date(date).toLocaleDateString() : t("emptyDate")}</p>
                         <span className="text-xs text-muted-foreground">&middot;</span>
@@ -118,6 +133,14 @@ export default function PaymentHistoryPage() {
                     </div>
                   </CardContent>
                 </Card>
+              );
+
+              return href ? (
+                <Link key={row.id} href={href} className="block">
+                  {inner}
+                </Link>
+              ) : (
+                <div key={row.id}>{inner}</div>
               );
             })}
           </div>

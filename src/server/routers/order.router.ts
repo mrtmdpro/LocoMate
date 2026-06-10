@@ -7,6 +7,7 @@ import {
   orderItems,
   cartItems,
   activitySlots,
+  products,
   productVariants,
   payments,
   activities,
@@ -18,6 +19,7 @@ import { tourTimeWindow } from "@/lib/tour-time";
 import { assertScheduledTimeBookable } from "@/lib/scheduled-time";
 import { readRequestParams } from "../lib/tour-request-shape";
 import { reapStaleOrders } from "@/server/services/reap-orders";
+import { summarizeOrderLines } from "../lib/order-summary";
 
 /**
  * Order router. Turns a cart into a paid order.
@@ -80,6 +82,9 @@ export const orderRouter = router({
         slotStartsAt: Date | null;
         slotEndsAt: Date | null;
         displayLabel: string;
+        // Per-product merch bundle discount %, applied when the cart also
+        // holds a tour/activity. 0 for non-merch lines.
+        bundleDiscountPct: number;
       };
 
       const lines: LineDraft[] = [];
@@ -134,12 +139,14 @@ export const orderRouter = router({
             slotStartsAt: slot.startsAt,
             slotEndsAt: slot.endsAt,
             displayLabel: act.title,
+            bundleDiscountPct: 0,
           });
           hasTourOrActivity = true;
         } else if (item.kind === "merch" && item.productVariantId) {
           const [joined] = await tx
-            .select({ variant: productVariants })
+            .select({ variant: productVariants, product: products })
             .from(productVariants)
+            .innerJoin(products, eq(productVariants.productId, products.id))
             .where(eq(productVariants.id, item.productVariantId));
           if (!joined || !joined.variant.isActive) {
             throw new TRPCError({ code: "PRECONDITION_FAILED", message: "Product variant no longer available" });
@@ -161,6 +168,7 @@ export const orderRouter = router({
             slotStartsAt: null,
             slotEndsAt: null,
             displayLabel: (item.metadata as { title?: string })?.title ?? "Merchandise",
+            bundleDiscountPct: joined.product.bundleDiscountPct ?? 0,
           });
         } else if (item.kind === "esim") {
           const unit = item.priceSnapshotVnd;
@@ -177,6 +185,7 @@ export const orderRouter = router({
             slotStartsAt: null,
             slotEndsAt: null,
             displayLabel: "eSIM",
+            bundleDiscountPct: 0,
           });
           hasEsim = true;
         } else if (item.kind === "guide_addon") {
@@ -194,6 +203,7 @@ export const orderRouter = router({
             slotStartsAt: null,
             slotEndsAt: null,
             displayLabel: "Guide add-on",
+            bundleDiscountPct: 0,
           });
         }
       }
@@ -263,16 +273,39 @@ export const orderRouter = router({
         });
       }
 
-      // Bundle discount: eSIM + tour/activity -> -10% on eSIM line.
+      // Bundle discounts only apply when the cart anchors on a tour/activity.
+      //   - eSIM line  -> flat 10% (ESIM_BUNDLE_10).
+      //   - merch line -> its product's bundleDiscountPct (MERCH_BUNDLE).
+      // Both are surfaced as bundleCodes so the receipt can explain the line.
       const bundleCodes: string[] = [];
       let discount = 0;
-      if (hasEsim && hasTourOrActivity) {
-        bundleCodes.push("ESIM_BUNDLE_10");
-        for (const line of lines) {
-          if (line.kind === "esim") {
-            const lineDiscount = Math.round(line.lineTotalVnd * (ESIM_BUNDLE_DISCOUNT_PCT / 100));
-            discount += lineDiscount;
+      if (hasTourOrActivity) {
+        if (hasEsim) {
+          let esimDiscount = 0;
+          for (const line of lines) {
+            if (line.kind === "esim") {
+              esimDiscount += Math.round(
+                line.lineTotalVnd * (ESIM_BUNDLE_DISCOUNT_PCT / 100),
+              );
+            }
           }
+          if (esimDiscount > 0) {
+            bundleCodes.push("ESIM_BUNDLE_10");
+            discount += esimDiscount;
+          }
+        }
+
+        let merchDiscount = 0;
+        for (const line of lines) {
+          if (line.kind === "merch" && line.bundleDiscountPct > 0) {
+            merchDiscount += Math.round(
+              line.lineTotalVnd * (line.bundleDiscountPct / 100),
+            );
+          }
+        }
+        if (merchDiscount > 0) {
+          bundleCodes.push("MERCH_BUNDLE");
+          discount += merchDiscount;
         }
       }
 
@@ -516,15 +549,45 @@ export const orderRouter = router({
       return reapStaleOrders(ctx.db, input.olderThanMinutes);
     }),
 
+  /**
+   * The signed-in user's à-la-carte orders, newest first, each with a short
+   * line summary so the /orders list can show what was bought without an N+1.
+   */
   getHistory: protectedProcedure
     .input(z.object({ limit: z.number().int().min(1).max(50).default(20) }).default({ limit: 20 }))
     .query(async ({ ctx, input }) => {
-      return ctx.db
+      const rows = await ctx.db
         .select()
         .from(orders)
         .where(eq(orders.userId, ctx.user.id))
         .orderBy(desc(orders.createdAt))
         .limit(input.limit);
+      if (rows.length === 0) return [];
+
+      const lines = await ctx.db
+        .select({
+          orderId: orderItems.orderId,
+          kind: orderItems.kind,
+          metadata: orderItems.metadata,
+        })
+        .from(orderItems)
+        .where(inArray(orderItems.orderId, rows.map((o) => o.id)));
+
+      const linesByOrder = new Map<string, { kind: string; metadata: unknown }[]>();
+      for (const l of lines) {
+        const bucket = linesByOrder.get(l.orderId) ?? [];
+        bucket.push({ kind: l.kind, metadata: l.metadata });
+        linesByOrder.set(l.orderId, bucket);
+      }
+
+      return rows.map((o) => {
+        const orderLines = linesByOrder.get(o.id) ?? [];
+        return {
+          ...o,
+          itemCount: orderLines.length,
+          summaryLabel: summarizeOrderLines(orderLines),
+        };
+      });
     }),
 
   get: protectedProcedure

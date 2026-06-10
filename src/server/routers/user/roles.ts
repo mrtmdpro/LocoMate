@@ -3,6 +3,7 @@ import { TRPCError } from "@trpc/server";
 import type { TRPCRouterRecord } from "@trpc/server";
 import { protectedProcedure } from "../../trpc";
 import { users, userProfiles, hostProfiles, tours, experiences } from "../../db/schema";
+import { hostPublicSlug } from "../../lib/host-slug";
 
 export const userRoleProcedures = {
   /**
@@ -45,6 +46,9 @@ export const userRoleProcedures = {
         languages: [],
         specialties: [],
         verificationStatus: "pending",
+        // Set the public slug at creation so an approved host immediately
+        // appears in /hosts (listPublic/getPublicProfile require it).
+        publicSlug: hostPublicSlug(ctx.user.displayName, ctx.user.id),
       });
     }
 

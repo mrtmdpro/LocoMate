@@ -6,9 +6,10 @@ import {
   createHost,
   createTour,
   createExperience,
+  createPayment,
 } from "@/test/fixtures";
 import { getTestDb } from "@/test/setup";
-import { tours } from "@/server/db/schema";
+import { tours, payments } from "@/server/db/schema";
 
 describe("tour.assignHost", () => {
   test("rejects assignment on an experience-backed tour (price is pinned)", async () => {
@@ -130,5 +131,86 @@ describe("tour.assignHost", () => {
     await expect(
       caller.tour.assignHost({ tourId: tour.id, hostId: host.id }),
     ).rejects.toMatchObject({ code: "UNAUTHORIZED" });
+  });
+});
+
+describe("tour.cancelByTraveler — FR-PAY-04 refund", () => {
+  // createTour defaults the departure to 2 days out (> 24h), so the default
+  // path is a full refund. Tier math itself is unit-tested in
+  // src/lib/refund-policy.test.ts; these guard the wiring + state writes.
+
+  test("> 24h before departure: full refund, tour cancelled, payment refunded", async () => {
+    const user = await createUser();
+    const tour = await createTour({
+      userId: user.id,
+      status: "paid",
+      priceAmount: 1_000_000,
+    });
+    await createPayment({
+      tourId: tour.id,
+      userId: user.id,
+      amount: 1_000_000,
+      status: "succeeded",
+      paidAt: new Date(),
+    });
+
+    const caller = await callerAs(user);
+    const res = await caller.tour.cancelByTraveler({ tourId: tour.id });
+    expect(res.refundPct).toBe(100);
+    expect(res.refundVnd).toBe(1_000_000);
+
+    const [after] = await getTestDb().select().from(tours).where(eq(tours.id, tour.id));
+    expect(after.status).toBe("cancelled");
+    expect(after.cancelReason).toBe("traveler_cancelled");
+
+    const [pay] = await getTestDb()
+      .select()
+      .from(payments)
+      .where(eq(payments.tourId, tour.id));
+    expect(pay.status).toBe("refunded");
+    expect(pay.refundAmount).toBe(1_000_000);
+  });
+
+  test("rejects cancelling a tour that isn't paid (preview)", async () => {
+    const user = await createUser();
+    const tour = await createTour({ userId: user.id, status: "preview" });
+    const caller = await callerAs(user);
+    await expect(
+      caller.tour.cancelByTraveler({ tourId: tour.id }),
+    ).rejects.toMatchObject({ code: "PRECONDITION_FAILED" });
+  });
+
+  test("rejects cancelling an active (already started) tour", async () => {
+    const user = await createUser();
+    const tour = await createTour({ userId: user.id, status: "active" });
+    const caller = await callerAs(user);
+    await expect(
+      caller.tour.cancelByTraveler({ tourId: tour.id }),
+    ).rejects.toMatchObject({ code: "PRECONDITION_FAILED" });
+  });
+
+  test("a different user cannot cancel someone else's tour (FORBIDDEN)", async () => {
+    const owner = await createUser();
+    const other = await createUser();
+    const tour = await createTour({ userId: owner.id, status: "paid" });
+    const caller = await callerAs(other);
+    await expect(
+      caller.tour.cancelByTraveler({ tourId: tour.id }),
+    ).rejects.toMatchObject({ code: "FORBIDDEN" });
+  });
+
+  test("getCancellationQuote previews a full refund for a far-future paid tour", async () => {
+    const user = await createUser();
+    const tour = await createTour({
+      userId: user.id,
+      status: "paid",
+      priceAmount: 1_500_000,
+    });
+    const caller = await callerAs(user);
+    const quote = await caller.tour.getCancellationQuote({ tourId: tour.id });
+    expect(quote.cancellable).toBe(true);
+    expect(quote.refundPct).toBe(100);
+    expect(quote.refundVnd).toBe(1_500_000);
+    expect(quote.paidVnd).toBe(1_500_000);
   });
 });

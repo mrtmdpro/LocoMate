@@ -329,6 +329,27 @@ export default function HomePage() {
               {t("chapter.seeAll15")}
             </Link>
           </div>
+          {/* Skip-quiz users (PRD §10): the rail renders in canonical order
+              with no match pills. Always offer a one-tap path back into the
+              quiz so they can unlock personalisation. */}
+          {!userHasVector && (
+            <Link
+              href="/onboarding/chat"
+              className="mb-3 flex items-center justify-between gap-3 rounded-xl border border-primary/30 bg-primary/5 p-3 transition-colors hover:bg-primary/10"
+            >
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-foreground">
+                  {t("quizPrompt.title")}
+                </p>
+                <p className="text-xs text-muted-foreground line-clamp-1">
+                  {t("quizPrompt.subtitle")}
+                </p>
+              </div>
+              <span className="shrink-0 rounded-full bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground">
+                {t("quizPrompt.cta")}
+              </span>
+            </Link>
+          )}
           <div className="flex gap-3 overflow-x-auto pb-1">
             {topFixedTours.map((tour) => {
               // Strict-mono: card shows the active-locale title only.

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { eq, and, desc, isNull, sql } from "drizzle-orm";
+import { eq, and, desc, isNull, inArray, sql } from "drizzle-orm";
 import { router, protectedProcedure, adminProcedure } from "../trpc";
 import {
   payments,
@@ -19,6 +19,7 @@ import { COUPON_CODE_REGEX } from "@/lib/coupon-format";
 import { assertScheduledTimeBookable } from "@/lib/scheduled-time";
 import { tourTimeWindow } from "@/lib/tour-time";
 import { readRequestParams } from "../lib/tour-request-shape";
+import { summarizeOrderLines } from "../lib/order-summary";
 
 export const paymentRouter = router({
   createIntent: protectedProcedure
@@ -359,8 +360,13 @@ export const paymentRouter = router({
   // `isRefunded = false` for every row; this procedure surfaces the real
   // `status` + `refundAmount` from the `payments` table so refunded / failed /
   // pending rows render honestly.
+  //
+  // Order-backed payments (tourId null, orderId set) used to render as
+  // "Untitled Tour" because only `tours` was joined. We now resolve a `label`
+  // from the order's line items and return `orderId` so the row can link to
+  // /orders/[id].
   getHistory: protectedProcedure.query(async ({ ctx }) => {
-    return ctx.db
+    const rows = await ctx.db
       .select({
         id: payments.id,
         amount: payments.amount,
@@ -372,6 +378,7 @@ export const paymentRouter = router({
         createdAt: payments.createdAt,
         paymentMethod: payments.paymentMethod,
         tourId: payments.tourId,
+        orderId: payments.orderId,
         tourTitle: sql<string | null>`${tours.tourData}->>'title'`,
         packageType: tours.packageType,
       })
@@ -379,6 +386,40 @@ export const paymentRouter = router({
       .leftJoin(tours, eq(payments.tourId, tours.id))
       .where(eq(payments.userId, ctx.user.id))
       .orderBy(desc(payments.createdAt));
+
+    // Resolve labels for order-backed payments from their line items.
+    const orderIds = [
+      ...new Set(rows.map((r) => r.orderId).filter((x): x is string => !!x)),
+    ];
+    const orderLabel = new Map<string, string>();
+    if (orderIds.length) {
+      const lines = await ctx.db
+        .select({
+          orderId: orderItems.orderId,
+          kind: orderItems.kind,
+          metadata: orderItems.metadata,
+        })
+        .from(orderItems)
+        .where(inArray(orderItems.orderId, orderIds));
+      const grouped = new Map<string, { kind: string; metadata: unknown }[]>();
+      for (const l of lines) {
+        const bucket = grouped.get(l.orderId) ?? [];
+        bucket.push({ kind: l.kind, metadata: l.metadata });
+        grouped.set(l.orderId, bucket);
+      }
+      for (const [oid, ls] of grouped) {
+        orderLabel.set(oid, summarizeOrderLines(ls));
+      }
+    }
+
+    return rows.map((r) => ({
+      ...r,
+      label: r.tourId
+        ? r.tourTitle
+        : r.orderId
+          ? orderLabel.get(r.orderId) ?? "Order"
+          : null,
+    }));
   }),
 
   /* ──────────────────────────────────────────────────────────────────

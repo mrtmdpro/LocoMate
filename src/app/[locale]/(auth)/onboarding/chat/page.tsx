@@ -7,6 +7,7 @@ import { useSearchParams } from "next/navigation";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { LogoLockup } from "@/components/brand";
 import { AiChat, streamQuizQuestion, type AiChatMessage } from "@/components/brand";
 import { trpc } from "@/lib/trpc";
@@ -76,7 +77,8 @@ function OnboardingChatPageInner() {
   const utils = trpc.useUtils();
   const t = useTranslations("onboarding.chat");
   const savePersonality = trpc.user.savePersonality.useMutation();
-  const submitOnboarding = trpc.user.submitOnboarding.useMutation({
+  const setNicknameMutation = trpc.user.setNickname.useMutation();
+  const completeOnboarding = trpc.user.completeOnboarding.useMutation({
     onSuccess: () => {
       if (user) {
         setAuth({ ...user, onboardingCompleted: true });
@@ -85,6 +87,10 @@ function OnboardingChatPageInner() {
   });
 
   const nickname = user?.displayName?.split(/\s+/)[0];
+  // FR-BRAND-02 — the "danh xưng" the app uses to address the user. Collected
+  // on the Done card (the intimate-greeting moment) and saved on continue.
+  // Skippable: an empty value keeps the displayName-based fallback.
+  const [chosenNickname, setChosenNickname] = useState("");
 
   const [tone, setTone] = useState<AiTone | null>(null);
   const [questionIdx, setQuestionIdx] = useState(0);
@@ -233,40 +239,40 @@ function OnboardingChatPageInner() {
   const personality = useMemo(() => scorePersonality(picks), [picks]);
   const isMockOverride = search?.get("mock") === "true";
 
-  // Mark traveler onboarding as complete after the chat finishes (the
-  // legacy /onboarding page does this via submitOnboarding). We call the
-  // same mutation with minimal data; the rest of the explicitData
-  // (intent, interests, etc.) gets filled in by the matching engine on
-  // first /home load.
+  // Mark traveler onboarding as complete after the chat finishes. The 4-D
+  // personalityVector + cultural label were already persisted by the
+  // `savePersonality.mutate` in the `done`-effect above; this call only flips
+  // the onboarding-complete flag via the dedicated `completeOnboarding`
+  // mutation, which neither requires the legacy form answers nor touches
+  // derivedData — so the vector is never wiped.
   //
-  // Navigation uses `onSettled` (not `onSuccess`) so the user always
-  // leaves the Done card — even when the server rejects the call (stale
-  // session, transient 5xx, network drop). The personality vector was
-  // already persisted by the `savePersonality.mutate` in the
-  // `done`-effect above, so a submitOnboarding failure here doesn't
-  // discard the user's actual quiz answers. `onError` surfaces a toast
-  // so the user knows the completion flag didn't stick and can re-take
-  // the quiz from /profile/preferences if they want.
-  const handleContinue = () => {
-    submitOnboarding.mutate(
-      {
-        intent: [],
-        scenario_choice: "A",
-        style: { chill_explore: 0.5, plan_spontaneous: 0.5 },
-        interests: [],
-        budget: "medium",
-        social_preference: "meet_new",
-        time_preference: ["morning"],
+  // Navigation uses `onSettled` (not `onSuccess`) so the user always leaves
+  // the Done card — even when the server rejects the call (stale session,
+  // transient 5xx, network drop). `onError` surfaces a toast so the user
+  // knows the completion flag didn't stick.
+  const handleContinue = async () => {
+    // Persist the chosen danh xưng first (non-blocking — a failure here
+    // shouldn't trap the user on the Done card; they can set it later in
+    // Settings). Then flip the onboarding-complete flag and leave.
+    const trimmed = chosenNickname.trim();
+    if (trimmed) {
+      try {
+        await setNicknameMutation.mutateAsync({ nickname: trimmed });
+        // useDisplayName() reads the nickname from getProfile; refresh it so
+        // the /home greeting addresses the user by their chosen danh xưng.
+        await utils.user.getProfile.invalidate();
+      } catch {
+        // ignore — non-blocking
+      }
+    }
+    completeOnboarding.mutate(undefined, {
+      onError: (e) => {
+        toast.error(e.message ?? t("saveError"));
       },
-      {
-        onError: (e) => {
-          toast.error(e.message ?? t("saveError"));
-        },
-        onSettled: () => {
-          router.push("/home");
-        },
+      onSettled: () => {
+        router.push("/home");
       },
-    );
+    });
   };
 
   return (
@@ -357,14 +363,53 @@ function OnboardingChatPageInner() {
                   {t(`personality.${personalityAxisKey(personality.axis)}`)}
                 </p>
               </div>
+
+              {/* FR-BRAND-02 — danh xưng. Skippable intimate-greeting moment.
+                  Prompt + suggestions stay Vietnamese in both locales (brand
+                  ritual word, same rule as the legacy step-5 form). */}
+              <div className="flex flex-col gap-2">
+                <label
+                  htmlFor="danh-xung"
+                  className="text-sm font-medium text-foreground"
+                >
+                  {t("done.nicknameLabel")}
+                </label>
+                <Input
+                  id="danh-xung"
+                  value={chosenNickname}
+                  onChange={(e) => setChosenNickname(e.target.value)}
+                  placeholder={t("done.nicknamePlaceholder")}
+                  maxLength={40}
+                  className="bg-paper"
+                />
+                <div className="flex flex-wrap gap-2">
+                  {["Kẻ lữ hành", "Cậu cả", "Nàng thơ", "Người mê dịch chuyển"].map(
+                    (s) => (
+                      <button
+                        key={s}
+                        type="button"
+                        onClick={() => setChosenNickname(s)}
+                        className={`px-3.5 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+                          chosenNickname === s
+                            ? "bg-brick border-brick text-[#faf6ec]"
+                            : "border-foreground/15 text-foreground hover:bg-muted"
+                        }`}
+                      >
+                        {s}
+                      </button>
+                    ),
+                  )}
+                </div>
+              </div>
+
               <div className="flex flex-wrap gap-2">
                 <Button
                   variant="default"
                   size="brand"
                   onClick={handleContinue}
-                  disabled={submitOnboarding.isPending}
+                  disabled={completeOnboarding.isPending}
                 >
-                  {submitOnboarding.isPending ? t("done.ctaSubmitting") : t("done.ctaSubmit")}
+                  {completeOnboarding.isPending ? t("done.ctaSubmitting") : t("done.ctaSubmit")}
                 </Button>
                 <Link href="/profile/preferences">
                   <Button variant="link" size="brand">

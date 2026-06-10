@@ -2,14 +2,16 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { eq, desc, and, ne, sql, asc } from "drizzle-orm";
 import { router, protectedProcedure } from "../trpc";
-import { tours, tourStops, userProfiles, hostProfiles, places, experiences } from "../db/schema";
+import { tours, tourStops, userProfiles, hostProfiles, places, experiences, payments } from "../db/schema";
 import { generateTour } from "../services/_legacy/tour-engine";
 import { computeTourPrice } from "@/lib/pricing";
 import { llmGenerate, type AiTone } from "../services/llm";
 import { lookupFixedTourCategory } from "../lib/fixed-tour-category";
 import { readDerivedData } from "../lib/profile-shape";
 import { readTourData, TourDataSchema } from "../lib/tour-data-shape";
-import { RequestParamsSchema } from "../lib/tour-request-shape";
+import { RequestParamsSchema, readRequestParams } from "../lib/tour-request-shape";
+import { tourTimeWindow } from "@/lib/tour-time";
+import { computeTravelerRefund, isBookingClosed } from "@/lib/refund-policy";
 
 export const tourRouter = router({
   create: protectedProcedure
@@ -73,9 +75,17 @@ export const tourRouter = router({
       const previewStops = allStops.slice(0, 3);
       const lockedCount = allStops.length - previewStops.length;
 
+      // FR-PAY-03 — bookings close 48h before departure. Surface the
+      // departure instant + a closed flag so /checkout can disable Pay and
+      // show a "booking closed" banner instead of taking money for a tour
+      // that's inside the cutoff.
+      const departureAt = tourTimeWindow(readRequestParams(tour.requestParams))?.startsAt ?? null;
+
       return {
         ...tour,
         tourData: { ...data, stops: previewStops, lockedStops: lockedCount, isPreview: true },
+        departureAt,
+        bookingClosed: isBookingClosed(departureAt),
       };
     }),
 
@@ -211,6 +221,125 @@ export const tourRouter = router({
       .where(eq(tours.userId, ctx.user.id))
       .orderBy(desc(tours.createdAt));
   }),
+
+  /**
+   * Read-only refund preview for the cancel dialog. Lets the UI show the
+   * exact amount the traveler gets back BEFORE they confirm, so cancelling
+   * is never a blind action. Mirrors what `cancelByTraveler` will compute.
+   */
+  getCancellationQuote: protectedProcedure
+    .input(z.object({ tourId: z.string().uuid() }))
+    .query(async ({ ctx, input }) => {
+      const tour = await ctx.db.query.tours.findFirst({
+        where: eq(tours.id, input.tourId),
+      });
+      if (!tour || tour.userId !== ctx.user.id) {
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
+      const departureAt = tourTimeWindow(readRequestParams(tour.requestParams))?.startsAt ?? null;
+      const refund = computeTravelerRefund({
+        paidVnd: tour.priceAmount ?? 0,
+        departureAt,
+      });
+      return {
+        // Only a paid, not-yet-started tour can be cancelled by the traveler.
+        cancellable: tour.status === "paid",
+        status: tour.status,
+        paidVnd: tour.priceAmount ?? 0,
+        refundPct: refund.refundPct,
+        refundVnd: refund.refundVnd,
+        tier: refund.tier,
+        departureAt,
+      };
+    }),
+
+  /**
+   * Traveler-initiated cancellation (PRD FR-PAY-04 / BOOKING.md §Refunds.2).
+   * Refund tier is computed from time-to-departure:
+   *   > 24h -> 100% (payment flips to 'refunded')
+   *   2–24h -> 50%  (partial: refundAmount set, status stays 'succeeded')
+   *   < 2h  -> 0%   (no money back; tour still cancels)
+   * Only a `paid` tour can be cancelled here; `active`/`completed` cannot,
+   * and `preview` has no payment to refund. Transactional so the tour flip
+   * and the refund write never partially apply.
+   */
+  cancelByTraveler: protectedProcedure
+    .input(z.object({ tourId: z.string().uuid() }))
+    .mutation(async ({ ctx, input }) => {
+      return ctx.db.transaction(async (tx) => {
+        const tour = await tx.query.tours.findFirst({
+          where: eq(tours.id, input.tourId),
+        });
+        if (!tour) throw new TRPCError({ code: "NOT_FOUND" });
+        if (tour.userId !== ctx.user.id) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Not your tour" });
+        }
+        if (tour.status !== "paid") {
+          throw new TRPCError({
+            code: "PRECONDITION_FAILED",
+            message:
+              tour.status === "active" || tour.status === "completed"
+                ? "A tour that has already started can't be cancelled."
+                : tour.status === "cancelled"
+                  ? "This tour is already cancelled."
+                  : "Only a paid tour can be cancelled.",
+          });
+        }
+
+        const departureAt = tourTimeWindow(readRequestParams(tour.requestParams))?.startsAt ?? null;
+        const refund = computeTravelerRefund({
+          paidVnd: tour.priceAmount ?? 0,
+          departureAt,
+        });
+
+        await tx
+          .update(tours)
+          .set({
+            status: "cancelled",
+            cancelledAt: new Date(),
+            cancelReason: "traveler_cancelled",
+            updatedAt: new Date(),
+          })
+          .where(eq(tours.id, tour.id));
+
+        // Apply the refund to the succeeded payment for this tour. A 100%
+        // refund flips status to 'refunded'; a partial keeps 'succeeded' and
+        // records refundAmount (mirrors payment.refundPartial accounting).
+        const [payment] = await tx
+          .select()
+          .from(payments)
+          .where(and(eq(payments.tourId, tour.id), eq(payments.status, "succeeded")));
+        if (payment && refund.refundVnd > 0) {
+          await tx
+            .update(payments)
+            .set({
+              status: refund.refundPct === 100 ? "refunded" : payment.status,
+              refundAmount: refund.refundVnd,
+              refundReason:
+                refund.refundPct === 100
+                  ? "traveler_cancel_full"
+                  : "traveler_cancel_partial",
+              updatedAt: new Date(),
+            })
+            .where(eq(payments.id, payment.id));
+        }
+
+        // The booking is gone — forget it in the marketplace popularity rank.
+        if (tour.experienceId) {
+          await tx
+            .update(experiences)
+            .set({ totalBookings: sql`GREATEST(${experiences.totalBookings} - 1, 0)` })
+            .where(eq(experiences.id, tour.experienceId));
+        }
+
+        return {
+          status: "cancelled" as const,
+          refundPct: refund.refundPct,
+          refundVnd: refund.refundVnd,
+          tier: refund.tier,
+        };
+      });
+    }),
 
   // Assigns a host to a traveler's tour. Called from /tour/[id]/hosts when
   // the user picks a host card for an algorithmically-generated tour. The
