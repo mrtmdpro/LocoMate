@@ -484,3 +484,97 @@ describe("user.deleteAccount", () => {
     expect(remaining).toBeUndefined();
   });
 });
+
+describe("user onboarding — personality vector survival", () => {
+  // The chat quiz writes the 4-D vector + cultural label via savePersonality,
+  // THEN calls completeOnboarding to flip the completion flag. Neither that
+  // call nor a later preferences edit may wipe the vector — otherwise the home
+  // feed shows no match pills (the personalization the user just earned is
+  // destroyed at step one).
+  const VALID_ANSWERS = {
+    intent: ["Explore Culture"],
+    scenario_choice: "A",
+    style: { chill_explore: 0.5, plan_spontaneous: 0.5 },
+    interests: ["Temples"],
+    budget: "medium" as const,
+    social_preference: "meet_new" as const,
+    time_preference: ["morning" as const],
+  };
+  const VECTOR = [0.8, 0.6, 0.2, 0.4] as [number, number, number, number];
+
+  async function readProfile(userId: string) {
+    const [row] = await getTestDb()
+      .select()
+      .from(userProfiles)
+      .where(eq(userProfiles.userId, userId));
+    return {
+      onboardingCompleted: row.onboardingCompleted,
+      derived: row.derivedData as {
+        personalityVector?: number[];
+        personalityLabel?: string;
+        personality?: Record<string, number>;
+      } | null,
+    };
+  }
+
+  test("chat flow: completeOnboarding marks complete and preserves the vector + label", async () => {
+    const user = await createUser({ role: "traveler" });
+    const caller = await callerAs(user);
+
+    await caller.user.savePersonality({
+      tone: "thu-thi",
+      personalityLabel: "Hồn Đa Cảm",
+      personalityVector: VECTOR,
+    });
+    await caller.user.completeOnboarding();
+
+    const { onboardingCompleted, derived } = await readProfile(user.id);
+    expect(onboardingCompleted).toBe(true);
+    expect(derived?.personalityVector).toEqual(VECTOR);
+    expect(derived?.personalityLabel).toBe("Hồn Đa Cảm");
+  });
+
+  test("submitOnboarding (legacy form) merges onto existing without wiping a prior vector", async () => {
+    const user = await createUser({ role: "traveler" });
+    const caller = await callerAs(user);
+
+    await caller.user.savePersonality({
+      personalityLabel: "Hồn Đa Cảm",
+      personalityVector: VECTOR,
+    });
+    await caller.user.submitOnboarding(VALID_ANSWERS);
+
+    const { derived } = await readProfile(user.id);
+    expect(derived?.personalityVector).toEqual(VECTOR);
+    // Cultural label must NOT be replaced by the legacy engine label.
+    expect(derived?.personalityLabel).toBe("Hồn Đa Cảm");
+    // Legacy ranker vectors still layered in for the Customized Tour engine.
+    expect(derived?.personality).toBeDefined();
+  });
+
+  test("updatePreferences keeps the vector when a chat-quiz user edits prefs", async () => {
+    const user = await createUser({ role: "traveler" });
+    const caller = await callerAs(user);
+
+    await caller.user.savePersonality({
+      personalityLabel: "Hồn Đa Cảm",
+      personalityVector: VECTOR,
+    });
+    await caller.user.updatePreferences({ ...VALID_ANSWERS, budget: "high" });
+
+    const { derived } = await readProfile(user.id);
+    expect(derived?.personalityVector).toEqual(VECTOR);
+    expect(derived?.personalityLabel).toBe("Hồn Đa Cảm");
+  });
+
+  test("legacy-only user (no chat vector) still gets the engine label", async () => {
+    const user = await createUser({ role: "traveler" });
+    const caller = await callerAs(user);
+
+    await caller.user.submitOnboarding(VALID_ANSWERS);
+
+    const { derived } = await readProfile(user.id);
+    expect(derived?.personalityVector).toBeUndefined();
+    expect(derived?.personalityLabel).toBeTruthy();
+  });
+});

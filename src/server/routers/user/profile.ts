@@ -8,9 +8,45 @@ import { computeDerivedProfile } from "../../services/profile-engine";
 import {
   mergeExplicitData,
   mergeDerivedData,
+  readDerivedData,
   type ExplicitData,
   type DerivedData,
 } from "../../lib/profile-shape";
+
+/**
+ * Builds the `derivedData` write shared by `submitOnboarding` and
+ * `updatePreferences`. It layers the legacy 18-D ranker vectors
+ * (personality / behavior / emotional) computed from the onboarding answers
+ * onto the EXISTING row — never an empty base — so the 4-D
+ * `personalityVector` + cultural `personalityLabel` written by the chatbot
+ * quiz (via `savePersonality`) survive completion and later preference edits.
+ *
+ * A chat-quiz user is identified by the presence of `personalityVector`:
+ *  - has vector  → preserve the cultural label (don't let the legacy engine
+ *    label, computed from placeholder/legacy answers, clobber it); the vector
+ *    itself is preserved automatically since it isn't in the patch.
+ *  - no vector   → legacy-form-only user; keep the prior behaviour where the
+ *    engine label updates on every save.
+ *
+ * Without this, `submitOnboarding`'s old `mergeDerivedData({}, ...)` wiped the
+ * vector on every chat-quiz completion, so the home feed never showed match
+ * pills — the personalization the user just earned was destroyed at step one.
+ */
+function buildOnboardingDerived(
+  existingDerivedData: unknown,
+  derived: ReturnType<typeof computeDerivedProfile>,
+): DerivedData {
+  const existing = readDerivedData(existingDerivedData);
+  const hasChatVector = existing.personalityVector !== undefined;
+  return mergeDerivedData(existingDerivedData, {
+    personality: derived.personality,
+    behavior: derived.behavior,
+    emotional: derived.emotional,
+    personalityLabel: hasChatVector
+      ? existing.personalityLabel ?? derived.personalityLabel
+      : derived.personalityLabel,
+  });
+}
 
 export const userProfileProcedures = {
   getProfile: protectedProcedure.query(async ({ ctx }) => {
@@ -274,14 +310,18 @@ export const userProfileProcedures = {
     .input(onboardingSchema)
     .mutation(async ({ ctx, input }) => {
       const derived = computeDerivedProfile(input);
+      const existing = await ctx.db.query.userProfiles.findFirst({
+        where: eq(userProfiles.userId, ctx.user.id),
+      });
 
-      // Onboarding replaces (not merges) the profile blobs, so validate
-      // against an empty base to keep the prior overwrite semantics.
+      // Merge onto the existing row (not an empty base) so the 4-D
+      // personalityVector + cultural personalityLabel the chat quiz saved via
+      // savePersonality survive completion. See buildOnboardingDerived.
       await ctx.db
         .update(userProfiles)
         .set({
-          explicitData: mergeExplicitData({}, input),
-          derivedData: mergeDerivedData({}, { ...derived }),
+          explicitData: mergeExplicitData(existing?.explicitData, input),
+          derivedData: buildOnboardingDerived(existing?.derivedData, derived),
           onboardingCompleted: true,
           derivedUpdatedAt: new Date(),
           updatedAt: new Date(),
@@ -291,18 +331,42 @@ export const userProfileProcedures = {
       return { success: true, derived };
     }),
 
+  /**
+   * Marks traveler onboarding complete for the chatbot-quiz path. The quiz
+   * already persisted the 4-D personalityVector + cultural label via
+   * `savePersonality`; this only flips the completion flag (so login stops
+   * bouncing the user to /onboarding) WITHOUT requiring the legacy 18-D form
+   * answers and WITHOUT touching derivedData (so the vector survives).
+   *
+   * The chat flow previously called `submitOnboarding` with empty placeholder
+   * arrays, which fails `onboardingSchema` (intent/interests are min(1)) —
+   * meaning the flag was never actually set and the user saw an error toast
+   * on every quiz completion. Idempotent.
+   */
+  completeOnboarding: protectedProcedure.mutation(async ({ ctx }) => {
+    await ctx.db
+      .update(userProfiles)
+      .set({ onboardingCompleted: true, updatedAt: new Date() })
+      .where(eq(userProfiles.userId, ctx.user.id));
+    return { success: true };
+  }),
+
   updatePreferences: protectedProcedure
     .input(onboardingSchema)
     .mutation(async ({ ctx, input }) => {
       const derived = computeDerivedProfile(input);
+      const existing = await ctx.db.query.userProfiles.findFirst({
+        where: eq(userProfiles.userId, ctx.user.id),
+      });
 
-      // updatePreferences replaces the profile blobs (same as onboarding);
-      // validate against an empty base to preserve overwrite semantics.
+      // Editing legacy matching preferences must NOT wipe the 4-D
+      // personalityVector from the chat quiz — otherwise tweaking a budget
+      // chip silently kills the home match pills. Merge onto existing.
       await ctx.db
         .update(userProfiles)
         .set({
-          explicitData: mergeExplicitData({}, input),
-          derivedData: mergeDerivedData({}, { ...derived }),
+          explicitData: mergeExplicitData(existing?.explicitData, input),
+          derivedData: buildOnboardingDerived(existing?.derivedData, derived),
           derivedUpdatedAt: new Date(),
           updatedAt: new Date(),
         })

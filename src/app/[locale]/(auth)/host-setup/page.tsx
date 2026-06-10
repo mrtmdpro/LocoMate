@@ -10,6 +10,8 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { LogoLockup } from "@/components/brand";
 import { Switch } from "@/components/ui/switch";
+import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
 
 const LANGUAGES: { value: string; labelKey: string }[] = [
   { value: "Vietnamese", labelKey: "vietnamese" },
@@ -50,16 +52,32 @@ export default function HostSetupPage() {
   const [languages, setLanguages] = useState<string[]>(["Vietnamese", "English"]);
   const [specialties, setSpecialties] = useState<string[]>([]);
   const [availability, setAvailability] = useState<boolean[]>([true, true, true, true, true, true, false]);
-  const [submitting, setSubmitting] = useState(false);
+
+  const completeSetup = trpc.host.completeSetup.useMutation({
+    onSuccess: () => {
+      toast.success(t("toast.submitted"));
+      router.push("/host");
+    },
+    onError: (err) => toast.error(err.message || t("toast.error")),
+  });
 
   const toggle = (arr: string[], val: string, set: (v: string[]) => void) =>
     arr.includes(val) ? set(arr.filter((v) => v !== val)) : set([...arr, val]);
 
-  async function handleSubmit() {
-    setSubmitting(true);
-    setTimeout(() => {
-      router.push("/host");
-    }, 1000);
+  function handleSubmit() {
+    completeSetup.mutate({
+      bio: bio.trim() || undefined,
+      languages,
+      specialties,
+      // DAYS is ordered Mon..Sun; the schedule slots use JS day-of-week
+      // (Sun=0..Sat=6), so Mon(idx 0)→1 … Sun(idx 6)→0. Default window 08–20.
+      availability: DAYS.map((_, i) => ({
+        dayOfWeek: (i + 1) % 7,
+        startTime: "08:00",
+        endTime: "20:00",
+        isActive: availability[i] ?? false,
+      })),
+    });
   }
 
   return (
@@ -206,8 +224,8 @@ export default function HostSetupPage() {
               {t("actions.continue")}
             </Button>
           ) : (
-            <Button onClick={handleSubmit} disabled={submitting} className="flex-1 h-12 rounded-xl bg-secondary hover:bg-secondary/90 text-secondary-foreground font-semibold">
-              {submitting ? t("actions.submitting") : t("actions.submit")}
+            <Button onClick={handleSubmit} disabled={completeSetup.isPending} className="flex-1 h-12 rounded-xl bg-secondary hover:bg-secondary/90 text-secondary-foreground font-semibold">
+              {completeSetup.isPending ? t("actions.submitting") : t("actions.submit")}
             </Button>
           )}
         </div>

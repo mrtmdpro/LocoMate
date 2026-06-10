@@ -297,6 +297,11 @@
       "personalisedSubtitle": "Sorted to your taste",
       "seeAll15": "See all 15"
     },
+    "quizPrompt": {
+      "title": "Take the quiz to see your top matches",
+      "subtitle": "Answer once — we'll rank every Fixed Tour by your taste.",
+      "cta": "Take the quiz"
+    },
     "subtitle": {
       "v0": "Phở's piping hot, alleys are calling — ready when you are?",
       "v1": "Which hidden corner of Hà Nội is calling your name today?",
@@ -1723,6 +1728,8 @@
       },
       "done": {
         "eyebrow": "Locomate has read you",
+        "nicknameLabel": "Locomate nên gọi bạn là gì? (có thể bỏ qua)",
+        "nicknamePlaceholder": "Ví dụ: Kẻ lữ hành",
         "ctaSubmit": "Enter Locomate",
         "ctaSubmitting": "Entering…",
         "ctaPreferences": "Set detailed preferences"
@@ -1824,6 +1831,10 @@
       "continue": "Continue",
       "submit": "Submit for Review",
       "submitting": "Submitting..."
+    },
+    "toast": {
+      "submitted": "Profile submitted — we'll review and verify you shortly.",
+      "error": "Couldn't save your setup. Please try again."
     }
   },
   "security": {

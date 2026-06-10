@@ -1,9 +1,21 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { eq, and, sql, gte, desc } from "drizzle-orm";
+import { eq, and, sql, gte, desc, inArray } from "drizzle-orm";
 import type { TRPCRouterRecord } from "@trpc/server";
-import { publicProcedure, protectedProcedure, hostProcedure } from "../../trpc";
-import { hostProfiles, users, experiences, activities } from "../../db/schema";
+import {
+  publicProcedure,
+  protectedProcedure,
+  hostProcedure,
+  adminProcedure,
+} from "../../trpc";
+import {
+  hostProfiles,
+  hostAvailability,
+  users,
+  experiences,
+  activities,
+} from "../../db/schema";
+import { hostPublicSlug } from "../../lib/host-slug";
 
 export const hostProfileProcedures = {
   getProfile: protectedProcedure.query(async ({ ctx }) => {
@@ -199,6 +211,161 @@ export const hostProfileProcedures = {
         .set({ ...input, updatedAt: new Date() })
         .where(eq(hostProfiles.userId, ctx.user.id))
         .returning();
+      return updated;
+    }),
+
+  /**
+   * One-shot host onboarding write for the /host-setup wizard. Replaces the
+   * old client-side stub that discarded everything. Idempotent and safe to
+   * call again as "Update profile":
+   *
+   *  - Ensures a `host_profiles` row exists (register-as-host creates the user
+   *    with role=host but NO host_profiles row — only `becomeHost` did — so a
+   *    directly-registered host had no row to update and was stuck at draft).
+   *  - Persists bio / languages / specialties.
+   *  - Replaces the weekly availability schedule when provided.
+   *  - Backfills a `publicSlug` for legacy rows missing one.
+   *  - Never touches `verificationStatus`: a brand-new row starts 'pending'
+   *    (admin approves via adminVerifyHost); an already-approved host editing
+   *    their profile stays approved.
+   */
+  completeSetup: hostProcedure
+    .input(
+      z.object({
+        bio: z.string().max(300).optional(),
+        languages: z.array(z.string()).max(12).optional(),
+        specialties: z.array(z.string()).max(12).optional(),
+        availability: z
+          .array(
+            z.object({
+              dayOfWeek: z.number().int().min(0).max(6),
+              startTime: z.string(),
+              endTime: z.string(),
+              isActive: z.boolean(),
+            }),
+          )
+          .max(7)
+          .optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const existing = await ctx.db.query.hostProfiles.findFirst({
+        where: eq(hostProfiles.userId, ctx.user.id),
+      });
+
+      if (!existing) {
+        await ctx.db.insert(hostProfiles).values({
+          userId: ctx.user.id,
+          bio: input.bio ?? null,
+          languages: input.languages ?? [],
+          specialties: input.specialties ?? [],
+          verificationStatus: "pending",
+          publicSlug: hostPublicSlug(ctx.user.displayName, ctx.user.id),
+        });
+      } else {
+        await ctx.db
+          .update(hostProfiles)
+          .set({
+            // Drizzle skips `undefined` keys, so omitted fields are untouched.
+            bio: input.bio,
+            languages: input.languages,
+            specialties: input.specialties,
+            ...(existing.publicSlug
+              ? {}
+              : { publicSlug: hostPublicSlug(ctx.user.displayName, ctx.user.id) }),
+            updatedAt: new Date(),
+          })
+          .where(eq(hostProfiles.userId, ctx.user.id));
+      }
+
+      // Replace the weekly availability (mirrors host.setAvailability).
+      if (input.availability) {
+        const host = await ctx.db.query.hostProfiles.findFirst({
+          where: eq(hostProfiles.userId, ctx.user.id),
+        });
+        if (host) {
+          await ctx.db
+            .delete(hostAvailability)
+            .where(eq(hostAvailability.hostId, host.id));
+          for (const slot of input.availability) {
+            await ctx.db
+              .insert(hostAvailability)
+              .values({ hostId: host.id, ...slot });
+          }
+        }
+      }
+
+      return { success: true };
+    }),
+
+  // ---------------------------------------------------------------------
+  // Admin host verification. Without an approval path, a host can never reach
+  // verificationStatus='approved', and hostExperience.publish hard-requires
+  // it — so no host could ever publish bookable inventory.
+  // ---------------------------------------------------------------------
+
+  /** Hosts awaiting (or returned from) review. Admin verification queue. */
+  adminListPendingHosts: adminProcedure.query(async ({ ctx }) => {
+    return ctx.db
+      .select({
+        hostId: hostProfiles.id,
+        userId: hostProfiles.userId,
+        displayName: users.displayName,
+        email: users.email,
+        avatarUrl: users.avatarUrl,
+        bio: hostProfiles.bio,
+        languages: hostProfiles.languages,
+        specialties: hostProfiles.specialties,
+        verificationStatus: hostProfiles.verificationStatus,
+        createdAt: hostProfiles.createdAt,
+      })
+      .from(hostProfiles)
+      .innerJoin(users, eq(hostProfiles.userId, users.id))
+      .where(inArray(hostProfiles.verificationStatus, ["pending", "rejected"]))
+      .orderBy(desc(hostProfiles.createdAt));
+  }),
+
+  adminVerifyHost: adminProcedure
+    .input(z.object({ hostId: z.string().uuid() }))
+    .mutation(async ({ ctx, input }) => {
+      const host = await ctx.db.query.hostProfiles.findFirst({
+        where: eq(hostProfiles.id, input.hostId),
+      });
+      if (!host) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Host not found" });
+      }
+      // Guarantee a slug so the approved host is immediately listable.
+      let slugPatch: { publicSlug?: string } = {};
+      if (!host.publicSlug) {
+        const u = await ctx.db.query.users.findFirst({
+          where: eq(users.id, host.userId),
+        });
+        slugPatch = { publicSlug: hostPublicSlug(u?.displayName ?? null, host.userId) };
+      }
+      const [updated] = await ctx.db
+        .update(hostProfiles)
+        .set({
+          verificationStatus: "approved",
+          verifiedAt: new Date(),
+          ...slugPatch,
+          updatedAt: new Date(),
+        })
+        .where(eq(hostProfiles.id, input.hostId))
+        .returning();
+      return updated;
+    }),
+
+  adminRejectHost: adminProcedure
+    .input(z.object({ hostId: z.string().uuid() }))
+    .mutation(async ({ ctx, input }) => {
+      const [updated] = await ctx.db
+        .update(hostProfiles)
+        .set({ verificationStatus: "rejected", updatedAt: new Date() })
+        .where(eq(hostProfiles.id, input.hostId))
+        .returning();
+      if (!updated) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Host not found" });
+      }
       return updated;
     }),
 } satisfies TRPCRouterRecord;
