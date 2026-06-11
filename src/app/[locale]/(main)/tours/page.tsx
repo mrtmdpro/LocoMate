@@ -65,7 +65,7 @@ export default function TourHistoryPage() {
             body={t("empty.body")}
             actions={
               <>
-                <Link href="/fixed-tours">
+                <Link href="/experiences">
                   <Button variant="default" size="brand">{t("empty.ctaPrimary")}</Button>
                 </Link>
                 <Link href="/explore">

@@ -22,6 +22,11 @@ export default function AdminHostVerificationPage() {
     { enabled: isAdmin, retry: false },
   );
 
+  const { data: flagged } = trpc.host.adminListFlaggedHosts.useQuery(undefined, {
+    enabled: isAdmin,
+    retry: false,
+  });
+
   const approve = trpc.host.adminVerifyHost.useMutation({
     onSuccess: () => {
       toast.success("Host verified");
@@ -62,6 +67,33 @@ export default function AdminHostVerificationPage() {
           back for revision.
         </p>
       </div>
+
+      {/* FR-POST-04 — guides flagged by low ratings need a moderation look. */}
+      {flagged && flagged.length > 0 && (
+        <Card className="border border-red-200 bg-red-50/60 shadow-none">
+          <CardContent className="space-y-2 p-4">
+            <p className="text-sm font-semibold text-red-700">
+              Flagged for review · rating below 3.5 ({flagged.length})
+            </p>
+            {flagged.map((h) => (
+              <div
+                key={h.hostId}
+                className="flex items-center justify-between gap-3 text-sm"
+              >
+                <span className="min-w-0 truncate text-secondary">
+                  {h.displayName ?? "Unnamed host"}{" "}
+                  <span className="text-xs text-muted-foreground">
+                    · {h.email ?? "no email"}
+                  </span>
+                </span>
+                <span className="shrink-0 font-semibold text-red-700">
+                  ★ {Number(h.avgRating ?? 0).toFixed(2)} · {h.totalReviews} reviews
+                </span>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
 
       {isLoading ? (
         <div className="h-32 rounded-2xl bg-muted animate-pulse" />

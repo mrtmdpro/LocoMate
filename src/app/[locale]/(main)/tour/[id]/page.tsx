@@ -94,7 +94,7 @@ export default function FullTourPage() {
       <div className="relative overflow-hidden">
         <div className="h-1.5 bg-primary" />
         <div className="bg-card p-6 pb-10 relative border-b border-foreground/10">
-          <button onClick={() => router.push("/plan")} className="text-muted-foreground hover:text-foreground transition-colors mb-4 relative z-10">
+          <button onClick={() => router.push("/tours")} className="text-muted-foreground hover:text-foreground transition-colors mb-4 relative z-10">
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
           </button>
           <div className="flex flex-col gap-2 max-w-2xl">

@@ -73,7 +73,7 @@ export default function PaymentHistoryPage() {
             <div className="text-5xl mb-4">💳</div>
             <h2 className="text-xl lg:text-2xl font-bold font-heading text-secondary">{t("empty.title")}</h2>
             <p className="text-sm text-muted-foreground mt-2">{t("empty.body")}</p>
-            <Button onClick={() => router.push("/plan")} className="mt-6 bg-primary hover:bg-primary/85 text-primary-foreground rounded-xl px-8">
+            <Button onClick={() => router.push("/activities")} className="mt-6 bg-primary hover:bg-primary/85 text-primary-foreground rounded-xl px-8">
               {t("empty.cta")}
             </Button>
           </div>
