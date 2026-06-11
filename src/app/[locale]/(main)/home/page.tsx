@@ -181,7 +181,7 @@ export default function HomePage() {
                     </div>
                   </div>
                 ))}
-                <Link href="/plan">
+                <Link href="/plan/build">
                   <Button variant="forest" size="brand" className="w-full mt-2">
                     {t("activeTrip.optimise")}
                   </Button>

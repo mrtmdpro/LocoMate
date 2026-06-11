@@ -3,7 +3,7 @@
 import { useParams } from "next/navigation";
 import { useRouter } from "@/i18n/navigation";
 import dynamic from "next/dynamic";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -68,6 +68,9 @@ export default function ActiveTourPage() {
   const [incidentOpen, setIncidentOpen] = useState(false);
 
   const { data: tour, isLoading } = trpc.tour.getFullTour.useQuery({ tourId: id }, { retry: false });
+  // Persist "visited" to the tour_stops row so the state survives a refresh
+  // and feeds the wrap-up / re-route locus (which key off visitedAt).
+  const markStopVisited = trpc.tour.markStopVisited.useMutation();
   const completeMutation = trpc.tour.completeTour.useMutation({
     // Phase A.10 — after a tour completes, route the traveller to their
     // wrap-up "Cuốn sổ ký ức số" before the review screen. The Thank-you
@@ -112,6 +115,30 @@ export default function ActiveTourPage() {
     });
   }, [tour]);
 
+  // Map render index (== stop_order) -> tour_stops row id, so markVisited can
+  // persist the right row. Older tours with no tour_stops rows simply have no
+  // id here and fall back to local-only marking. (Declared before the early
+  // return so hook order stays stable across renders.)
+  const stopIdByIdx = useMemo(() => {
+    const m = new Map<number, string>();
+    for (const l of tour?.stopLocations ?? []) m.set(l.stopOrder, l.id);
+    return m;
+  }, [tour]);
+
+  // Seed visited state once from the server's persisted visitedAt timestamps
+  // so a refresh mid-tour doesn't lose progress.
+  const seededRef = useRef(false);
+  useEffect(() => {
+    if (!tour || seededRef.current) return;
+    seededRef.current = true;
+    const visited = new Set<number>();
+    for (const l of tour.stopLocations ?? []) {
+      if (l.visitedAt) visited.add(l.stopOrder);
+    }
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- one-shot seed guarded by seededRef
+    if (visited.size > 0) setVisitedStops(visited);
+  }, [tour]);
+
   if (isLoading || !tour) {
     return (
       <div className="min-h-screen bg-card">
@@ -143,6 +170,8 @@ export default function ActiveTourPage() {
   const hasMap = stopsWithCoords.length > 0;
 
   function markVisited() {
+    const stopId = stopIdByIdx.get(currentStopIdx);
+    if (stopId) markStopVisited.mutate({ stopId });
     setVisitedStops((prev) => new Set([...prev, currentStopIdx]));
   }
 

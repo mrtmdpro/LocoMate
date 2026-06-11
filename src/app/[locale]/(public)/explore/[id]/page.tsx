@@ -59,7 +59,9 @@ export default function PlaceDetailPage() {
 
   const handleAddToTour = () => {
     if (!user) { router.push("/register"); return; }
-    router.push("/plan");
+    // Post-pivot, places funnel into the à-la-carte Activities catalogue
+    // (the custom-tour builder was retired). Go there directly.
+    router.push("/activities");
   };
 
   if (isLoading) return <div className="p-4"><div className="h-64 bg-muted rounded-2xl animate-pulse" /><div className="h-32 bg-muted rounded-2xl animate-pulse mt-4" /><div className="h-48 bg-muted rounded-2xl animate-pulse mt-4" /></div>;

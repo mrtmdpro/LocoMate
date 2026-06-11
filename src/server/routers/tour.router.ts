@@ -111,8 +111,10 @@ export const tourRouter = router({
       // insert.
       const hydratedStops = await ctx.db
         .select({
+          id: tourStops.id,
           stopOrder: tourStops.stopOrder,
           placeId: tourStops.placeId,
+          visitedAt: tourStops.visitedAt,
           name: places.name,
           category: places.category,
           latitude: places.latitude,
@@ -126,13 +128,16 @@ export const tourRouter = router({
 
       return {
         ...tour,
-        // `stopLocations` maps stop_order -> { lat, lng, placeName } when
-        // a place is linked. The client merges this against its
-        // tour_data.stops array by index so every stop gets the freshest
-        // coordinates without requiring a tour_data rewrite.
+        // `stopLocations` maps stop_order -> { id, lat, lng, placeName,
+        // visitedAt }. The client merges this against its tour_data.stops
+        // array by index so every stop gets the freshest coordinates AND the
+        // tour_stops row id needed to persist "visited" (markStopVisited) plus
+        // the visitedAt timestamp to re-seed visited state after a refresh.
         stopLocations: hydratedStops.map((s) => ({
+          id: s.id,
           stopOrder: s.stopOrder,
           placeId: s.placeId,
+          visitedAt: s.visitedAt,
           placeName: s.name,
           category: s.category,
           latitude: s.latitude !== null ? Number(s.latitude) : null,

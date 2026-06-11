@@ -325,6 +325,33 @@ export const hostProfileProcedures = {
       .orderBy(desc(hostProfiles.createdAt));
   }),
 
+  /**
+   * FR-POST-04 — hosts whose average rating has dipped below 3.5 after at
+   * least 5 reviews. Derived from the live aggregates `submitTourReview`
+   * maintains, so no extra flag column is needed. Surfaced in the admin
+   * host console for moderation follow-up.
+   */
+  adminListFlaggedHosts: adminProcedure.query(async ({ ctx }) => {
+    return ctx.db
+      .select({
+        hostId: hostProfiles.id,
+        displayName: users.displayName,
+        email: users.email,
+        avgRating: hostProfiles.avgRating,
+        totalReviews: hostProfiles.totalReviews,
+      })
+      .from(hostProfiles)
+      .innerJoin(users, eq(hostProfiles.userId, users.id))
+      .where(
+        and(
+          eq(hostProfiles.verificationStatus, "approved"),
+          gte(hostProfiles.totalReviews, 5),
+          sql`${hostProfiles.avgRating} < 3.5`,
+        ),
+      )
+      .orderBy(hostProfiles.avgRating);
+  }),
+
   adminVerifyHost: adminProcedure
     .input(z.object({ hostId: z.string().uuid() }))
     .mutation(async ({ ctx, input }) => {

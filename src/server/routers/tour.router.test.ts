@@ -7,6 +7,7 @@ import {
   createTour,
   createExperience,
   createPayment,
+  createTourStop,
 } from "@/test/fixtures";
 import { getTestDb } from "@/test/setup";
 import { tours, payments } from "@/server/db/schema";
@@ -212,5 +213,38 @@ describe("tour.cancelByTraveler — FR-PAY-04 refund", () => {
     expect(quote.refundPct).toBe(100);
     expect(quote.refundVnd).toBe(1_500_000);
     expect(quote.paidVnd).toBe(1_500_000);
+  });
+});
+
+describe("tour.markStopVisited persistence (+ getFullTour stopLocations)", () => {
+  test("markStopVisited persists visitedAt, surfaced by getFullTour with the stop id", async () => {
+    const user = await createUser();
+    const tour = await createTour({ userId: user.id, status: "active" });
+    const stop0 = await createTourStop({ tourId: tour.id, stopOrder: 0 });
+    await createTourStop({ tourId: tour.id, stopOrder: 1 });
+    const caller = await callerAs(user);
+
+    await caller.tour.markStopVisited({ stopId: stop0.id });
+
+    const full = await caller.tour.getFullTour({ tourId: tour.id });
+    expect(full.stopLocations).toHaveLength(2);
+    const s0 = full.stopLocations.find((s) => s.stopOrder === 0);
+    const s1 = full.stopLocations.find((s) => s.stopOrder === 1);
+    // The id is now exposed so the client can persist visits...
+    expect(s0?.id).toBe(stop0.id);
+    // ...and visitedAt re-seeds visited state after a refresh.
+    expect(s0?.visitedAt).not.toBeNull();
+    expect(s1?.visitedAt).toBeNull();
+  });
+
+  test("markStopVisited rejects a stop on another user's tour", async () => {
+    const owner = await createUser();
+    const other = await createUser();
+    const tour = await createTour({ userId: owner.id, status: "active" });
+    const stop = await createTourStop({ tourId: tour.id, stopOrder: 0 });
+    const caller = await callerAs(other);
+    await expect(
+      caller.tour.markStopVisited({ stopId: stop.id }),
+    ).rejects.toMatchObject({ code: "FORBIDDEN" });
   });
 });
