@@ -404,6 +404,12 @@
     "title": "Profile",
     "appSettingsAria": "App settings",
     "signOut": "Sign Out",
+    "memberTier": {
+      "vip": "VIP Traveler",
+      "premium": "Premium Member",
+      "member": "Member",
+      "explorer": "Explorer"
+    },
     "sections": {
       "personal": "Personal",
       "activity": "Activity",
@@ -576,6 +582,7 @@
   "settings": {
     "eyebrow": "Settings",
     "title": "Tune your trip.",
+    "toastSaveError": "Couldn't save. Please try again.",
     "deleteAccount": "Delete account",
     "sections": {
       "appearance": "Appearance",
@@ -709,7 +716,15 @@
   "publicShell": {
     "ctaTitle": "Discover your Hà Nội.",
     "ctaSubtitle": "Free account · personalised tours",
-    "ctaButton": "Sign up free"
+    "ctaButton": "Sign up free",
+    "login": "Log in",
+    "nav": {
+      "explore": "Explore",
+      "experiences": "Fixed Tours",
+      "hosts": "Hosts",
+      "guides": "Guides",
+      "blog": "Blog"
+    }
   },
   "esim": {
     "hero": {
@@ -957,6 +972,11 @@
     }
   },
   "fixedTour": {
+    "notFound": {
+      "title": "Tour not found",
+      "body": "This Fixed Tour may have been retired or the link is wrong.",
+      "cta": "Browse Fixed Tours"
+    },
     "chapter": {
       "MORNING_SHIFT": "Dawn rises on the streets.",
       "AFTERNOON_SHIFT": "Noon, taken slowly.",
@@ -1859,8 +1879,7 @@
     "twoFA": {
       "label": "Enable 2FA",
       "subtitle": "Secure your account with an extra layer of protection",
-      "toastEnabled": "2FA enabled",
-      "toastDisabled": "2FA disabled"
+      "comingSoon": "Coming soon"
     },
     "verification": {
       "email": "Email",

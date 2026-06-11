@@ -578,3 +578,33 @@ describe("user onboarding — personality vector survival", () => {
     expect(derived?.personalityLabel).toBeTruthy();
   });
 });
+
+describe("user.setUiPrefs — persisted notification/privacy toggles", () => {
+  test("persists toggles to explicitData and patches a single field", async () => {
+    const user = await createUser({ role: "traveler" });
+    const caller = await callerAs(user);
+
+    await caller.user.setUiPrefs({ notifPush: false, notifEmailDigest: true });
+    let [row] = await getTestDb()
+      .select()
+      .from(userProfiles)
+      .where(eq(userProfiles.userId, user.id));
+    let ed = row.explicitData as {
+      notifPush?: boolean;
+      notifEmailDigest?: boolean;
+      locationSharing?: boolean;
+    };
+    expect(ed.notifPush).toBe(false);
+    expect(ed.notifEmailDigest).toBe(true);
+
+    // Patching one field leaves the others intact (shallow merge).
+    await caller.user.setUiPrefs({ locationSharing: false });
+    [row] = await getTestDb()
+      .select()
+      .from(userProfiles)
+      .where(eq(userProfiles.userId, user.id));
+    ed = row.explicitData as typeof ed;
+    expect(ed.notifPush).toBe(false);
+    expect(ed.locationSharing).toBe(false);
+  });
+});

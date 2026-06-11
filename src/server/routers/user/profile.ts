@@ -193,6 +193,34 @@ export const userProfileProcedures = {
     }),
 
   /**
+   * Persists the Settings → Notifications / Privacy toggles to
+   * userProfiles.explicitData (jsonb — no migration). These were previously
+   * local-only useState that silently reset on reload; this makes them real.
+   * Each field is optional so the client can patch a single toggle.
+   */
+  setUiPrefs: protectedProcedure
+    .input(
+      z.object({
+        notifPush: z.boolean().optional(),
+        notifEmailDigest: z.boolean().optional(),
+        locationSharing: z.boolean().optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const existing = await ctx.db.query.userProfiles.findFirst({
+        where: eq(userProfiles.userId, ctx.user.id),
+      });
+      await ctx.db
+        .update(userProfiles)
+        .set({
+          explicitData: mergeExplicitData(existing?.explicitData, input),
+          updatedAt: new Date(),
+        })
+        .where(eq(userProfiles.userId, ctx.user.id));
+      return { success: true };
+    }),
+
+  /**
    * Traveler's spoken languages — passed to hosts at booking time so
    * they can greet the guest in the right tongue. This is the
    * traveler-side counterpart of `host_profiles.languages`. Written to

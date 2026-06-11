@@ -439,18 +439,20 @@ function SpokenLanguagesRow({ initial }: { initial: SpokenLanguage[] }) {
 }
 
 function MemberBadge({ tourCount }: { tourCount: number }) {
+  const t = useTranslations("profile.memberTier");
   const count = Math.max(0, tourCount || 0);
   const tier = count >= 5
-    ? { label: "VIP Traveler", bg: "bg-primary", icon: "👑" }
+    ? { key: "vip", bg: "bg-primary", icon: "👑" }
     : count >= 3
-    ? { label: "Premium Member", bg: "bg-secondary", icon: "⭐" }
+    ? { key: "premium", bg: "bg-secondary", icon: "⭐" }
     : count >= 1
-    ? { label: "Member", bg: "bg-secondary/80", icon: "✓" }
-    : { label: "Explorer", bg: "bg-muted-foreground/40", icon: "🌱" };
+    ? { key: "member", bg: "bg-secondary/80", icon: "✓" }
+    : { key: "explorer", bg: "bg-muted-foreground/40", icon: "🌱" };
+  const label = t(tier.key as "vip" | "premium" | "member" | "explorer");
 
   return (
-    <Badge className={`${tier.bg} text-white border-0 text-xs mt-1.5 uppercase tracking-wider font-semibold px-3`} aria-label={tier.label}>
-      <span aria-hidden="true">{tier.icon}</span> {tier.label}
+    <Badge className={`${tier.bg} text-white border-0 text-xs mt-1.5 uppercase tracking-wider font-semibold px-3`} aria-label={label}>
+      <span aria-hidden="true">{tier.icon}</span> {label}
     </Badge>
   );
 }

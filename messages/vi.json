@@ -404,6 +404,12 @@
     "title": "Hồ sơ",
     "appSettingsAria": "Cài đặt ứng dụng",
     "signOut": "Đăng xuất",
+    "memberTier": {
+      "vip": "Lữ khách VIP",
+      "premium": "Thành viên Premium",
+      "member": "Thành viên",
+      "explorer": "Người khám phá"
+    },
     "sections": {
       "personal": "Cá nhân",
       "activity": "Hoạt động",
@@ -576,6 +582,7 @@
   "settings": {
     "eyebrow": "Cài đặt",
     "title": "Tinh chỉnh chuyến đi.",
+    "toastSaveError": "Chưa lưu được. Vui lòng thử lại.",
     "deleteAccount": "Xoá tài khoản",
     "sections": {
       "appearance": "Giao diện",
@@ -709,7 +716,15 @@
   "publicShell": {
     "ctaTitle": "Khám phá Hà Nội của riêng bạn.",
     "ctaSubtitle": "Tài khoản miễn phí · tour theo gu của bạn",
-    "ctaButton": "Đăng ký miễn phí"
+    "ctaButton": "Đăng ký miễn phí",
+    "login": "Đăng nhập",
+    "nav": {
+      "explore": "Khám phá",
+      "experiences": "Fixed Tour",
+      "hosts": "Người đồng hành",
+      "guides": "Cẩm nang",
+      "blog": "Blog"
+    }
   },
   "esim": {
     "hero": {
@@ -957,6 +972,11 @@
     }
   },
   "fixedTour": {
+    "notFound": {
+      "title": "Không tìm thấy tour",
+      "body": "Tour này có thể đã ngừng hoặc đường dẫn không đúng.",
+      "cta": "Xem các Fixed Tour"
+    },
     "chapter": {
       "MORNING_SHIFT": "Bình minh lên phố",
       "AFTERNOON_SHIFT": "Nắng trưa thong dong",
@@ -1859,8 +1879,7 @@
     "twoFA": {
       "label": "Bật 2FA",
       "subtitle": "Bảo vệ tài khoản bằng một lớp xác thực bổ sung",
-      "toastEnabled": "Đã bật 2FA",
-      "toastDisabled": "Đã tắt 2FA"
+      "comingSoon": "Sắp ra mắt"
     },
     "verification": {
       "email": "Email",
