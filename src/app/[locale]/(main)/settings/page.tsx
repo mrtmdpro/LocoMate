@@ -39,12 +39,24 @@ export default function SettingsPage() {
   const router = useRouter();
   const { user } = useAuthStore();
   const t = useTranslations("settings");
-  const [pushNotifs, setPushNotifs] = useState(true);
-  const [emailDigest, setEmailDigest] = useState(false);
-  const [locationSharing, setLocationSharing] = useState(true);
-
   const { data: profileData } = trpc.user.getProfile.useQuery();
   const utils = trpc.useUtils();
+
+  // Notification / privacy toggles persist to explicitData (defaults match the
+  // prior UI: push on, digest off, location on). Seeded from the server once
+  // it loads; each flip fires setUiPrefs.
+  const uiPrefs = (profileData?.profile?.explicitData ?? {}) as {
+    notifPush?: boolean;
+    notifEmailDigest?: boolean;
+    locationSharing?: boolean;
+  };
+  const pushNotifs = uiPrefs.notifPush ?? true;
+  const emailDigest = uiPrefs.notifEmailDigest ?? false;
+  const locationSharing = uiPrefs.locationSharing ?? true;
+  const setUiPrefs = trpc.user.setUiPrefs.useMutation({
+    onSuccess: () => utils.user.getProfile.invalidate(),
+    onError: () => toast.error(t("toastSaveError")),
+  });
   const setNickname = trpc.user.setNickname.useMutation({
     onSuccess: () => {
       utils.user.getProfile.invalidate();
@@ -171,12 +183,12 @@ export default function SettingsPage() {
             <CardContent className="p-0">
               <div className="flex items-center justify-between p-4">
                 <span className="text-sm font-medium">{t("notifications.push")}</span>
-                <Switch checked={pushNotifs} onCheckedChange={setPushNotifs} />
+                <Switch checked={pushNotifs} onCheckedChange={(v) => setUiPrefs.mutate({ notifPush: v })} />
               </div>
               <Separator />
               <div className="flex items-center justify-between p-4">
                 <span className="text-sm font-medium">{t("notifications.emailDigest")}</span>
-                <Switch checked={emailDigest} onCheckedChange={setEmailDigest} />
+                <Switch checked={emailDigest} onCheckedChange={(v) => setUiPrefs.mutate({ notifEmailDigest: v })} />
               </div>
             </CardContent>
           </Card>
@@ -189,7 +201,7 @@ export default function SettingsPage() {
             <CardContent className="p-0">
               <div className="flex items-center justify-between p-4">
                 <span className="text-sm font-medium">{t("privacy.locationSharing")}</span>
-                <Switch checked={locationSharing} onCheckedChange={setLocationSharing} />
+                <Switch checked={locationSharing} onCheckedChange={(v) => setUiPrefs.mutate({ locationSharing: v })} />
               </div>
               <Separator />
               <button onClick={() => toast.info(t("privacy.dataUsageSoon"))} className="w-full flex items-center justify-between p-4 hover:bg-muted transition-colors">

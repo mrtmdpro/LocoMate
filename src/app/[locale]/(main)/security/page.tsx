@@ -5,7 +5,6 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { Link } from "@/i18n/navigation";
 import { Card, CardContent } from "@/components/ui/card";
-import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -27,7 +26,6 @@ export default function SecurityPage() {
   const router = useRouter();
   const t = useTranslations("security");
   const { user, logout } = useAuthStore();
-  const [twoFA, setTwoFA] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [confirmEmail, setConfirmEmail] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
@@ -124,7 +122,7 @@ export default function SecurityPage() {
                   <p className="text-sm lg:text-base font-medium">{t("twoFA.label")}</p>
                   <p className="text-sm text-muted-foreground mt-0.5">{t("twoFA.subtitle")}</p>
                 </div>
-                <Switch checked={twoFA} onCheckedChange={(v) => { setTwoFA(v); toast.success(v ? t("twoFA.toastEnabled") : t("twoFA.toastDisabled")); }} />
+                <Badge variant="outline" className="shrink-0 text-muted-foreground">{t("twoFA.comingSoon")}</Badge>
               </div>
             </CardContent>
           </Card>

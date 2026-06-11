@@ -44,6 +44,11 @@ export const ExplicitDataSchema = z
     nationality: z.string().optional(),
     locale: z.enum(["en", "vi"]).optional(),
     themePref: z.enum(["light", "dark"]).optional(),
+    // Settings → Notifications / Privacy toggles. Persisted (were previously
+    // local-only useState that reset on reload).
+    notifPush: z.boolean().optional(),
+    notifEmailDigest: z.boolean().optional(),
+    locationSharing: z.boolean().optional(),
     languages: z.array(z.string()).optional(),
     aiTone: aiToneSchema.optional(),
     tourPreferences: TourPreferencesSchema.optional(),

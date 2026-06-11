@@ -79,11 +79,20 @@ export default function SavedPlacesPage() {
           return (
             <Badge
               key={f.labelKey}
+              role="button"
+              tabIndex={0}
+              aria-pressed={active}
               variant={active ? "default" : "outline"}
-              className={`cursor-pointer px-3 py-1.5 text-xs rounded-full whitespace-nowrap transition-all ${
+              className={`cursor-pointer px-3 py-1.5 text-xs rounded-full whitespace-nowrap transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
                 active ? "bg-secondary text-secondary-foreground border-secondary" : "bg-card hover:border-secondary"
               }`}
               onClick={() => setFilter(f.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setFilter(f.value);
+                }
+              }}
             >
               {t(`filters.${f.labelKey}`)}
             </Badge>

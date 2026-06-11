@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { TopNav } from "@/components/layout/top-nav";
+import { BottomNav } from "@/components/layout/bottom-nav";
 import { useAuthStore } from "@/stores/auth";
 import { LogoLockup } from "@/components/brand";
 
@@ -49,11 +50,13 @@ function Shell({ children }: { children: React.ReactNode }) {
       <TopNav />
       <main className="flex-1">
         {/* Mobile centers narrow content in a 448px column; desktop lets
-            each page declare its own width via `lg:max-w-*`. */}
-        <div className="max-w-md mx-auto lg:max-w-none lg:mx-0">
+            each page declare its own width via `lg:max-w-*`. Bottom padding on
+            mobile clears the fixed BottomNav. */}
+        <div className="max-w-md mx-auto pb-16 lg:max-w-none lg:mx-0 lg:pb-0">
           {children}
         </div>
       </main>
+      <BottomNav />
     </div>
   );
 }

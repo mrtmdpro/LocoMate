@@ -72,14 +72,17 @@ export function TopNav() {
           <LogoLockup size="sm" />
         </Link>
 
-        <div className="flex-1 flex justify-center min-w-0">
+        {/* Inline tabs are desktop-only; on mobile the fixed BottomNav owns
+            primary navigation (thumb reach). */}
+        <div className="hidden lg:flex flex-1 justify-center min-w-0">
           <PrimaryTabs />
         </div>
+        <div className="flex-1 lg:hidden" />
 
         <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-          <div className="hidden sm:inline-flex">
-            <ThemeToggle />
-          </div>
+          {/* Theme toggle is visible on mobile too — it's FR-BRAND-01's
+              signature control and this is a mobile-first PWA. */}
+          <ThemeToggle />
           <NavHamburger />
         </div>
       </div>

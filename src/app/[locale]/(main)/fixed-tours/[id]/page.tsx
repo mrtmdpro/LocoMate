@@ -125,9 +125,9 @@ export default function FixedTourDetailPage() {
   // user pivot to the other language if they want.
   const [showEnglish, setShowEnglish] = useState(locale === "en");
 
-  const { data: tour, isLoading } = trpc.fixedTour.getById.useQuery(
+  const { data: tour, isLoading, isError } = trpc.fixedTour.getById.useQuery(
     { tourId },
-    { enabled: !!tourId },
+    { enabled: !!tourId, retry: false },
   );
 
   const today = new Date().toISOString().slice(0, 10);
@@ -165,6 +165,23 @@ export default function FixedTourDetailPage() {
       toast.error(err.message ?? t("book.errorFallback"));
     },
   });
+
+  // Not-found / error gets a real empty state with a way out — previously a
+  // bad id rendered the skeleton forever.
+  if (isError || (!isLoading && !tour)) {
+    return (
+      <PageTransition>
+        <div className="p-6 lg:p-8 lg:max-w-2xl lg:mx-auto pt-16 text-center space-y-4">
+          <div className="text-5xl">🗺</div>
+          <h1 className="text-h2 font-voice text-foreground font-normal">{t("notFound.title")}</h1>
+          <p className="text-sm text-muted-foreground">{t("notFound.body")}</p>
+          <Button onClick={() => router.push("/experiences")} variant="default" size="brand">
+            {t("notFound.cta")}
+          </Button>
+        </div>
+      </PageTransition>
+    );
+  }
 
   if (isLoading || !tour) {
     return (

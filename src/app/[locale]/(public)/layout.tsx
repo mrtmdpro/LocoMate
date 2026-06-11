@@ -3,6 +3,8 @@
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { TopNav } from "@/components/layout/top-nav";
+import { BottomNav } from "@/components/layout/bottom-nav";
+import { MarketingHeader } from "@/components/layout/marketing-header";
 import { useAuthStore } from "@/stores/auth";
 
 /**
@@ -34,11 +36,13 @@ function AuthenticatedPublicShell({ children }: { children: React.ReactNode }) {
       <TopNav />
       <main className="flex-1">
         {/* Mobile caps at 448px (single-column reading); desktop lets
-            each page self-declare via `lg:max-w-6xl lg:mx-auto`. */}
-        <div className="max-w-md mx-auto lg:max-w-none lg:mx-0">
+            each page self-declare via `lg:max-w-6xl lg:mx-auto`. Bottom
+            padding on mobile clears the fixed BottomNav. */}
+        <div className="max-w-md mx-auto pb-16 lg:max-w-none lg:mx-0 lg:pb-0">
           {children}
         </div>
       </main>
+      <BottomNav />
     </div>
   );
 }
@@ -47,6 +51,7 @@ function AnonymousPublicShell({ children }: { children: React.ReactNode }) {
   const t = useTranslations("publicShell");
   return (
     <div className="min-h-screen bg-background">
+      <MarketingHeader />
       <div className="max-w-md mx-auto lg:max-w-4xl lg:px-8 pb-20">
         {children}
       </div>

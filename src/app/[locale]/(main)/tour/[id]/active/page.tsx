@@ -64,7 +64,6 @@ export default function ActiveTourPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const [visitedStops, setVisitedStops] = useState<Set<number>>(new Set());
-  const [locationSharing, setLocationSharing] = useState(false);
   const [incidentOpen, setIncidentOpen] = useState(false);
 
   const { data: tour, isLoading } = trpc.tour.getFullTour.useQuery({ tourId: id }, { retry: false });
@@ -177,13 +176,6 @@ export default function ActiveTourPage() {
 
   return (
     <div className="min-h-screen bg-card lg:max-w-5xl lg:mx-auto">
-      {/* Location sharing banner */}
-      {locationSharing && (
-        <div className="bg-sage text-earth text-xs text-center py-2 font-medium">
-          📍 Live location sharing is ON
-        </div>
-      )}
-
       {/* Progress bar */}
       <div className="bg-secondary px-4 py-3 lg:rounded-none">
         <div className="flex items-center justify-between text-white mb-2">
@@ -331,13 +323,6 @@ export default function ActiveTourPage() {
 
         {/* Quick Actions */}
         <div className="flex gap-3">
-          <Button
-            variant="outline"
-            className="flex-1 rounded-xl"
-            onClick={() => setLocationSharing(!locationSharing)}
-          >
-            {locationSharing ? "📍 Stop Sharing" : "📍 Share Location"}
-          </Button>
           <Button variant="outline" className="flex-1 rounded-xl text-red-500 border-red-200 hover:bg-red-50" onClick={() => toast.info("Emergency: Police 113 | Ambulance 115 | Fire 114", { duration: 10000 })}>
             🆘 Emergency
           </Button>
@@ -352,11 +337,12 @@ export default function ActiveTourPage() {
         onOpenChange={setIncidentOpen}
         tourId={id}
         onPicked={(pick) => {
-          // Phase A: surface the pick as a toast — actually swapping the
-          // tour stop is Phase B's job (the `tours.tourData` blob has to
-          // be edited in place). Surfacing this now proves the loop.
-          toast.success(
-            `${pick.place.name} — ${pick.place.walkMinutes} phút bộ. Locomate sẽ ghi chú lại.`,
+          // Honest framing: these are nearby backup spots the traveler can
+          // walk to themselves — we surface the suggestion (no claim that the
+          // itinerary was edited, which it isn't). Applying a swap to
+          // tours.tourData is a later field-ops feature.
+          toast(
+            `${pick.place.name} · ${pick.place.walkMinutes} phút đi bộ — một gợi ý gần đây.`,
           );
         }}
       />
