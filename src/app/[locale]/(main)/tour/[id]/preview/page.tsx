@@ -44,7 +44,7 @@ export default function TourPreviewPage() {
   return (
     <div className="pb-32">
       {/* Header */}
-      <div className="bg-gradient-to-br from-secondary to-[#A8C589] p-6 pb-12 relative overflow-hidden">
+      <div className="bg-gradient-to-br from-secondary to-sage p-6 pb-12 relative overflow-hidden">
         <Image src="https://images.unsplash.com/photo-1571984405176-5958bd9ac31d?w=1200&h=600&fit=crop" alt="" fill sizes="100vw" className="object-cover opacity-30 z-0" />
         <button onClick={() => router.back()} className="text-white/80 mb-4 relative z-10">
           <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
@@ -141,7 +141,7 @@ export default function TourPreviewPage() {
             : t("priceUnavailable")}
         </Button>
 
-        <Link href="/esim" className="block mt-3 p-3 rounded-xl bg-card/40 border border-[#A8C589]/20 text-center">
+        <Link href="/esim" className="block mt-3 p-3 rounded-xl bg-card/40 border border-sage/20 text-center">
           <p className="text-xs font-semibold text-secondary">{t("esimTitle")}</p>
           <p className="text-xs text-muted-foreground mt-0.5">{t("esimBody")}</p>
         </Link>

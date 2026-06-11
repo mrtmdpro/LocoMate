@@ -114,7 +114,7 @@ export default function HostProfilePage() {
         {/* Hero band. Green gradient like the host dashboard header so the
             profile page reads as a host-branded surface rather than a generic
             traveler surface. */}
-        <div className="h-32 lg:h-44 bg-gradient-to-br from-secondary to-[#A8C589] relative">
+        <div className="h-32 lg:h-44 bg-gradient-to-br from-secondary to-sage relative">
           <div className="absolute inset-0 bg-[url('https://images.pexels.com/photos/10181717/pexels-photo-10181717.jpeg?auto=compress&cs=tinysrgb&w=1600')] bg-cover bg-center opacity-15" aria-hidden />
           <Link href="/hosts" className="absolute top-4 left-4 w-11 h-11 rounded-full bg-card/90 hover:bg-card flex items-center justify-center transition-colors z-10" aria-label="Back to hosts">
             <svg className="w-5 h-5 text-secondary" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>

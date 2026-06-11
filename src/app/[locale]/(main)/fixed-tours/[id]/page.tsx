@@ -452,6 +452,7 @@ export default function FixedTourDetailPage() {
                     </p>
                   </div>
                   <Button
+                    data-testid="fixed-tour-book-button"
                     size="brand"
                     onClick={handleBook}
                     disabled={bookMutation.isPending}

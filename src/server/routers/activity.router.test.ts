@@ -1,4 +1,5 @@
 import { describe, test, expect } from "vitest";
+import { randomUUID } from "node:crypto";
 import { callerAs } from "@/test/trpc";
 import { createUser, createHost } from "@/test/fixtures";
 import { getTestDb } from "@/test/setup";
@@ -17,7 +18,7 @@ async function createActivity(overrides: Partial<typeof activities.$inferInsert>
     .values({
       authorId: overrides.authorId ?? null,
       title: overrides.title ?? "Test Activity",
-      slug: overrides.slug ?? `test-activity-${Date.now()}`,
+      slug: overrides.slug ?? `test-activity-${randomUUID().slice(0, 8)}`,
       subtitle: overrides.subtitle ?? "A quick one",
       description: overrides.description ?? "This activity covers the essentials in ninety minutes.",
       category: overrides.category ?? "workshop",

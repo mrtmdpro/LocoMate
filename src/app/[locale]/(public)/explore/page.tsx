@@ -169,7 +169,7 @@ export default function ExplorePage() {
             {randomGem && (
               <Link href={`/explore/${(randomGem as { slug?: string }).slug || (randomGem as { id: string }).id}`}>
                 <Card className="border-0 shadow-sm overflow-hidden h-full">
-                  <div className="h-24 lg:h-[150px] relative overflow-hidden bg-gradient-to-br from-secondary to-[#A8C589]">
+                  <div className="h-24 lg:h-[150px] relative overflow-hidden bg-gradient-to-br from-secondary to-sage">
                     {(randomGem as { photos: string[] | null }).photos?.[0] && (
                       <Image src={(randomGem as { photos: string[] }).photos[0]} alt="" fill sizes="(max-width: 1024px) 50vw, 33vw" className="object-cover" />
                     )}
@@ -256,7 +256,7 @@ function PlaceCard({ place, locale }: { place: Record<string, unknown>; locale: 
   return (
     <Link href={`/explore/${p.slug || p.id}`}>
       <Card className="overflow-hidden border-0 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
-        <div className="h-40 bg-gradient-to-br from-secondary to-[#A8C589] relative overflow-hidden">
+        <div className="h-40 bg-gradient-to-br from-secondary to-sage relative overflow-hidden">
           {photo && <Image src={photo} alt={name ?? ""} fill sizes="(max-width: 1024px) 50vw, 33vw" className="object-cover" />}
           <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
           <Badge className="absolute top-3 right-3 bg-primary border-0 text-primary-foreground text-xs">{p.category}</Badge>

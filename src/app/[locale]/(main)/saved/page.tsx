@@ -5,6 +5,7 @@ import { useState, useMemo } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
+import { PageHeader } from "@/components/layout/page-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -64,14 +65,11 @@ export default function SavedPlacesPage() {
   });
 
   return (
-    <div className="pb-24 lg:pb-8 min-h-screen bg-[#f8faf8] lg:max-w-6xl lg:mx-auto lg:px-8 lg:py-6">
-      <div className="flex items-center gap-3 px-4 pt-4 pb-3">
-        <button onClick={() => router.back()} className="text-muted-foreground">
-          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
-        </button>
-        <h1 className="text-lg font-bold font-heading text-secondary">{t("title")}</h1>
-        <Badge variant="outline" className="text-xs ml-auto">{t("places", { n: allPlaces.length })}</Badge>
-      </div>
+    <div className="pb-24 lg:pb-8 min-h-screen bg-background lg:max-w-6xl lg:mx-auto lg:px-8 lg:py-6">
+      <PageHeader
+        title={t("title")}
+        right={<Badge variant="outline" className="text-xs">{t("places", { n: allPlaces.length })}</Badge>}
+      />
 
       <div className="flex gap-2 px-4 pb-3 overflow-x-auto scrollbar-hide">
         {FILTERS.map((f) => {
@@ -125,7 +123,7 @@ export default function SavedPlacesPage() {
             return (
               <Link key={place.id} href={`/explore/${place.slug || place.id}`}>
                 <Card className="border-0 shadow-sm overflow-hidden hover:shadow-md transition-shadow cursor-pointer">
-                  <div className="h-28 bg-gradient-to-br from-secondary to-[#A8C589] relative overflow-hidden">
+                  <div className="h-28 bg-gradient-to-br from-secondary to-sage relative overflow-hidden">
                     {photos?.[0] && <Image src={photos[0]} alt={place.name} fill sizes="(max-width: 1024px) 50vw, 33vw" className="object-cover" />}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                     <Badge className="absolute top-2 right-2 bg-primary border-0 text-primary-foreground text-xs">{place.category}</Badge>

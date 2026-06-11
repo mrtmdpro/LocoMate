@@ -37,6 +37,7 @@ const INTERESTS = [
 export default function PreferencesPage() {
   const router = useRouter();
   const t = useTranslations("profile.preferences");
+  const tCommon = useTranslations("common");
   const { data } = trpc.user.getProfile.useQuery();
   const utils = trpc.useUtils();
 
@@ -118,7 +119,7 @@ export default function PreferencesPage() {
   return (
     <div className="p-4 space-y-6 pb-32 lg:max-w-3xl lg:mx-auto">
       <div className="flex items-center gap-3 mb-2">
-        <button onClick={() => router.back()} className="text-muted-foreground hover:text-foreground transition-colors">
+        <button onClick={() => router.back()} aria-label={tCommon("back")} className="-ml-2 inline-flex h-11 w-11 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary">
           <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
         </button>
         <div className="flex flex-col">

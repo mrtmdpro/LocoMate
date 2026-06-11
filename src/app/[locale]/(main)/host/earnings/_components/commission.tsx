@@ -46,7 +46,7 @@ function CommissionTile({ label, value, muted, highlight }: { label: string; val
   return (
     <div>
       <p className="text-xs uppercase tracking-widest font-semibold text-white/70">{label}</p>
-      <p className={`text-xl lg:text-2xl font-bold tabular-nums mt-0.5 ${highlight ? "text-[#A8C589]" : muted ? "text-white/80" : "text-white"}`}>
+      <p className={`text-xl lg:text-2xl font-bold tabular-nums mt-0.5 ${highlight ? "text-sage" : muted ? "text-white/80" : "text-white"}`}>
         {formatVndCompact(value)}
       </p>
     </div>

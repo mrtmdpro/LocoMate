@@ -129,7 +129,7 @@ export default function OrderCheckoutPage() {
                 <span>{formatVnd(order.subtotalVnd)}</span>
               </div>
               {order.discountVnd > 0 && (
-                <div className="flex justify-between text-[#A8C589]">
+                <div className="flex justify-between text-sage">
                   <span>{t("bundleDiscount")}</span>
                   <span>−{formatVnd(order.discountVnd)}</span>
                 </div>

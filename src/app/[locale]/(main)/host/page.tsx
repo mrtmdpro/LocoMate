@@ -226,7 +226,7 @@ export default function HostDashboardPage() {
 
       {/* My experiences marketplace card */}
       <Link href="/host/experiences" className="block">
-        <Card className="border-0 shadow-sm bg-gradient-to-r from-secondary to-[#A8C589] text-white">
+        <Card className="border-0 shadow-sm bg-gradient-to-r from-secondary to-sage text-white">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
               <p className="text-xs uppercase tracking-widest text-white/70 font-semibold">{t("marketplace.eyebrow")}</p>

@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { useRouter } from "@/i18n/navigation";
 import { Link } from "@/i18n/navigation";
+import { PageHeader } from "@/components/layout/page-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
@@ -23,7 +23,6 @@ import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 
 export default function SecurityPage() {
-  const router = useRouter();
   const t = useTranslations("security");
   const { user, logout } = useAuthStore();
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -86,12 +85,7 @@ export default function SecurityPage() {
 
   return (
     <div className="pb-24 lg:pb-8 min-h-screen bg-card lg:max-w-3xl lg:mx-auto lg:px-8 lg:py-6">
-      <div className="flex items-center gap-3 px-4 pt-4 pb-3 lg:px-0 lg:pt-0">
-        <button onClick={() => router.back()} className="text-muted-foreground">
-          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
-        </button>
-        <h1 className="text-xl lg:text-2xl font-bold font-heading text-secondary">{t("heading")}</h1>
-      </div>
+      <PageHeader title={t("heading")} />
 
       <div className="px-4 space-y-5">
         {/* Password */}

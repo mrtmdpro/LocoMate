@@ -52,7 +52,7 @@ export default function HostExperiencePreviewPage() {
 
   return (
     <div className="pb-24">
-      <div className="h-56 relative bg-gradient-to-br from-secondary to-[#A8C589] overflow-hidden">
+      <div className="h-56 relative bg-gradient-to-br from-secondary to-sage overflow-hidden">
         {coverPhoto && (
           <Image
             src={coverPhoto}

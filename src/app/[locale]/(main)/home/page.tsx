@@ -420,7 +420,7 @@ export default function HomePage() {
             return (
               <Link key={p.id} href={`/explore/${p.slug || p.id}`} className="shrink-0 w-40">
                 <Card className="overflow-hidden pt-0 shadow-sm dark:ring-foreground/18">
-                  <div className="h-24 bg-gradient-to-br from-secondary to-[#A8C589] relative overflow-hidden">
+                  <div className="h-24 bg-gradient-to-br from-secondary to-sage relative overflow-hidden">
                     {p.photos?.[0] && <Image src={p.photos[0]} alt={pName ?? ""} fill sizes="160px" className="object-cover" />}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                     {idx === 0 && <Badge className="absolute top-2 left-2 bg-sage border-0 text-earth text-xs">{t("hiddenGems.topChoice")}</Badge>}

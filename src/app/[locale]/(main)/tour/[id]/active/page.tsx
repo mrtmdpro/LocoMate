@@ -270,7 +270,7 @@ export default function ActiveTourPage() {
             </CardContent>
           </Card>
         ) : (
-          <Card className="border-2 border-[#A8C589]">
+          <Card className="border-2 border-sage">
             <CardContent className="p-6 text-center">
               <div className="text-4xl mb-3">🎉</div>
               <h2 className="text-xl font-bold text-secondary">Tour Complete!</h2>

@@ -170,6 +170,7 @@ export default function FullTourPage() {
             {startMutation.isPending ? "Starting…" : "Start tour"}
           </Button>
           <Button
+            data-testid="cancel-booking-trigger"
             onClick={() => setCancelOpen(true)}
             variant="ghost"
             className="w-full h-10 text-sm text-muted-foreground hover:text-destructive"
@@ -201,6 +202,7 @@ export default function FullTourPage() {
               Keep booking
             </Button>
             <Button
+              data-testid="confirm-cancel-button"
               variant="default"
               className="bg-destructive text-white hover:bg-destructive/90"
               disabled={cancelMutation.isPending}

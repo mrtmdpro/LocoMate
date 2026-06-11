@@ -3,6 +3,7 @@
 import { useRouter } from "@/i18n/navigation";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
+import { PageHeader } from "@/components/layout/page-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,8 +16,8 @@ import { formatVndPrice, statusBadge, type StatusTone } from "@/lib/format";
 // emerald/red bordered pills. See @/lib/format#statusBadge.
 const TONE_CLASSES: Record<StatusTone, string> = {
   success: "bg-sage/10 text-secondary dark:text-foreground",
-  warning: "bg-amber-50 text-amber-700",
-  danger: "bg-red-50 text-red-500",
+  warning: "bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
+  danger: "bg-red-50 text-red-500 dark:bg-red-500/15 dark:text-red-300",
   info: "bg-primary/10 text-primary",
   neutral: "bg-muted text-muted-foreground",
 };
@@ -41,12 +42,7 @@ export default function PaymentHistoryPage() {
 
   return (
     <div className="pb-24 lg:pb-8 min-h-screen bg-card lg:max-w-4xl lg:mx-auto lg:px-8 lg:py-6">
-      <div className="flex items-center gap-3 px-4 pt-4 pb-3">
-        <button onClick={() => router.back()} className="text-muted-foreground">
-          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
-        </button>
-        <h1 className="text-lg font-bold font-heading text-secondary">{t("heading")}</h1>
-      </div>
+      <PageHeader title={t("heading")} />
 
       <div className="px-4 space-y-4">
         {/* Summary Card */}

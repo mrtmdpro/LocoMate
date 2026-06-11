@@ -105,7 +105,7 @@ export default function PlaceDetailPage() {
 
   return (
     <div className="pb-24 lg:pb-8 lg:max-w-6xl lg:mx-auto">
-      <div className="h-64 bg-gradient-to-br from-secondary to-[#A8C589] relative overflow-hidden">
+      <div className="h-64 bg-gradient-to-br from-secondary to-sage relative overflow-hidden">
         {(place.photos as string[] | null)?.[0] && (
           <Image src={(place.photos as string[])[0]} alt={placeName ?? ""} fill sizes="(max-width: 1024px) 100vw, 1024px" className="object-cover" />
         )}

@@ -64,7 +64,7 @@ export default function HostSelectionPage() {
 
         return (
           <Card key={h.id} className="border-0 shadow-md overflow-hidden">
-            <div className="h-20 bg-gradient-to-r from-secondary to-[#A8C589]" />
+            <div className="h-20 bg-gradient-to-r from-secondary to-sage" />
             <CardContent className="p-4 -mt-10">
               <div className="flex items-end gap-3 mb-3">
                 <Avatar className="w-16 h-16 border-4 border-white shadow-md">

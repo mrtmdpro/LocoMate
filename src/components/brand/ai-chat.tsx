@@ -118,6 +118,7 @@ function ChatBubble({
             <button
               key={a.id}
               type="button"
+              data-testid="quiz-answer"
               onClick={() => onAnswer(a.id)}
               className={cn(
                 "group flex flex-col items-start gap-0.5 rounded-md border px-4 py-2.5",
