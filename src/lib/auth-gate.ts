@@ -1,7 +1,7 @@
 import { jwtVerify } from "jose";
 
 /**
- * Edge-safe auth-gate primitives for `middleware.ts`. Kept free of any
+ * Auth-gate primitives for `proxy.ts`. Kept free of any
  * next-intl / next-server imports so the logic is unit-testable in Vitest
  * (those packages fail to load under the test runner's ESM resolver).
  */
@@ -51,6 +51,18 @@ export function isProtectedPath(
   const { rest } = stripLocale(pathname, locales);
   const firstSegment = rest.split("/").filter(Boolean)[0] ?? "";
   return PROTECTED_SEGMENTS.has(firstSegment);
+}
+
+export function buildLoginRedirectTarget(
+  pathname: string,
+  search: string,
+  locales: readonly string[],
+): { pathname: string; returnTo: string } {
+  const { locale } = stripLocale(pathname, locales);
+  return {
+    pathname: locale ? `/${locale}/login` : "/login",
+    returnTo: pathname + search,
+  };
 }
 
 let secretKey: Uint8Array | null = null;

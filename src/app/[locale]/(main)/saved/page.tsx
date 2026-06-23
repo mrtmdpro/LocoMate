@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { FillImage } from "@/components/ui/fill-image";
 import { trpc } from "@/lib/trpc";
 
 // Same canonical lowercase `value` shape as /explore so the chip
@@ -116,7 +117,14 @@ export default function SavedPlacesPage() {
               <Link key={place.id} href={`/explore/${place.slug || place.id}`}>
                 <Card className="border-0 shadow-sm overflow-hidden hover:shadow-md transition-shadow cursor-pointer">
                   <div className="h-28 bg-gradient-to-br from-secondary to-[#A8C589] relative overflow-hidden">
-                    {photos?.[0] && <img src={photos[0]} alt={place.name} className="absolute inset-0 w-full h-full object-cover" />}
+                    {photos?.[0] && (
+                      <FillImage
+                        src={photos[0]}
+                        alt={place.name}
+                        sizes="(max-width: 1024px) 50vw, 25vw"
+                        className="object-cover"
+                      />
+                    )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                     <Badge className="absolute top-2 right-2 bg-primary border-0 text-primary-foreground text-xs">{place.category}</Badge>
                     {isExplicitSave && (

@@ -838,9 +838,11 @@ The 4-D vector axis order is fixed and documented in
 
 #### Crossover Matching (NEW — May 2026, capacity rescue)
 
-Implements PRD §5.11. Lives in a new router
-`app/src/server/routers/crossover.router.ts` (to be authored). Schema in
-§3 above.
+Implements PRD §5.11 as a tested backend, currently parked until the public UI,
+chat/SSE, escrow, and observability surfaces exist. The router lives at
+`app/src/server/routers/crossover.router.ts`; the public HTTP tRPC boundary
+blocks `crossover.*` unless `CROSSOVER_MATCHING_ENABLED=true`. Schema is in
+§3 above. See `docs/CROSSOVER_MATCHING_STATUS.md` for the launch posture.
 
 | Procedure | Type | Auth | Description |
 |---|---|---|---|
@@ -858,19 +860,21 @@ Implements PRD §5.11. Lives in a new router
 | `crossover.reportPartner` | mutation | authed | FR-CROSS-08. Pair-scoped ban + chat termination + cache-wipe + Priority Matching Voucher issuance, all in one transaction. |
 | `crossover.redeemVoucher` | query | authed | Reads + decrements `uses_remaining`. Used internally by `crossover.getDiscoveryFeed` to apply the `score_boost`. |
 
-#### Crossover scheduled jobs (Vercel cron)
+#### Crossover scheduled jobs (parked)
 
-| Cron path | Cadence | Action |
-|---|---|---|
-| `/api/cron/crossover-t48` | every 15 min | For every `fixed_tour` booking departing in 47.5–48.5h with `currentCapacity < 2`: emit the in-app warning, surface the migration CTA, and flag `Tour.lowFillNotifiedAt`. |
-| `/api/cron/crossover-t36` | every 15 min | For every under-capacity booking past T−36h: build the discovery candidate set, send pushes (deduped via `crossover_discovery_pushes`), open the `/match/crossover` surface for participants. |
-| `/api/cron/crossover-t28` | every 15 min | Close the 8-hour chat window. Unlocked pairs flip back to `expired`; their underlying bookings re-enter the under-capacity pool. |
-| `/api/cron/crossover-t24` | every 15 min | Auto-cancel any `fixed_tour` booking still under capacity OR with `tour_crossover_requests.status != 'locked'`. Refund 100%, push to traveler + guide, free `host_availability`. |
+`vercel.json` intentionally does not schedule Crossover Matching. The codebase
+keeps one consolidated manual route, `/api/cron/crossover-sweeps`, which runs
+the T−48h, T−36h, T−28h, and T−24h helpers in order only when both conditions
+are true:
 
-All four endpoints require `Authorization: Bearer $CRON_SECRET` (same
-pattern as the existing reaper) and emit Sentry breadcrumbs on every
-transition so a stuck booking shows up in observability instead of
-silently rotting.
+| Requirement | Current behavior |
+|---|---|
+| `Authorization: Bearer $CRON_SECRET` | Missing or wrong credentials are rejected. |
+| `CROSSOVER_MATCHING_ENABLED=true` | Without it, the route returns `503` and does not touch data. |
+
+When the product is unparked, the scheduler must run frequently enough to honor
+the four lifecycle windows and should emit observability events on every
+transition so stuck bookings are visible.
 
 #### SSE / real-time event types (Crossover-specific additions)
 

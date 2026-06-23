@@ -7,6 +7,7 @@ import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { FillImage } from "@/components/ui/fill-image";
 import { trpc } from "@/lib/trpc";
 import { TOUR_PRICING } from "@/lib/pricing";
 import { formatVndPrice } from "@/lib/format";
@@ -44,7 +45,13 @@ export default function TourPreviewPage() {
     <div className="pb-32">
       {/* Header */}
       <div className="bg-gradient-to-br from-secondary to-[#A8C589] p-6 pb-12 relative overflow-hidden">
-        <img src="https://images.unsplash.com/photo-1571984405176-5958bd9ac31d?w=1200&h=600&fit=crop" alt="" className="absolute inset-0 w-full h-full object-cover opacity-30 z-0" />
+        <FillImage
+          src="https://images.unsplash.com/photo-1571984405176-5958bd9ac31d?w=1200&h=600&fit=crop"
+          alt=""
+          sizes="100vw"
+          className="object-cover opacity-30 z-0"
+          priority
+        />
         <button onClick={() => router.back()} className="text-white/80 mb-4 relative z-10">
           <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
         </button>

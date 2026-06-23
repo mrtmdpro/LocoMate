@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { FillImage } from "@/components/ui/fill-image";
 import { trpc } from "@/lib/trpc";
 import { HOST_TOUR_PRICING } from "@/lib/pricing";
 import { statusBadge } from "@/lib/format";
@@ -53,10 +54,12 @@ export default function HostExperiencePreviewPage() {
     <div className="pb-24">
       <div className="h-56 relative bg-gradient-to-br from-secondary to-[#A8C589] overflow-hidden">
         {coverPhoto && (
-          <img
+          <FillImage
             src={coverPhoto}
             alt=""
-            className="w-full h-full object-cover"
+            sizes="100vw"
+            className="object-cover"
+            priority
           />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />

@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { db } from "@/server/db";
 import {
+  CROSSOVER_PARKED_MESSAGE,
+  isCrossoverMatchingEnabled,
+} from "@/lib/crossover-feature";
+import {
   runT48hSweep,
   runT36hSweep,
   runT28hSweep,
@@ -8,19 +12,18 @@ import {
 } from "@/server/services/crossover-cron";
 
 /**
- * Vercel cron endpoint that runs the four Crossover Matching lifecycle
- * sweeps in order (T-48h → T-36h → T-28h → T-24h).
+ * Parked Crossover Matching cron endpoint.
  *
  * Wiring:
- *   - `vercel.json` schedules this URL hourly.
+ *   - `vercel.json` intentionally does not schedule this URL.
+ *   - `CROSSOVER_MATCHING_ENABLED=true` is required before it can run.
  *   - Vercel sends `Authorization: Bearer $CRON_SECRET` when invoking
  *     scheduled routes; we verify it so the endpoint can't be poked by
  *     unauthenticated callers. Locally / in preview (no CRON_SECRET) the
  *     route rejects everything — we don't want stray pokes mutating data.
  *
  * Each sweep is independently idempotent (time-windowed + dedupe index),
- * so a re-run within the same hour is safe. Returns the per-sweep counts
- * so the Vercel cron UI shows a meaningful per-run result.
+ * so a re-run is safe once the product surface is explicitly enabled.
  */
 export const runtime = "nodejs";
 
@@ -35,6 +38,12 @@ export async function GET(request: Request) {
   const auth = request.headers.get("authorization") ?? "";
   if (auth !== `Bearer ${expected}`) {
     return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
+  }
+  if (!isCrossoverMatchingEnabled()) {
+    return NextResponse.json(
+      { ok: false, error: CROSSOVER_PARKED_MESSAGE },
+      { status: 503 },
+    );
   }
 
   try {

@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { FillImage } from "@/components/ui/fill-image";
 import { trpc } from "@/lib/trpc";
 import { useAuthStore } from "@/stores/auth";
 import { toast } from "sonner";
@@ -100,12 +101,13 @@ export default function HostExperiencesListPage() {
               grouped[tabKey].map((exp) => (
                 <Card key={exp.id} className="border-0 shadow-sm overflow-hidden">
                   <CardContent className="p-3 flex gap-3">
-                    <div className="w-16 h-16 rounded-xl bg-muted shrink-0 overflow-hidden">
+                    <div className="w-16 h-16 rounded-xl bg-muted shrink-0 overflow-hidden relative">
                       {exp.photos?.[0] && (
-                        <img
+                        <FillImage
                           src={exp.photos[0]}
                           alt=""
-                          className="w-full h-full object-cover"
+                          sizes="4rem"
+                          className="object-cover"
                         />
                       )}
                     </div>

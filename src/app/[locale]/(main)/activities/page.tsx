@@ -6,6 +6,7 @@ import { Link } from "@/i18n/navigation";
 import { PageTransition } from "@/components/layout/page-transition";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { FillImage } from "@/components/ui/fill-image";
 import { trpc } from "@/lib/trpc";
 import { pickLocaleField } from "@/lib/pick-locale-field";
 import { formatVndPrice } from "@/lib/format";
@@ -135,8 +136,12 @@ export default function ActivitiesPage() {
                   <div className="flex lg:hidden">
                     <div className="w-32 h-32 bg-card relative shrink-0">
                       {previewSrc ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={previewSrc} alt={aTitle ?? ""} className="absolute inset-0 w-full h-full object-cover" />
+                        <FillImage
+                          src={previewSrc}
+                          alt={aTitle ?? ""}
+                          sizes="8rem"
+                          className="object-cover"
+                        />
                       ) : (
                         <div className="absolute inset-0 flex items-center justify-center text-3xl text-muted-foreground/40">
                           {a.category === "workshop" ? "🛠️" : a.category === "food" ? "🍜" : a.category === "performance" ? "🎭" : "🎫"}
@@ -174,11 +179,11 @@ export default function ActivitiesPage() {
                   <div className="hidden lg:flex lg:flex-col">
                     <div className="aspect-[4/3] bg-card relative overflow-hidden">
                       {previewSrc ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
+                        <FillImage
                           src={previewSrc}
                           alt={aTitle ?? ""}
-                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                          sizes="33vw"
+                          className="object-cover transition-transform duration-300 group-hover:scale-105"
                         />
                       ) : (
                         <div className="absolute inset-0 flex items-center justify-center text-6xl text-muted-foreground/30">

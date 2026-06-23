@@ -7,6 +7,7 @@ import { useParams } from "next/navigation";
 import { PageTransition } from "@/components/layout/page-transition";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { FillImage } from "@/components/ui/fill-image";
 import { AddToCartButton } from "@/components/cart/add-to-cart-button";
 import { trpc } from "@/lib/trpc";
 import { pickLocaleField } from "@/lib/pick-locale-field";
@@ -86,7 +87,13 @@ export default function ShopProductPage() {
           {/* Mobile hero */}
           <div className="relative h-72 bg-card lg:hidden">
             {photoUrl && (
-              <img src={photoUrl} alt={productAlt} className="absolute inset-0 w-full h-full object-cover" />
+              <FillImage
+                src={photoUrl}
+                alt={productAlt}
+                sizes="100vw"
+                className="object-cover"
+                priority
+              />
             )}
             <Link href="/shop" className="absolute top-4 left-4 w-11 h-11 rounded-full bg-card/90 flex items-center justify-center">
               <svg className="w-5 h-5 text-secondary" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
@@ -109,7 +116,12 @@ export default function ShopProductPage() {
           <div className="hidden lg:block">
             <div className="relative aspect-square bg-card rounded-2xl overflow-hidden">
               {photoUrl && (
-                <img src={photoUrl} alt={productAlt} className="absolute inset-0 w-full h-full object-cover" />
+                <FillImage
+                  src={photoUrl}
+                  alt={productAlt}
+                  sizes="50vw"
+                  className="object-cover"
+                />
               )}
               {product.bundleDiscountPct ? (
                 <Badge className="absolute top-4 right-4 bg-primary border-0 text-primary-foreground text-xs">

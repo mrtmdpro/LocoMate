@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
+import { FillImage } from "@/components/ui/fill-image";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 import {
@@ -413,11 +414,12 @@ export function HostExperienceWizard({
             </p>
             <div className="grid grid-cols-3 gap-2">
               {photos.map((p, i) => (
-                <div key={`${p}-${i}`} className="relative">
-                  <img
+                <div key={`${p}-${i}`} className="relative h-20 rounded-lg overflow-hidden bg-muted">
+                  <FillImage
                     src={p}
                     alt=""
-                    className="w-full h-20 object-cover rounded-lg bg-muted"
+                    sizes="(max-width: 768px) 33vw, 12rem"
+                    className="object-cover"
                   />
                   <button
                     className="absolute top-1 right-1 bg-card/90 rounded-full w-5 h-5 text-xs font-bold text-red-600"

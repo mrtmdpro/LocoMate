@@ -124,12 +124,8 @@ jobs:
     runs-on: ubuntu-latest
     # Run E2E only after the fast jobs pass.
     needs: [lint, typecheck, test, schema-drift]
-    # The 3 specs sign in as seeded users and walk real booking/host flows, so
-    # they depend on the seed catalogue + runtime DB matching the live UI. That
-    # makes them inherently fragile on a first CI pass, so the job is marked
-    # continue-on-error: it RUNS and uploads its report, but a failure does not
-    # block the pipeline. Tighten to a hard gate once the specs are stabilised.
-    continue-on-error: true
+    # The 3 specs sign in as seeded users and walk real booking/host flows.
+    # This is a hard release gate; failures still upload the Playwright report.
     services:
       postgres:
         image: postgres:16
@@ -168,22 +164,24 @@ jobs:
           pnpm db:seed
       - name: Build the app
         run: pnpm build
-      - name: Start the app and wait for it to be ready
+      - name: Run Playwright
+        env:
+          PLAYWRIGHT_BASE_URL: http://localhost:3000
         run: |
-          pnpm start &
+          pnpm start > /tmp/locomate-next.log 2>&1 &
+          APP_PID=$!
+          trap 'kill $APP_PID' EXIT
           for i in $(seq 1 60); do
             if curl -sSf http://localhost:3000 >/dev/null 2>&1; then
               echo "App is up after ${i}s"
-              exit 0
+              pnpm test:e2e
+              exit $?
             fi
             sleep 1
           done
           echo "App did not become ready in time" >&2
+          cat /tmp/locomate-next.log >&2
           exit 1
-      - name: Run Playwright
-        env:
-          PLAYWRIGHT_BASE_URL: http://localhost:3000
-        run: pnpm test:e2e
       - name: Upload Playwright report
         if: always()
         uses: actions/upload-artifact@v4

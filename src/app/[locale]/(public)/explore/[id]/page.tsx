@@ -7,6 +7,7 @@ import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { FillImage } from "@/components/ui/fill-image";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { useAuthStore } from "@/stores/auth";
@@ -104,7 +105,13 @@ export default function PlaceDetailPage() {
     <div className="pb-24 lg:pb-8 lg:max-w-6xl lg:mx-auto">
       <div className="h-64 bg-gradient-to-br from-secondary to-[#A8C589] relative overflow-hidden">
         {(place.photos as string[] | null)?.[0] && (
-          <img src={(place.photos as string[])[0]} alt={placeName ?? ""} className="absolute inset-0 w-full h-full object-cover" />
+          <FillImage
+            src={(place.photos as string[])[0]}
+            alt={placeName ?? ""}
+            sizes="100vw"
+            className="object-cover"
+            priority
+          />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
         <button onClick={() => router.back()} className="absolute top-4 left-4 bg-card/90 rounded-full p-2 shadow-md z-10">

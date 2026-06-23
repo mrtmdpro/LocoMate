@@ -10,6 +10,11 @@ import {
   REFRESH_COOKIE_PATH,
 } from "@/server/lib/auth-cookies";
 import { resolveGoogleAccount } from "@/server/services/oauth-account";
+import {
+  enforceOAuthRateLimit,
+  isRateLimitError,
+  oauthRateLimitResponse,
+} from "@/server/services/oauth-rate-limit";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -65,6 +70,13 @@ function setAuthCookiesOnJar(
 }
 
 export async function GET(req: Request) {
+  try {
+    await enforceOAuthRateLimit(req, "callback");
+  } catch (err) {
+    if (isRateLimitError(err)) return oauthRateLimitResponse();
+    throw err;
+  }
+
   const url = new URL(req.url);
   const code = url.searchParams.get("code");
   const state = url.searchParams.get("state");

@@ -7,6 +7,7 @@ import { Link } from "@/i18n/navigation";
 import { PageTransition } from "@/components/layout/page-transition";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { FillImage } from "@/components/ui/fill-image";
 import { AddToCartButton } from "@/components/cart/add-to-cart-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { trpc } from "@/lib/trpc";
@@ -182,8 +183,13 @@ export default function ActivityDetailPage() {
         {/* Hero (taller + wider overlays on desktop) */}
         <div className="relative h-60 lg:h-96">
           {heroSrc && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={heroSrc} alt={activityTitle ?? ""} className="absolute inset-0 w-full h-full object-cover" />
+            <FillImage
+              src={heroSrc}
+              alt={activityTitle ?? ""}
+              sizes="100vw"
+              className="object-cover"
+              priority
+            />
           )}
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/10 to-black/60" />
           <Link href="/activities" className="absolute top-4 left-4 w-11 h-11 rounded-full bg-card/90 flex items-center justify-center hover:bg-card transition-colors">

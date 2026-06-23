@@ -1,6 +1,11 @@
 import { cookies } from "next/headers";
 import { generateCodeVerifier, generateState } from "arctic";
 import { googleClient } from "@/lib/oauth";
+import {
+  enforceOAuthRateLimit,
+  isRateLimitError,
+  oauthRateLimitResponse,
+} from "@/server/services/oauth-rate-limit";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -22,6 +27,13 @@ function appBase(): string {
 }
 
 export async function GET(req: Request) {
+  try {
+    await enforceOAuthRateLimit(req, "start");
+  } catch (err) {
+    if (isRateLimitError(err)) return oauthRateLimitResponse();
+    throw err;
+  }
+
   const url = new URL(req.url);
   const returnTo = sanitizeReturnTo(url.searchParams.get("returnTo"));
 

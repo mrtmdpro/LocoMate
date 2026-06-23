@@ -7,6 +7,7 @@ import { PageTransition } from "@/components/layout/page-transition";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { FillImage } from "@/components/ui/fill-image";
 import { useAuthStore } from "@/stores/auth";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
@@ -170,7 +171,12 @@ export default function CartPage() {
               <CardContent className="p-3 flex gap-3">
                 <div className="w-16 h-16 bg-card rounded-lg shrink-0 relative overflow-hidden">
                   {item.thumbnail ? (
-                    <img src={item.thumbnail} alt={item.displayLabel} className="absolute inset-0 w-full h-full object-cover" />
+                    <FillImage
+                      src={item.thumbnail}
+                      alt={item.displayLabel}
+                      sizes="4rem"
+                      className="object-cover"
+                    />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-2xl">
                       {item.kind === "fixed_tour" ? "🗺️" : item.kind === "activity" ? "🎫" : item.kind === "merch" ? "🛍️" : item.kind === "esim" ? "📶" : "👤"}

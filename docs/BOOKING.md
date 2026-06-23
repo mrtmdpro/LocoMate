@@ -91,14 +91,18 @@ pending     -> reverted     (peer rolls back the lock-in after a failed Δ)
 no_change                   (terminal — Δ = 0, no payment needed)
 ```
 
-## Pre-departure timeline (NEW — Crossover Matching, PRD §5.11)
+## Pre-departure timeline (Crossover Matching, parked)
 
-Every Fixed Tour and Customized Tour booking now traverses four
-cron-driven anchor points before departure. The anchors are computed
-from `tours.start_at` (or, for `fixed_tour` bookings,
-`tours.request_params.date + start_time`) in Vietnam local time. The
-handlers all live under `/api/cron/crossover-*` and require
-`Authorization: Bearer $CRON_SECRET` (same pattern as the order reaper).
+Crossover Matching is parked until its traveler-facing surfaces ship. See
+`docs/CROSSOVER_MATCHING_STATUS.md` for the current launch posture.
+
+The intended lifecycle still has four anchor points before departure. The
+anchors are computed from `tours.start_at` (or, for `fixed_tour` bookings,
+`tours.request_params.date + start_time`) in Vietnam local time. The tested
+backend helpers exist, but production does not currently schedule them. The
+single manual route, `/api/cron/crossover-sweeps`, requires
+`Authorization: Bearer $CRON_SECRET` and returns `503` unless
+`CROSSOVER_MATCHING_ENABLED=true`.
 
 ```
                 T-48h          T-36h          T-28h          T-24h           departure
@@ -120,18 +124,17 @@ booking cutoff ──▶│              │              │              │  
                   │              │              │              │  if unlocked    │
 ```
 
-| Anchor | Cron path | Cadence | Effect on `tours.status` |
+| Anchor | Current route | Current cadence | Intended effect on `tours.status` |
 |---|---|---|---|
-| **T−48h** | `/api/cron/crossover-t48` | every 15 min | New bookings are blocked at this point; under-capacity bookings get the warning + migration CTA (no state change yet). |
-| **T−36h** | `/api/cron/crossover-t36` | every 15 min | Opens the discovery surface; writes one row per recipient into `crossover_discovery_pushes` for dedupe. |
-| **T−28h** | `/api/cron/crossover-t28` | every 15 min | Closes the 8-hour negotiation window. `tour_crossover_requests.status='matched'` rows without a `locked_at` flip to `expired`. |
-| **T−24h** | `/api/cron/crossover-t24` | every 15 min | Auto-cancels any `fixed_tour` booking still under capacity OR whose crossover never `locked`. Sets `tours.status='system_cancelled'`, runs a 100% refund, releases the guide's `host_availability` slot. |
+| **T−48h** | `/api/cron/crossover-sweeps` | Not scheduled while parked | New bookings are blocked at this point; under-capacity bookings get the warning + migration CTA (no state change yet). |
+| **T−36h** | `/api/cron/crossover-sweeps` | Not scheduled while parked | Opens the discovery surface; writes one row per recipient into `crossover_discovery_pushes` for dedupe. |
+| **T−28h** | `/api/cron/crossover-sweeps` | Not scheduled while parked | Closes the 8-hour negotiation window. `tour_crossover_requests.status='matched'` rows without a `locked_at` flip to `expired`. |
+| **T−24h** | `/api/cron/crossover-sweeps` | Not scheduled while parked | Auto-cancels any `fixed_tour` booking still under capacity OR whose crossover never `locked`. Sets `tours.status='system_cancelled'`, runs a 100% refund, releases the guide's `host_availability` slot. |
 
-The 15-minute cadence is granular enough that a traveler buying a tour
-at, say, "exactly T−48h minus 14 minutes" still gets a clean booking-cutoff
-experience on the very next tick. Vercel Hobby's daily-cron limit
-forced the original order-reaper to run once a day; Crossover requires
-Pro-tier cron frequency.
+When Crossover Matching is unparked, the scheduler must be set to a cadence
+that actually honors the four windows. Do not enable the sweeps without the
+warning, migration, discovery, proposal, escrow, chat/SSE, and observability UI
+surfaces.
 
 ## Concurrency invariants
 
@@ -242,11 +245,11 @@ The 50%-after-lock branch is the meaningful new addition: it
 penalises walkaway after the system already wrote a `tour_crossover_requests.status='locked'` row, because at that point the system has irreversibly
 committed a guide hour AND a paired traveler's slot.
 
-### 3. T−24h system auto-cancel (`/api/cron/crossover-t24`)
+### 3. T−24h system auto-cancel (`/api/cron/crossover-sweeps`, parked)
 
-Triggered by the Crossover Matching cron when a booking is still under
-capacity OR its crossover never locked OR its escrow Δ-payment failed
-through the grace window. Per leg of the pair:
+When Crossover Matching is unparked, the consolidated sweep will trigger this
+branch when a booking is still under capacity OR its crossover never locked OR
+its escrow Δ-payment failed through the grace window. Per leg of the pair:
 
 ```
 BEGIN;

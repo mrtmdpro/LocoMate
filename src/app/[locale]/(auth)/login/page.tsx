@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { FillImage } from "@/components/ui/fill-image";
 import { trpc } from "@/lib/trpc";
 import { useAuthStore } from "@/stores/auth";
 import { LogoWithText } from "@/components/brand";
@@ -130,10 +131,21 @@ function LoginPageInner() {
       animate={loggingIn ? { opacity: 0, y: -20, scale: 0.98 } : { opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: loggingIn ? 0.5 : 0.4, ease: "easeInOut" }}
     >
-      <img src="https://images.unsplash.com/photo-1616486410185-81af2d32a2af?w=1200&h=800&fit=crop" alt="" className="absolute inset-0 w-full h-full object-cover opacity-10 z-0" />
+      <FillImage
+        src="https://images.unsplash.com/photo-1616486410185-81af2d32a2af?w=1200&h=800&fit=crop"
+        alt=""
+        sizes="100vw"
+        className="object-cover opacity-10 z-0"
+        priority
+      />
       <Card className="w-full max-w-md border-0 shadow-xl relative z-10 overflow-hidden">
         <div className="h-36 relative overflow-hidden">
-          <img src="https://images.unsplash.com/photo-1616486410185-81af2d32a2af?w=800&h=300&fit=crop" alt="" className="absolute inset-0 w-full h-full object-cover" />
+          <FillImage
+            src="https://images.unsplash.com/photo-1616486410185-81af2d32a2af?w=800&h=300&fit=crop"
+            alt=""
+            sizes="28rem"
+            className="object-cover"
+          />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
           <div className="absolute bottom-3 left-4 right-4">
             <h2 className="text-white font-bold text-lg font-heading">{t("welcomeBack")}</h2>

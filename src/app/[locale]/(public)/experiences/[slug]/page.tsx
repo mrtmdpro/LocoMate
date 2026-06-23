@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { FillImage } from "@/components/ui/fill-image";
 import {
   Dialog,
   DialogContent,
@@ -116,8 +117,15 @@ export default function ExperienceDetailPage() {
     <PageTransition>
     <div className="pb-24 lg:pb-12">
       <div className="h-72 relative overflow-hidden bg-muted">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        {heroImage && <img src={heroImage} alt={title ?? ""} decoding="async" className="absolute inset-0 w-full h-full object-cover" />}
+        {heroImage && (
+          <FillImage
+            src={heroImage}
+            alt={title ?? ""}
+            sizes="100vw"
+            className="object-cover"
+            priority
+          />
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
         <button onClick={() => router.back()} className="absolute top-4 left-4 lg:top-6 lg:left-8 bg-card/90 rounded-full p-2 shadow-md z-10">
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>

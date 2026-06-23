@@ -6,6 +6,7 @@ import { Link } from "@/i18n/navigation";
 import { PageTransition } from "@/components/layout/page-transition";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { FillImage } from "@/components/ui/fill-image";
 import { trpc } from "@/lib/trpc";
 import { Basket } from "@/components/brand";
 import { pickLocaleField } from "@/lib/pick-locale-field";
@@ -87,10 +88,11 @@ export default function ShopPage() {
                 <Card className="border-0 shadow-sm overflow-hidden h-full transition-shadow group-hover:shadow-md">
                   <div className="h-36 lg:h-48 bg-card relative overflow-hidden">
                     {photoUrl && (
-                      <img
+                      <FillImage
                         src={photoUrl}
                         alt={pTitle ?? p.title ?? "Locomate merch"}
-                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        sizes="(max-width: 1024px) 50vw, 25vw"
+                        className="object-cover transition-transform duration-300 group-hover:scale-105"
                       />
                     )}
                     {p.bundleDiscountPct ? (

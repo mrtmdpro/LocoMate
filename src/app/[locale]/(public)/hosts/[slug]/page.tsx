@@ -10,6 +10,7 @@ import { PageTransition } from "@/components/layout/page-transition";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { FillImage } from "@/components/ui/fill-image";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { trpc } from "@/lib/trpc";
 import { useAuthStore } from "@/stores/auth";
@@ -239,13 +240,11 @@ export default function HostProfilePage() {
                       <Card className="border-0 shadow-sm overflow-hidden transition-shadow group-hover:shadow-md">
                         <div className="h-36 bg-muted relative overflow-hidden">
                           {photo && (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img
+                            <FillImage
                               src={photo}
                               alt={eTitle ?? ""}
-                              loading="lazy"
-                              decoding="async"
-                              className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                              sizes="(max-width: 1024px) 100vw, 50vw"
+                              className="object-cover transition-transform duration-300 group-hover:scale-105"
                             />
                           )}
                           <Badge className="absolute top-2 left-2 bg-card/90 text-foreground border-0 text-xs capitalize">{e.category}</Badge>
@@ -285,10 +284,11 @@ export default function HostProfilePage() {
                       <Card className="border-0 shadow-sm overflow-hidden transition-shadow group-hover:shadow-md">
                         <div className="h-32 bg-card relative overflow-hidden">
                           {a.photos?.[0] && (
-                            <img
+                            <FillImage
                               src={a.photos[0]}
                               alt={aTitle ?? ""}
-                              className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                              sizes="(max-width: 1024px) 100vw, 50vw"
+                              className="object-cover transition-transform duration-300 group-hover:scale-105"
                             />
                           )}
                           <Badge className="absolute top-2 left-2 bg-card/90 text-foreground border-0 text-xs capitalize">{a.category}</Badge>

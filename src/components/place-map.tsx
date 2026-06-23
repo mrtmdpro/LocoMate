@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import L from "leaflet";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
@@ -75,9 +76,12 @@ export default function PlaceMap({ places }: { places: PlaceForMap[] }) {
             <Popup minWidth={200} maxWidth={260} closeButton={false}>
               <div className="flex flex-col gap-1.5 -m-1">
                 {place.photos?.[0] && (
-                  <img
+                  <Image
                     src={place.photos[0]}
                     alt={place.name}
+                    width={240}
+                    height={96}
+                    sizes="240px"
                     className="w-full h-24 object-cover rounded-lg"
                   />
                 )}

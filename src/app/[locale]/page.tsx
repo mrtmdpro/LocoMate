@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { FillImage } from "@/components/ui/fill-image";
 import { useAuthStore } from "@/stores/auth";
 import { LogoLockup } from "@/components/brand";
 
@@ -30,8 +31,14 @@ export default function LandingPage() {
       <header className="fixed top-0 w-full z-50 bg-card/80 backdrop-blur-md flex justify-between items-center px-6 py-4">
         <LogoLockup size="sm" />
         {user && (
-          <div className="w-10 h-10 rounded-full bg-mustard/25 flex items-center justify-center overflow-hidden border-2 border-white">
-            <img src={user.avatarUrl || ""} alt="" className="w-full h-full object-cover" />
+          <div className="w-10 h-10 rounded-full bg-mustard/25 flex items-center justify-center overflow-hidden border-2 border-white relative">
+            {user.avatarUrl ? (
+              <FillImage src={user.avatarUrl} alt="" sizes="2.5rem" className="object-cover" />
+            ) : (
+              <span className="text-xs font-bold text-secondary">
+                {(user.displayName || user.email || "?")[0]}
+              </span>
+            )}
           </div>
         )}
       </header>
@@ -109,11 +116,12 @@ export default function LandingPage() {
         </div>
 
         <div className="absolute top-10 right-[-20px] rotate-6 opacity-40 pointer-events-none">
-          <div className="bg-card p-2 rounded-xl shadow-xl w-32 h-32 border-4 border-white overflow-hidden">
-            <img
+          <div className="bg-card p-2 rounded-xl shadow-xl w-32 h-32 border-4 border-white overflow-hidden relative">
+            <FillImage
               src="https://images.pexels.com/photos/30739567/pexels-photo-30739567.jpeg?auto=compress&cs=tinysrgb&w=300"
               alt="Map view"
-              className="w-full h-full object-cover rounded-lg"
+              sizes="8rem"
+              className="object-cover rounded-lg"
             />
           </div>
         </div>

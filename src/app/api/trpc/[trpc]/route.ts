@@ -1,6 +1,11 @@
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 import { appRouter } from "@/server/routers/_app";
 import { createContext } from "@/server/trpc";
+import {
+  CROSSOVER_PARKED_MESSAGE,
+  isCrossoverMatchingEnabled,
+  isCrossoverTrpcPath,
+} from "@/lib/crossover-feature";
 
 /**
  * CSRF baseline (Cluster C): cookies travel automatically, so a cross-site
@@ -27,6 +32,11 @@ function originAllowed(req: Request): boolean {
 }
 
 const handler = (req: Request) => {
+  const { pathname } = new URL(req.url);
+  if (isCrossoverTrpcPath(pathname) && !isCrossoverMatchingEnabled()) {
+    return new Response(CROSSOVER_PARKED_MESSAGE, { status: 503 });
+  }
+
   if (!originAllowed(req)) {
     return new Response("Forbidden: bad origin", { status: 403 });
   }

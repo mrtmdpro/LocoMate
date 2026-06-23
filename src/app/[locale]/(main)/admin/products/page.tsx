@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { FillImage } from "@/components/ui/fill-image";
 import { useAuthStore } from "@/stores/auth";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
@@ -102,8 +103,15 @@ export default function AdminProductsPage() {
               <Card key={p.id} className="border-0 shadow-sm">
                 <CardContent className="p-3 space-y-2">
                   <div className="flex items-center gap-3">
-                    <div className="w-14 h-14 bg-card rounded-lg shrink-0 overflow-hidden">
-                      {p.photos?.[0] && <img src={p.photos[0]} alt={p.title} className="w-full h-full object-cover" />}
+                    <div className="w-14 h-14 bg-card rounded-lg shrink-0 overflow-hidden relative">
+                      {p.photos?.[0] && (
+                        <FillImage
+                          src={p.photos[0]}
+                          alt={p.title}
+                          sizes="3.5rem"
+                          className="object-cover"
+                        />
+                      )}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm lg:text-base font-semibold text-secondary line-clamp-1">{p.title}</p>
