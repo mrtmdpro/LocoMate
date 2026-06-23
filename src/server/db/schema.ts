@@ -835,10 +835,11 @@ export const payments = pgTable(
     // tourId is nullable now: legacy algorithmic tours still use the 1:1 link,
     // but new multi-line orders use `orderId` instead. Exactly one of the two
     // must be set at insert time (enforced in payment.router.confirm / the
-    // new order.createPayment path).
+    // new order.createPayment path). Deleting a traveler cascades their tour
+    // row, but payment audit rows must survive with this link nulled.
     tourId: uuid("tour_id")
       .unique()
-      .references(() => tours.id, { onDelete: "cascade" }),
+      .references(() => tours.id, { onDelete: "set null" }),
     orderId: uuid("order_id")
       .unique()
       .references(() => orders.id, { onDelete: "cascade" }),

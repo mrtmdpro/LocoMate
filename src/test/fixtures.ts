@@ -199,7 +199,8 @@ export async function createPayment(overrides: Partial<NewPayment> = {}) {
       amount: overrides.amount ?? 250_000,
       currency: overrides.currency ?? "VND",
       paymentMethod: overrides.paymentMethod ?? "card",
-      paymentGateway: overrides.paymentGateway ?? "stripe_test",
+      paymentGateway: overrides.paymentGateway ?? "stripe",
+      gatewayTxnId: overrides.gatewayTxnId ?? `pi_fixture_${randomUUID()}`,
       status: overrides.status ?? "pending",
       ...overrides,
     })

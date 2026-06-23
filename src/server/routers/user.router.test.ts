@@ -6,12 +6,14 @@ import {
   createHost,
   createExperience,
   createTour,
+  createPayment,
 } from "@/test/fixtures";
 import { getTestDb } from "@/test/setup";
 import {
   users,
   experiences,
   tours,
+  payments,
   hostProfiles,
   userProfiles,
 } from "@/server/db/schema";
@@ -391,6 +393,45 @@ describe("user.deleteAccount", () => {
       .from(users)
       .where(eq(users.id, user.id));
     expect(remaining).toBeUndefined();
+  });
+
+  test("traveler delete preserves tour-linked payment audit rows", async () => {
+    const password = "password123";
+    const user = await createUser({
+      email: "paid-traveler@test.com",
+      passwordHash: hashSync(password, 4),
+    });
+    const tour = await createTour({
+      userId: user.id,
+      status: "paid",
+      priceAmount: 900_000,
+    });
+    const payment = await createPayment({
+      tourId: tour.id,
+      userId: user.id,
+      amount: 900_000,
+      paymentGateway: "stripe",
+      status: "succeeded",
+      gatewayTxnId: "pi_retention_test",
+      paidAt: new Date(),
+    });
+
+    const caller = await callerAs(user);
+    await caller.user.deleteAccount({
+      confirmEmail: "paid-traveler@test.com",
+      currentPassword: password,
+    });
+
+    const [remaining] = await getTestDb()
+      .select()
+      .from(payments)
+      .where(eq(payments.id, payment.id));
+    expect(remaining).toBeDefined();
+    expect(remaining.userId).toBeNull();
+    expect(remaining.tourId).toBeNull();
+    expect(remaining.amount).toBe(900_000);
+    expect(remaining.status).toBe("succeeded");
+    expect(remaining.gatewayTxnId).toBe("pi_retention_test");
   });
 
   test("rejects mismatched email confirmation", async () => {

@@ -2,7 +2,7 @@ import { describe, test, expect } from "vitest";
 import { eq } from "drizzle-orm";
 import { callerAs } from "@/test/trpc";
 import { createUser, createHost } from "@/test/fixtures";
-import { getTestDb } from "@/test/setup";
+import { getTestDb, testPaymentProvider } from "@/test/setup";
 import {
   activities,
   activitySlots,
@@ -94,6 +94,11 @@ describe("order.createFromCart", () => {
     expect(p.status).toBe("pending");
     expect(p.orderId).toBe(out.orderId);
     expect(p.tourId).toBeNull();
+    expect(p.paymentGateway).toBe("stripe");
+    expect(p.gatewayTxnId).toBeTruthy();
+    expect(testPaymentProvider.getIntent(p.gatewayTxnId!)?.clientSecret).toBe(
+      out.clientSecret,
+    );
   });
 
   test("applies ESIM_BUNDLE_10 when eSIM + activity are both in cart", async () => {
@@ -163,6 +168,49 @@ describe("order.confirmPayment", () => {
     await expect(caller.order.confirmPayment({ orderId: out.orderId })).rejects.toMatchObject({
       code: "PRECONDITION_FAILED",
     });
+  });
+
+  test("does not finalize inventory when the provider intent is unpaid", async () => {
+    const host = await createHost();
+    const { activity, slot } = await createActivityWithSlot(host.user.id, 4);
+    const traveler = await createUser();
+    const caller = await callerAs(traveler);
+    await caller.cart.add({
+      kind: "activity",
+      activityId: activity.id,
+      activitySlotId: slot.id,
+      quantity: 2,
+    });
+
+    const out = await caller.order.createFromCart();
+    const [payment] = await getTestDb()
+      .select()
+      .from(payments)
+      .where(eq(payments.id, out.paymentId));
+    testPaymentProvider.setIntentStatus(
+      payment.gatewayTxnId!,
+      "requires_payment_method",
+    );
+
+    await expect(
+      caller.order.confirmPayment({ orderId: out.orderId }),
+    ).rejects.toMatchObject({
+      code: "PRECONDITION_FAILED",
+      message: expect.stringMatching(/not succeeded/i),
+    });
+
+    const db = getTestDb();
+    const [orderAfter] = await db
+      .select()
+      .from(orders)
+      .where(eq(orders.id, out.orderId));
+    expect(orderAfter.status).toBe("pending");
+
+    const [slotAfter] = await db
+      .select()
+      .from(activitySlots)
+      .where(eq(activitySlots.id, slot.id));
+    expect(slotAfter.bookedCount).toBe(0);
   });
 });
 

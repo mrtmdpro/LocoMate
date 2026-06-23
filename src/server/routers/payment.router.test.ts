@@ -9,6 +9,7 @@ import {
   createPayment,
 } from "@/test/fixtures";
 import { getTestDb } from "@/test/setup";
+import { testPaymentProvider } from "@/test/setup";
 import { experiences, payments, tours } from "@/server/db/schema";
 
 describe("payment.createIntent", () => {
@@ -31,6 +32,34 @@ describe("payment.createIntent", () => {
     expect(row.status).toBe("pending");
     expect(row.userId).toBe(traveler.id);
     expect(row.tourId).toBe(tour.id);
+  });
+
+  test("creates the client secret through the configured payment provider", async () => {
+    const traveler = await createUser();
+    const tour = await createTour({ userId: traveler.id, priceAmount: 640_000 });
+    const caller = await callerAs(traveler);
+
+    const intent = await caller.payment.createIntent({
+      tourId: tour.id,
+      paymentMethod: "card",
+    });
+
+    const [row] = await getTestDb()
+      .select()
+      .from(payments)
+      .where(eq(payments.id, intent.paymentId));
+    expect(row.paymentGateway).toBe("stripe");
+    expect(row.gatewayTxnId).toBeTruthy();
+    expect(intent.clientSecret).toBe(
+      testPaymentProvider.getIntent(row.gatewayTxnId!)?.clientSecret,
+    );
+    expect(intent.clientSecret).not.toContain(intent.paymentId.slice(0, 8));
+    expect(testPaymentProvider.getIntent(row.gatewayTxnId!)?.metadata).toMatchObject({
+      paymentId: row.id,
+      tourId: tour.id,
+      userId: traveler.id,
+      kind: "tour",
+    });
   });
 
   test("rejects when caller does not own the tour", async () => {
@@ -114,6 +143,70 @@ describe("payment.confirm", () => {
       .from(experiences)
       .where(eq(experiences.id, exp.id));
     expect(finalExp.totalBookings).toBe(1);
+  });
+
+  test("rejects when the provider intent has not succeeded", async () => {
+    const traveler = await createUser();
+    const tour = await createTour({
+      userId: traveler.id,
+      status: "preview",
+    });
+    const payment = await createPayment({
+      tourId: tour.id,
+      userId: traveler.id,
+      status: "pending",
+      gatewayTxnId: "pi_unpaid_provider",
+      paymentGateway: "stripe",
+    });
+    testPaymentProvider.setIntent({
+      id: "pi_unpaid_provider",
+      clientSecret: "pi_unpaid_provider_secret",
+      status: "requires_payment_method",
+      metadata: { paymentId: payment.id },
+    });
+
+    const caller = await callerAs(traveler);
+    await expect(
+      caller.payment.confirm({ paymentId: payment.id }),
+    ).rejects.toMatchObject({
+      code: "PRECONDITION_FAILED",
+      message: expect.stringMatching(/not succeeded/i),
+    });
+
+    const [paymentAfter] = await getTestDb()
+      .select()
+      .from(payments)
+      .where(eq(payments.id, payment.id));
+    expect(paymentAfter.status).toBe("pending");
+    expect(paymentAfter.paidAt).toBeNull();
+
+    const [tourAfter] = await getTestDb()
+      .select()
+      .from(tours)
+      .where(eq(tours.id, tour.id));
+    expect(tourAfter.status).toBe("preview");
+  });
+
+  test("rejects when a pending payment is missing its provider intent id", async () => {
+    const traveler = await createUser();
+    const tour = await createTour({ userId: traveler.id });
+    const payment = await createPayment({
+      tourId: tour.id,
+      userId: traveler.id,
+      status: "pending",
+    });
+    await getTestDb()
+      .update(payments)
+      .set({ gatewayTxnId: null })
+      .where(eq(payments.id, payment.id));
+
+    const caller = await callerAs(traveler);
+    await expect(
+      caller.payment.confirm({ paymentId: payment.id }),
+    ).rejects.toMatchObject({
+      code: "PRECONDITION_FAILED",
+      message: expect.stringMatching(/missing a provider intent/i),
+    });
   });
 
   test("algorithmic tour (no experienceId) flips to paid but does NOT bump any counter", async () => {
@@ -406,5 +499,59 @@ describe("payment.* with applied coupon", () => {
       .where(eq(coupons.id, c!.id));
     expect(couponRow.redeemedAt).toBeInstanceOf(Date);
     expect(couponRow.redeemedTourId).toBe(targetTour.id);
+  });
+});
+
+describe("payment.refundPartial", () => {
+  test("admin can record a partial refund total", async () => {
+    const admin = await createUser({ role: "admin" });
+    const traveler = await createUser();
+    const tour = await createTour({ userId: traveler.id });
+    const payment = await createPayment({
+      tourId: tour.id,
+      userId: traveler.id,
+      amount: 250_000,
+      refundAmount: 20_000,
+      status: "succeeded",
+    });
+
+    const caller = await callerAs(admin);
+    const result = await caller.payment.refundPartial({
+      paymentId: payment.id,
+      amount: 30_000,
+      reason: "support_adjustment",
+    });
+    expect(result.refundedTotal).toBe(50_000);
+
+    const [after] = await getTestDb()
+      .select()
+      .from(payments)
+      .where(eq(payments.id, payment.id));
+    expect(after.refundAmount).toBe(50_000);
+    expect(after.refundReason).toBe("support_adjustment");
+  });
+
+  test("rejects partial refunds above the original charge", async () => {
+    const admin = await createUser({ role: "admin" });
+    const traveler = await createUser();
+    const tour = await createTour({ userId: traveler.id });
+    const payment = await createPayment({
+      tourId: tour.id,
+      userId: traveler.id,
+      amount: 100_000,
+      refundAmount: 90_000,
+      status: "succeeded",
+    });
+
+    const caller = await callerAs(admin);
+    await expect(
+      caller.payment.refundPartial({
+        paymentId: payment.id,
+        amount: 20_000,
+      }),
+    ).rejects.toMatchObject({
+      code: "PRECONDITION_FAILED",
+      message: expect.stringMatching(/exceed/i),
+    });
   });
 });

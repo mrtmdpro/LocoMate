@@ -17,6 +17,10 @@ import path from "node:path";
 import { beforeAll, afterAll, afterEach } from "vitest";
 import * as schema from "../server/db/schema";
 import { SCHEMA_DDL } from "../../scripts/apply-all-ddl";
+import {
+  createFakePaymentProvider,
+  setPaymentProviderForTests,
+} from "../server/services/payment-gateway";
 
 /**
  * One PGlite instance per Vitest worker, lazily booted. Tests share it via the
@@ -33,6 +37,10 @@ type TestDb = ReturnType<typeof drizzle<Schema>>;
 let pglite: PGlite | undefined;
 let _db: TestDb | undefined;
 
+export const testPaymentProvider = createFakePaymentProvider({
+  defaultStatus: "succeeded",
+});
+
 export function getTestDb(): TestDb {
   if (!_db) {
     throw new Error("Test DB not initialised; ensure setup.ts runs in beforeAll.");
@@ -45,6 +53,7 @@ export function getTestDb(): TestDb {
 // of this file. Anything that doesn't need to be ready at module-load time
 // stays in beforeAll.
 beforeAll(async () => {
+  setPaymentProviderForTests(testPaymentProvider);
   pglite = await PGlite.create();
   _db = drizzle(pglite, { schema });
 
@@ -67,6 +76,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  setPaymentProviderForTests(null);
   await pglite?.close();
   pglite = undefined;
   _db = undefined;
@@ -95,6 +105,9 @@ async function resetDb() {
   ));
 }
 
-afterEach(resetDb);
+afterEach(async () => {
+  testPaymentProvider.reset();
+  await resetDb();
+});
 
 export { resetDb };

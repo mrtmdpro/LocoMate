@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { eq, and, desc, inArray, sql } from "drizzle-orm";
+import { eq, and, desc, inArray } from "drizzle-orm";
 import { router, protectedProcedure, adminProcedure } from "../trpc";
 import {
   orders,
@@ -17,6 +17,8 @@ import { detectConflicts } from "@/lib/cart-conflicts";
 import { tourTimeWindow } from "@/lib/tour-time";
 import { readRequestParams } from "../lib/tour-request-shape";
 import { reapStaleOrders } from "@/server/services/reap-orders";
+import { getPaymentProvider } from "@/server/services/payment-gateway";
+import { finalizeSucceededPayment } from "@/server/services/payment-finalization";
 
 /**
  * Order router. Turns a cart into a paid order.
@@ -29,13 +31,8 @@ import { reapStaleOrders } from "@/server/services/reap-orders";
  *      applies bundle discounts, enforces timeline conflicts. Creates
  *      `orders` row + `order_items`, creates a PENDING `payments` row with
  *      `orderId` set and `tourId` null, clears the cart.
- *   3. order.confirmPayment -> simulates the gateway confirmation. Flips
- *      payment to 'succeeded', order to 'paid', INCREMENTS slot bookedCount,
- *      DECREMENTS variant stock. Both mutations use an atomic conditional
- *      UPDATE (`WHERE booked_count + qty <= capacity`) so two concurrent
- *      confirms on the last seat / last unit can never both win.
- *      Wrapped in a single DB transaction so a partial write never strands
- *      an inconsistent state.
+ *   3. order.confirmPayment -> verifies the provider PaymentIntent succeeded,
+ *      then flips payment/order to paid and commits inventory in one tx.
  *   4. payment.refund (admin) -> reverses the inventory side-effects.
  *
  * Bundle discount: if the cart contains at least one tour/activity AND at
@@ -313,15 +310,47 @@ export const orderRouter = router({
           amount: total,
           currency: "VND",
           paymentMethod: "card",
-          paymentGateway: "stripe_test",
+          paymentGateway: "stripe",
           status: "pending",
         })
         .returning();
 
+      const providerIntent = await getPaymentProvider().createPaymentIntent({
+        amount: total,
+        currency: "VND",
+        description: `LocoMate order ${order.id}`,
+        idempotencyKey: `order-payment:${payment.id}`,
+        metadata: {
+          kind: "order",
+          orderId: order.id,
+          paymentId: payment.id,
+          userId: ctx.user.id,
+        },
+      });
+      if (!providerIntent.clientSecret) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Payment provider did not return a client secret",
+        });
+      }
+
+      await tx
+        .update(payments)
+        .set({
+          gatewayTxnId: providerIntent.id,
+          updatedAt: new Date(),
+        })
+        .where(eq(payments.id, payment.id));
+
       // Clear the cart only after payment record exists.
       await tx.delete(cartItems).where(eq(cartItems.userId, ctx.user.id));
 
-      return { orderId: order.id, paymentId: payment.id, totalVnd: total };
+      return {
+        orderId: order.id,
+        paymentId: payment.id,
+        totalVnd: total,
+        clientSecret: providerIntent.clientSecret,
+      };
     });
   }),
 
@@ -335,91 +364,44 @@ export const orderRouter = router({
   confirmPayment: protectedProcedure
     .input(z.object({ orderId: z.string().uuid() }))
     .mutation(async ({ ctx, input }) => {
-      return ctx.db.transaction(async (tx) => {
-        const order = await tx.query.orders.findFirst({
-          where: and(eq(orders.id, input.orderId), eq(orders.userId, ctx.user.id)),
-        });
-        if (!order) throw new TRPCError({ code: "NOT_FOUND" });
-        if (order.status !== "pending") {
-          throw new TRPCError({ code: "PRECONDITION_FAILED", message: "Order already processed" });
-        }
-
-        const [payment] = await tx
-          .select()
-          .from(payments)
-          .where(and(eq(payments.orderId, input.orderId), eq(payments.status, "pending")));
-        if (!payment) {
-          throw new TRPCError({ code: "PRECONDITION_FAILED", message: "No pending payment" });
-        }
-
-        // Decrement slot capacity + variant stock for each line.
-        const lines = await tx
-          .select()
-          .from(orderItems)
-          .where(eq(orderItems.orderId, order.id));
-
-        for (const line of lines) {
-          if (line.kind === "activity" && line.activitySlotId) {
-            const [slot] = await tx
-              .update(activitySlots)
-              .set({
-                bookedCount: sql`${activitySlots.bookedCount} + ${line.quantity}`,
-              })
-              .where(and(
-                eq(activitySlots.id, line.activitySlotId),
-                sql`${activitySlots.bookedCount} + ${line.quantity} <= ${activitySlots.capacity}`,
-              ))
-              .returning();
-            if (!slot) {
-              throw new TRPCError({
-                code: "PRECONDITION_FAILED",
-                message: "A slot sold out before you could confirm. Refreshing cart.",
-              });
-            }
-            // Flip to sold_out if this booking filled it.
-            if (slot.bookedCount >= slot.capacity) {
-              await tx
-                .update(activitySlots)
-                .set({ status: "sold_out" })
-                .where(eq(activitySlots.id, line.activitySlotId));
-            }
-          } else if (line.kind === "merch" && line.productVariantId) {
-            const [variant] = await tx
-              .update(productVariants)
-              .set({
-                stockQuantity: sql`${productVariants.stockQuantity} - ${line.quantity}`,
-              })
-              .where(and(
-                eq(productVariants.id, line.productVariantId),
-                sql`${productVariants.stockQuantity} >= ${line.quantity}`,
-              ))
-              .returning();
-            if (!variant) {
-              throw new TRPCError({
-                code: "PRECONDITION_FAILED",
-                message: "A product sold out before you could confirm.",
-              });
-            }
-          }
-        }
-
-        await tx
-          .update(payments)
-          .set({
-            status: "succeeded",
-            paidAt: new Date(),
-            gatewayTxnId: `txn_test_${Date.now()}`,
-            updatedAt: new Date(),
-          })
-          .where(eq(payments.id, payment.id));
-
-        await tx
-          .update(orders)
-          .set({ status: "paid", paidAt: new Date(), updatedAt: new Date() })
-          .where(eq(orders.id, order.id));
-
-        return { orderId: order.id, paymentId: payment.id };
+      const order = await ctx.db.query.orders.findFirst({
+        where: and(eq(orders.id, input.orderId), eq(orders.userId, ctx.user.id)),
       });
+      if (!order) throw new TRPCError({ code: "NOT_FOUND" });
+      if (order.status !== "pending") {
+        throw new TRPCError({ code: "PRECONDITION_FAILED", message: "Order already processed" });
+      }
+
+      const [payment] = await ctx.db
+        .select()
+        .from(payments)
+        .where(and(eq(payments.orderId, input.orderId), eq(payments.status, "pending")));
+      if (!payment) {
+        throw new TRPCError({ code: "PRECONDITION_FAILED", message: "No pending payment" });
+      }
+      if (!payment.gatewayTxnId) {
+        throw new TRPCError({
+          code: "PRECONDITION_FAILED",
+          message: "Payment is missing a provider intent",
+        });
+      }
+
+      const providerIntent = await getPaymentProvider().retrievePaymentIntent(
+        payment.gatewayTxnId,
+      );
+      if (providerIntent.status !== "succeeded") {
+        throw new TRPCError({
+          code: "PRECONDITION_FAILED",
+          message: "Provider payment has not succeeded",
+        });
+      }
+
+      const finalized = await finalizeSucceededPayment(
+        ctx.db,
+        payment.id,
+        providerIntent.id,
+      );
+      return { orderId: finalized.orderId ?? order.id, paymentId: payment.id };
     }),
 
   /**

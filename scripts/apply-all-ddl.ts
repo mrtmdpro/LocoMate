@@ -221,8 +221,13 @@ export const SCHEMA_DDL: string[] = [
   `CREATE INDEX IF NOT EXISTS idx_order_items_order ON order_items(order_id)`,
   `CREATE INDEX IF NOT EXISTS idx_order_items_activity_slot ON order_items(activity_slot_id)`,
 
-  // payments gains order_id + relaxes tour_id NOT NULL.
+  // payments gains order_id + relaxes tour_id NOT NULL. Tour-linked payments
+  // are audit records, so deleting a tour must null the link, not delete money
+  // movement history.
   `ALTER TABLE payments ALTER COLUMN tour_id DROP NOT NULL`,
+  `ALTER TABLE payments DROP CONSTRAINT IF EXISTS payments_tour_id_tours_id_fk`,
+  `ALTER TABLE payments ADD CONSTRAINT payments_tour_id_tours_id_fk
+     FOREIGN KEY (tour_id) REFERENCES tours(id) ON DELETE SET NULL`,
   `ALTER TABLE payments ADD COLUMN IF NOT EXISTS order_id UUID UNIQUE REFERENCES orders(id) ON DELETE CASCADE`,
 
   // Chat overhaul (see scripts/create-chat-features.ts). Mirrors the

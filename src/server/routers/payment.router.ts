@@ -1,12 +1,11 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { eq, and, desc, isNull, sql } from "drizzle-orm";
+import { eq, desc, sql } from "drizzle-orm";
 import { router, protectedProcedure, adminProcedure } from "../trpc";
 import {
   payments,
   tours,
   experiences,
-  fixedTours,
   orders,
   orderItems,
   activitySlots,
@@ -14,6 +13,8 @@ import {
   coupons,
 } from "../db/schema";
 import { rateLimit } from "../services/chat-ratelimit";
+import { getPaymentProvider } from "../services/payment-gateway";
+import { finalizeSucceededPayment } from "../services/payment-finalization";
 import { TOUR_PRICING } from "@/lib/pricing";
 import { COUPON_CODE_REGEX } from "@/lib/coupon-format";
 
@@ -73,27 +74,56 @@ export const paymentRouter = router({
         appliedCouponId = coupon.id;
       }
 
-      const [payment] = await ctx.db
-        .insert(payments)
-        .values({
-          tourId: input.tourId,
-          userId: ctx.user.id,
+      return ctx.db.transaction(async (tx) => {
+        const [payment] = await tx
+          .insert(payments)
+          .values({
+            tourId: input.tourId,
+            userId: ctx.user.id,
+            amount,
+            currency: TOUR_PRICING.currency,
+            paymentMethod: input.paymentMethod,
+            paymentGateway: "stripe",
+            status: "pending",
+            appliedCouponId,
+          })
+          .returning();
+
+        const providerIntent = await getPaymentProvider().createPaymentIntent({
           amount,
           currency: TOUR_PRICING.currency,
-          paymentMethod: input.paymentMethod,
-          paymentGateway: "stripe_test",
-          status: "pending",
-          appliedCouponId,
-        })
-        .returning();
+          description: `LocoMate tour ${input.tourId}`,
+          idempotencyKey: `tour-payment:${payment.id}`,
+          metadata: {
+            kind: "tour",
+            paymentId: payment.id,
+            tourId: input.tourId,
+            userId: ctx.user.id,
+          },
+        });
+        if (!providerIntent.clientSecret) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Payment provider did not return a client secret",
+          });
+        }
 
-      return {
-        paymentId: payment.id,
-        amount: payment.amount,
-        currency: payment.currency,
-        clientSecret: `pi_test_${payment.id.slice(0, 8)}_secret`,
-        appliedCouponId,
-      };
+        await tx
+          .update(payments)
+          .set({
+            gatewayTxnId: providerIntent.id,
+            updatedAt: new Date(),
+          })
+          .where(eq(payments.id, payment.id));
+
+        return {
+          paymentId: payment.id,
+          amount: payment.amount,
+          currency: payment.currency,
+          clientSecret: providerIntent.clientSecret,
+          appliedCouponId,
+        };
+      });
     }),
 
   confirm: protectedProcedure
@@ -120,115 +150,28 @@ export const paymentRouter = router({
           message: "Use order.confirmPayment for order-based payments",
         });
       }
-      const legacyTourId = payment.tourId;
-
-      // If this payment is for an experience-backed tour, re-check the
-      // experience is still published. Archived/rejected listings cannot
-      // accept new bookings -- the host already declined new sales.
-      //
-      // Same defensive check applies to Fixed-Tour-backed bookings: if
-      // ops set isActive=false between booking and payment (e.g. seasonal
-      // pause, content rewrite), the charge must fail loudly before money
-      // moves.
-      const tourBefore = await ctx.db.query.tours.findFirst({
-        where: eq(tours.id, legacyTourId),
-      });
-      if (tourBefore?.experienceId) {
-        const exp = await ctx.db.query.experiences.findFirst({
-          where: eq(experiences.id, tourBefore.experienceId),
+      if (!payment.gatewayTxnId) {
+        throw new TRPCError({
+          code: "PRECONDITION_FAILED",
+          message: "Payment is missing a provider intent",
         });
-        if (!exp || exp.status !== "published") {
-          throw new TRPCError({
-            code: "PRECONDITION_FAILED",
-            message: "This experience is no longer available. Please book another.",
-          });
-        }
-      } else if (tourBefore?.fixedTourId) {
-        const ft = await ctx.db.query.fixedTours.findFirst({
-          where: eq(fixedTours.tourId, tourBefore.fixedTourId),
+      }
+      const providerIntent = await getPaymentProvider().retrievePaymentIntent(
+        payment.gatewayTxnId,
+      );
+      if (providerIntent.status !== "succeeded") {
+        throw new TRPCError({
+          code: "PRECONDITION_FAILED",
+          message: "Provider payment has not succeeded",
         });
-        if (!ft || !ft.isActive) {
-          throw new TRPCError({
-            code: "PRECONDITION_FAILED",
-            message: "This Fixed Tour is no longer available. Please book another.",
-          });
-        }
       }
 
-      // Wrap payment confirmation + tour status flip + experience booking
-      // counter in a single transaction so the host dashboard can never show
-      // "succeeded payment / preview tour" on a partial write (closes
-      // FOLLOW-01 from docs/TODO.md).
-      return ctx.db.transaction(async (tx) => {
-        const updated = await tx
-          .update(payments)
-          .set({
-            status: "succeeded",
-            gatewayTxnId: `txn_test_${Date.now()}`,
-            paidAt: new Date(),
-            updatedAt: new Date(),
-          })
-          .where(and(eq(payments.id, input.paymentId), eq(payments.status, "pending")))
-          .returning();
-        if (updated.length === 0) {
-          throw new TRPCError({
-            code: "PRECONDITION_FAILED",
-            message: "Payment already processed",
-          });
-        }
-
-        const [tour] = await tx
-          .update(tours)
-          .set({ status: "paid", updatedAt: new Date() })
-          .where(eq(tours.id, legacyTourId))
-          .returning({
-            id: tours.id,
-            experienceId: tours.experienceId,
-          });
-
-        // Atomic coupon redemption. The conditional UPDATE
-        // (`WHERE ... AND redeemed_at IS NULL`) is the race-loser
-        // guard: two concurrent confirm() calls trying to spend the
-        // same coupon — at most one's UPDATE returns a row, the other
-        // gets an empty RETURNING and we throw, rolling back the
-        // surrounding transaction (no money charged because the
-        // payment UPDATE rolls back too).
-        //
-        // Same shape the booking layer uses for activity_slots
-        // last-seat-wins concurrency (see BOOKING.md).
-        if (updated[0].appliedCouponId) {
-          const redeemed = await tx
-            .update(coupons)
-            .set({
-              redeemedAt: new Date(),
-              redeemedTourId: legacyTourId,
-            })
-            .where(
-              and(
-                eq(coupons.id, updated[0].appliedCouponId),
-                isNull(coupons.redeemedAt),
-              ),
-            )
-            .returning({ id: coupons.id });
-          if (redeemed.length === 0) {
-            throw new TRPCError({
-              code: "PRECONDITION_FAILED",
-              message: "coupon:REDEEMED_CONCURRENTLY",
-            });
-          }
-        }
-
-        // Experience-backed tours bump the public booking counter so the
-        // marketplace surface can sort by popularity honestly.
-        if (tour?.experienceId) {
-          await tx
-            .update(experiences)
-            .set({ totalBookings: sql`${experiences.totalBookings} + 1` })
-            .where(eq(experiences.id, tour.experienceId));
-        }
-
-        return { success: true, tourId: payment.tourId };
-      });
+      const finalized = await finalizeSucceededPayment(
+        ctx.db,
+        input.paymentId,
+        providerIntent.id,
+      );
+      return { success: true, tourId: finalized.tourId };
     }),
 
   /**

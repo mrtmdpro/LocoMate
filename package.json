@@ -32,7 +32,7 @@
     "@trpc/server": "^11.13.0",
     "@upstash/ratelimit": "^2.0.8",
     "@upstash/redis": "^1.37.0",
-    "@vercel/blob": "^2.3.3",
+    "@vercel/blob": "^2.4.1",
     "ai": "^6.0.191",
     "arctic": "^3.7.0",
     "bcryptjs": "^3.0.3",
@@ -47,16 +47,15 @@
     "jsonwebtoken": "^9.0.3",
     "leaflet": "^1.9.4",
     "lucide-react": "^1.7.0",
-    "next": "16.2.2",
+    "next": "16.2.9",
     "next-intl": "^4.12.0",
     "next-themes": "^0.4.6",
     "postgres": "^3.4.9",
-    "react": "19.2.4",
-    "react-dom": "19.2.4",
+    "react": "19.2.7",
+    "react-dom": "19.2.7",
     "react-hook-form": "^7.72.1",
     "react-leaflet": "^5.0.0",
     "recharts": "^3.8.1",
-    "shadcn": "^4.1.2",
     "sonner": "^2.0.7",
     "stripe": "^22.0.0",
     "tailwind-merge": "^3.5.0",
@@ -79,11 +78,20 @@
     "@vitest/coverage-v8": "^4.1.4",
     "drizzle-kit": "^0.31.10",
     "eslint": "^9",
-    "eslint-config-next": "16.2.2",
+    "eslint-config-next": "16.2.9",
     "happy-dom": "^20.9.0",
+    "shadcn": "^4.11.0",
     "tailwindcss": "^4",
     "tsx": "^4.21.0",
     "typescript": "^5",
     "vitest": "^4.1.4"
+  },
+  "pnpm": {
+    "overrides": {
+      "@babel/core": "7.29.6",
+      "postcss": "8.5.15",
+      "undici": "6.27.0",
+      "ws": "8.21.0"
+    }
   }
 }
